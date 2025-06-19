@@ -1,198 +1,451 @@
+<?php session_start(); ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Mode</title>
-    <style>
-        body {
-            text-align: center;
-            background: #f4f4f4;
-            font-family: Arial, sans-serif;
-            padding: 50px;
-            height: 100vh;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-
-        p {
-            color: #666;
-            text-align: center;
-        }
-
-        .maintenance-message {
-            margin: 0 auto;
-            padding: 20px;
-            height: 1080px;
-            max-height: 60vh;
-        }
-    </style>
-
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="ssheet.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In & Sign Up</title>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
-<!-- Content Start -->
 <body>
-    <nav class="navbar">
-        <a href="index.php" class="logo-link">
-            <div class="logo">
-                <!-- Image logo -->
-                <img src="img/Logo.png" alt="Logo" class="logo-img">
-                <!-- Logo Text -->
-                <div class="logo-text">
-                    <span class="logo-text1">Thisara</span>
-                    <span class="logo-text2">Travels & Tours</span>
-                </div>
+  <div class="container">
+    <div class="forms-container">
+      <div class="signIn-signUp">
+        <form action="loginsingupbackend.php" method="POST" class="sign-in-form">
+          <input type="hidden" name="login" value="1">
+          <h2 class="title">Sign In</h2>
+
+          <div class="input-field-container">
+            <div class="input-field">
+              <i class='bx bx-user'></i>
+              <input type="text" name="username" placeholder="User Name" required>
             </div>
-        </a>
-        <ul class="nav-links">
-            <li><a href="index.php" class="active-link" data-page="home">HOME</a></li>
-            <li><a href="about.php" data-page="about">ABOUT</a></li>
-            <li><a href="service.php" data-page="services">SERVICES</a></li>
-            <li class="dropdown">
-                <a data-page="pages">PAGES <i class="fas fa-chevron-down dropdown-icon"></i></a>
-                <ul class="dropdown-menu">
-                    <li><a href="booking.php" data-page="booking">BOOKING</a></li>
-                    <li><a href="testimonial.php" data-page="testimonial">TESTIMONIAL</a></li>
-                </ul>
-            </li>
-            <li><a href="contact.php" data-page="contact">CONTACT</a></li>
-            <li class="navbar-login-item">
-                <?php
-                if (!isset($_SESSION['username'])) {
-                    echo '<a href="login.php" class="navbar-login-button" title="Login">
-                    <img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle">
-                  </a>';
-                } else {
-                    $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
-                    $user_role = $_SESSION['role'] ?? 'user';
-                    $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'user_dashboard.php';
+            <?php if (isset($_SESSION['error_login_username'])): ?>
+              <p class="error-message"><?php echo $_SESSION['error_login_username']; ?></p>
+              <?php unset($_SESSION['error_login_username']); endif; ?>
+          </div>
 
-                    echo '<a href="' . $redirect_url . '" class="navbar-profile-button" title="Profile">
-                    <img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle">
-                  </a>';
-                }
-                ?>
-            </li>
-        </ul>
+          <div class="input-field-container">
+            <div class="input-field">
+              <i class='bx bx-lock-alt'></i>
+              <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <?php if (isset($_SESSION['error_login_password'])): ?>
+              <p class="error-message"><?php echo $_SESSION['error_login_password']; ?></p>
+              <?php unset($_SESSION['error_login_password']); endif; ?>
+          </div>
 
-        <div class="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </nav>
-    <div class="maintenance-message">
-        <h1>We’ll Be Right Back!</h1>
-        <p>Our website is undergoing maintenance. Please check back later.</p>
+          <input type="submit" value="Log In" class="btn solid">
+          <!-- Forgot Password Link -->
+          <a href="forgot_password.php" class="forgot-password">Forgot Password?</a>
+          <p class="social-text">Or Sign in with social platforms</p>
+          <div class="social-media">
+            <a href="#" class="social-icon">
+              <i class="bx bxl-google"></i>
+            </a>
+          </div>
+        </form>
+
+        <form action="loginsingupbackend.php" method="POST" class="sign-up-form">
+          <input type="hidden" name="signup" value="1"> <!-- Hidden input to mark this as a signup form -->
+          <h2 class="title">Sign Up</h2>
+
+          <div class="input-field-container">
+            <div class="input-field">
+              <i class='bx bx-user'></i>
+              <input type="text" name="username" placeholder="User Name" required>
+            </div>
+            <?php if (isset($_SESSION['error_username'])): ?>
+              <p class="error-message"><?php echo $_SESSION['error_username']; ?></p>
+              <?php unset($_SESSION['error_username']); endif; ?>
+          </div>
+
+          <div class="input-field-container">
+            <div class="input-field">
+              <i class='bx bx-envelope'></i>
+              <input type="email" name="email" placeholder="Email" required>
+            </div>
+            <?php if (isset($_SESSION['error_email'])): ?>
+              <p class="error-message"><?php echo $_SESSION['error_email']; ?></p>
+              <?php unset($_SESSION['error_email']); endif; ?>
+          </div>
+
+          <div class="input-field-container">
+            <div class="input-field">
+              <i class='bx bx-lock-alt'></i>
+              <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <?php if (isset($_SESSION['error_password'])): ?>
+              <p class="error-message"><?php echo $_SESSION['error_password']; ?></p>
+              <?php unset($_SESSION['error_password']); endif; ?>
+          </div>
+
+          <input type="submit" value="Sign Up" class="btn solid">
+          <p class="social-text">Or Sign up with social platforms</p>
+          <div class="social-media">
+            <a href="#" class="social-icon">
+              <i class="bx bxl-google"></i>
+            </a>
+          </div>
+        </form>
+
+      </div>
     </div>
+    <div class="panels-container">
+      <div class="panel left-panel">
+        <div class="content">
+          <h3>New Here ?</h3>
+          <p>Welcome to Thisara Travels & Tours... Please enter your username and password to access your account. If
+            you
+            don't have an account yet, you can sign up for free.</p>
+          <button class="btn transparent" id="sign-up-btn">Sign up</button>
+        </div>
+      </div>
+      <div class="panel right-panel">
+        <div class="content">
+          <h3>One of Us?</h3>
+          <p>Welcome to our platform! Please enter your username and password to access your account. If you
+            don't have an account yet, you can sign up for free.</p>
+          <button class="btn transparent" id="sign-in-btn">Sign in</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      font-family: "Popping", sans-serif;
+      text-decoration: none;
+    }
+
+    .forgot-password {
+      margin-top: 1rem;
+      color: #0ef;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 0.875rem;
+      margin-left: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+
+    .container {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      background-color: #fff;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(-45deg, #0ef, #4481ed);
+      top: 0;
+      left: 0;
+      border-radius: 0;
+      z-index: 6;
+    }
+
+    .forms-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+
+    .signIn-signUp {
+      position: absolute;
+      top: 50%;
+      left: 75%;
+      transform: translate(-50%, -50%);
+      width: 50%;
+      display: grid;
+      grid-template-columns: 1fr;
+      z-index: 5;
+    }
+
+    form {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 0 5rem;
+      overflow: hidden;
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+    }
+
+    form.sign-in-form {
+      z-index: 2;
+    }
+
+    form.sign-up-form {
+      z-index: 1;
+      opacity: 0;
+    }
+
+    .title {
+      font-size: 2.2rem;
+      color: #444;
+      margin-bottom: 10px;
+    }
+
+    .input-field {
+      max-width: 380px;
+      width: 100%;
+      height: 55px;
+      background-color: #f0f0f0;
+      margin: 10px 0;
+      border-radius: 55px;
+      display: flex;
+      grid-template-columns: 15% 85%;
+      padding: 0.4rem;
+      align-items: center;
+      flex-grow: 1;
+      /* Allow input field to take available space */
+
+    }
+
+    .input-field i {
+      text-align: center;
+      line-height: 40px;
+      color: #acacac;
+      font-size: 1.5rem;
+    }
+
+    .input-field input {
+      background: none;
+      outline: none;
+      border: none;
+      line-height: 1;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #333;
+      flex: 1;
+      /* Allow input field to take available space */
+    }
+
+    .input-field input::placeholder {
+      color: #807f7f;
+      font-weight: 400;
+    }
+
+    .btn {
+      width: 150px;
+      height: 49px;
+      border: none;
+      outline: none;
+      border-radius: 49px;
+      cursor: pointer;
+      background-color: #FBDC5C;
+      color: #000;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+
+    .btn:hover {
+      background-color: #20DF0A;
+      color: #fff;
+    }
+
+    .social-text {
+      padding: 0.7rem 0;
+      font-size: 1rem;
+    }
+
+    .social-media {
+      display: flex;
+      justify-content: center;
+    }
+
+    .social-icon {
+      height: 46px;
+      width: 46px;
+      border: 1px solid #333;
+      margin: 0 0.45rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+      font-size: 1.1rem;
+      border-radius: 50%;
+    }
+
+    .social-icon:hover {
+      background: #D81324;
+      color: #fff;
+      border: none;
+    }
+
+    .panels-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-around;
+      text-align: center;
+      z-index: 7;
+    }
+
+    .left-panel {
+      pointer-events: all;
+      padding: 3rem 17% 2rem 12%;
+    }
+
+    .right-panel {
+      pointer-events: none;
+      padding: 3rem 12% 2rem 17%;
+    }
+
+    .panel .content {
+      color: #fff;
+    }
+
+    .panel h3 {
+      font-weight: 600;
+      line-height: 1;
+      font-size: 1.5rem;
+    }
+
+    .panel p {
+      font-size: 0.95rem;
+      padding: 0.7rem 0;
+    }
+
+    .btn.transparent {
+      margin: 0;
+      background: none;
+      border: 2px solid #fff;
+      width: 130px;
+      height: 41px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .img {
+      width: 100%;
+      transition: 0.3s 0.3s ease-in-out;
+    }
+
+    .right-panel .content,
+    .right-panel .img {
+      transform: translateX(800px);
+    }
+
+    .container.sign-up-mode::before {
+      left: auto;
+      right: 0;
+    }
+
+    .container.sign-up-mode .left-panel .img,
+    .container.sign-up-mode .left-panel .content {
+      transform: translateX(-800px);
+    }
+
+    .container.sign-up-mode .right-panel .content,
+    .container.sign-up-mode .right-panel .img {
+      transform: translateX(0px);
+    }
+
+    .container.sign-up-mode .left-panel {
+      pointer-events: none;
+    }
+
+    .container.sign-up-mode .right-panel {
+      pointer-events: all;
+    }
+
+    .container.sign-up-mode .signIn-signUp {
+      left: 25%;
+    }
+
+    .container.sign-up-mode form.sign-in-form {
+      z-index: 1;
+      opacity: 0;
+    }
+
+    .container.sign-up-mode form.sign-up-form {
+      z-index: 2;
+      opacity: 1;
+    }
+  </style>
+
+
+  <script>
+    const sign_in = document.querySelector("#sign-in-btn");
+    const sign_up = document.querySelector("#sign-up-btn");
+    const container = document.querySelector(".container");
+
+    sign_up.addEventListener('click', () => {
+      container.classList.add('sign-up-mode');
+    });
+
+    sign_in.addEventListener('click', () => {
+      container.classList.remove('sign-up-mode');
+    });
+
+  </script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Get all input fields
+      const inputs = document.querySelectorAll('.input-field-container input');
+
+      // Add input event listener to each field
+      inputs.forEach(input => {
+        input.addEventListener('input', function () {
+          // Get the parent .input-field-container element
+          const parentField = input.closest('.input-field-container');
+
+          // Check if there is an error message
+          const errorMessage = parentField.querySelector('.error-message');
+          if (errorMessage) {
+            // Hide the error message
+            errorMessage.style.display = 'none';
+          }
+        });
+      });
+    });
+
+
+
+
+
+  </script>
 </body>
-<!-- Content End -->
-
-<!-- Footer Start -->
-<div class="container-fluid bg-dark text-light footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
-    <div class="container">
-        <div class="copyright">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0 ">
-                    &copy; <a class="border-bottom " href="index.php">Thisara Travels & Tours</a>, All Right Reserved.
-                    Designed By <a class="border-bottom text-decoration-none" href="">WebWizards</a>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">Home</a>
-                        <a href="#" onclick="openCookieSettings()">Cookies</a>
-                        <a href="#">Help</a>
-                        <a href="#">FQAs</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Footer End -->
-
-
-
-<script>
-    // Get the current page URL path
-    const currentPage = window.location.pathname.split('/').pop(); // Extracts the filename
-
-    // Select all navigation links
-    const navLinks = document.querySelectorAll('.nav-links a');
-
-    // Loop through links to find the matching page
-    navLinks.forEach(link => {
-        // Check if the href of the link matches the current page
-        if (link.getAttribute('href') === currentPage) {
-            link.classList.add('active-link'); // Add the active class
-        } else {
-            link.classList.remove('active-link'); // Remove the active class from others
-        }
-    });
-    document.addEventListener("DOMContentLoaded", function () {
-        const hamburger = document.querySelector('.hamburger'); // Hamburger menu
-        const navLinks = document.querySelector('.nav-links'); // Navigation links
-        const header = document.querySelector('.custom-page-header'); // Page header
-
-        // Toggle menu function
-        function toggleMenu() {
-            navLinks.classList.toggle('active'); // Toggle menu visibility
-            toggleIcon(); // Toggle hamburger/close icon
-            adjustHeaderMargin(); // Adjust header margin
-        }
-
-        // Toggle hamburger/close icon
-        function toggleIcon() {
-            if (navLinks.classList.contains('active')) {
-                hamburger.classList.add('close-icon'); // Show close icon
-            } else {
-                hamburger.classList.remove('close-icon'); // Show hamburger icon
-            }
-        }
-
-        // Adjust header margin based on menu state
-        function adjustHeaderMargin() {
-            if (navLinks.classList.contains('active')) {
-                const navHeight = navLinks.scrollHeight; // Get dropdown height
-                header.style.marginTop = `${navHeight}px`; // Push header down
-            } else {
-                header.style.marginTop = '0'; // Reset header position
-            }
-        }
-
-        // Close menu when clicking outside
-        function closeMenu(event) {
-            if (!navLinks.contains(event.target) && !hamburger.contains(event.target)) {
-                navLinks.classList.remove('active'); // Hide menu
-                hamburger.classList.remove('close-icon'); // Reset icon to hamburger
-                adjustHeaderMargin(); // Reset header margin
-            }
-        }
-
-        // Reset menu and header margin based on screen size
-        function handleResize() {
-            if (window.innerWidth > 768) { // For larger screens
-                navLinks.classList.remove('active'); // Hide dropdown menu
-                hamburger.classList.remove('close-icon'); // Reset close icon
-                header.style.marginTop = '0'; // Reset header margin
-            } else {
-                header.style.marginTop = '0'; // Ensure header resets properly
-            }
-        }
-
-        // Event listeners
-        hamburger.addEventListener('click', toggleMenu); // Toggle menu on click
-        document.addEventListener('click', closeMenu); // Close menu on outside click
-        window.addEventListener('resize', handleResize); // Reset on resize
-    });
-</script>
 
 </html>
