@@ -4,8 +4,8 @@ require 'vendor/autoload.php'; // Ensure Composer's autoload is included
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-$uri = "mongodb+srv://isuru9917:MRIU1999@thisaratravels.vjuro.mongodb.net/?retryWrites=true&w=majority&appName=ThisaraTravels"; 
-$databaseName = "ThisaraTravels"; 
+$uri = "mongodb+srv://ThisaraTravels:ThisaraTravels071@thisaratravels.vjuro.mongodb.net/?retryWrites=true&w=majority&appName=ThisaraTravels";
+$databaseName = "ThisaraTravels";
 
 // Enable error reporting to display PHP errors
 error_reporting(E_ALL);
@@ -60,6 +60,7 @@ try {
             if (empty($_SESSION['error_username']) && empty($_SESSION['error_email']) && empty($_SESSION['error_password'])) {
                 // Hash the password
                 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+                error_log("Hashed Password: " . $hashedPassword); // Log the hashed password for debugging
 
                 // Generate OTP (6-digit random number)
                 $otp = rand(100000, 999999);
@@ -87,7 +88,10 @@ try {
 
                 // Send the email and check for success
                 if (!$mail->send()) {
+                    error_log("Mailer Error: " . $mail->ErrorInfo);
                     $_SESSION['error'] = 'Mailer Error: ' . $mail->ErrorInfo; // Capture any errors
+                    error_log("MAIL SEND RESULT: " . $mail->ErrorInfo);
+                    header("Location: login.php");
                 } else {
                     // Insert the new user but mark them as unverified
                     $document = [
@@ -99,11 +103,10 @@ try {
                         'role' => 'user', // Default role is 'user'
                         'date' => date("Y-m-d")
                     ];
-                    // output document to console
-                    echo "Document to insert: " . json_encode($document) . "\n"; // Debugging output
 
                     // Attempt to insert the document and check for success
                     $insertResult = $collection->insertOne($document);
+                    error_log("Insert Result: " . print_r($insertResult, true));
 
                     // Check if the insertion was successful
                     if ($insertResult->getInsertedCount() === 1) {
@@ -112,6 +115,7 @@ try {
                         $_SESSION['email'] = $email; // Store email in session
 
                         // Redirect to the OTP verification page
+                        error_log("Redirecting to submit_otp.php for OTP verification.");
                         header("Location: submit_otp.php");
                         exit;
                     } else {
@@ -145,7 +149,7 @@ try {
                     $_SESSION['error_login_username'] = "Username not found.";
                 } elseif (!password_verify($password, $user['Password'])) {
                     $_SESSION['error_login_password'] = "Incorrect password.";
-                } 
+                }
 
                 // If no errors, proceed with login
                 if (empty($_SESSION['error_login_username']) && empty($_SESSION['error_login_password'])) {
@@ -159,7 +163,7 @@ try {
                     // Store username, user ID, and profile photo in the session after successful login
                     $_SESSION['username'] = $user['UserName'];
                     $_SESSION['role'] = $user['role'];
-                    $_SESSION['user_id'] = (string)$user['_id'];
+                    $_SESSION['user_id'] = (string) $user['_id'];
                     $_SESSION['profile_image'] = isset($user['ProfilePhoto']) ? $user['ProfilePhoto'] : 'img/default_profile.png'; // Set profile photo or default
 
                     // Redirect based on role
@@ -176,7 +180,7 @@ try {
             // Redirect back to the form if errors
             header("Location: login.php");
             exit;
-        } 
+        }
     }
 } catch (Exception $e) {
     die("Connection error: " . $e->getMessage());

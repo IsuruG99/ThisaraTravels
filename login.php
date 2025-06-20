@@ -11,7 +11,15 @@
 </head>
 
 <body>
-  <div class="container">
+  <?php if (isset($_SESSION['error'])): ?>
+    <p class="error-message"><?php echo $_SESSION['error']; ?></p>
+    <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
+  <div class="container <?php echo (
+  isset($_SESSION['error_username']) || 
+  isset($_SESSION['error_email']) || 
+  isset($_SESSION['error_password']) 
+) ? 'sign-up-mode' : ''; ?>">
     <div class="forms-container">
       <div class="signIn-signUp">
         <form action="loginsingupbackend.php" method="POST" class="sign-in-form">

@@ -8,6 +8,9 @@ use PHPMailer\PHPMailer\Exception;
 $uri = "mongodb+srv://ThisaraTravels:ThisaraTravels071@thisaratravels.vjuro.mongodb.net/?retryWrites=true&w=majority&appName=ThisaraTravels"; 
 $databaseName = "ThisaraTravels"; 
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 session_start(); // Start the session to access OTP, email, and track OTP attempts
 
 // Initialize OTP attempts count if not set
