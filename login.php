@@ -50,8 +50,8 @@
           <!-- Forgot Password Link -->
           <a href="forgot_password.php" class="forgot-password">Forgot Password?</a>
           <p class="social-text">Or Sign in with social platforms</p>
-          <div class="social-media">
-            <a href="#" class="social-icon">
+          <div class="social-media google-signin">
+            <a href="google-login.php?mode=signup" class="social-icon">
               <i class="bx bxl-google"></i>
             </a>
           </div>
@@ -93,8 +93,8 @@
 
           <input type="submit" value="Sign Up" class="btn solid">
           <p class="social-text">Or Sign up with social platforms</p>
-          <div class="social-media">
-            <a href="#" class="social-icon">
+          <div class="social-media google-signup">
+            <a href="google-login.php?mode=signin" class="social-icon">
               <i class="bx bxl-google"></i>
             </a>
           </div>
