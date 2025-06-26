@@ -57,6 +57,12 @@ try {
 </head>
 <body>
 
+<?php if (isset($_GET['success'])): ?>
+<div class="alert alert-success text-center"><?= htmlspecialchars($_GET['success']) ?></div>
+<?php elseif (isset($_GET['error'])): ?>
+<div class="alert alert-danger text-center"><?= htmlspecialchars($_GET['error']) ?></div>
+<?php endif; ?>
+
 <!-- Spinner -->
 <div id="spinner" style="display: flex;" class="bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
     <div class="spinner-border text-primary" role="status"></div>
@@ -112,7 +118,6 @@ try {
 
 <!-- Testimonials -->
 <div class="container text-center">
-    
     <h1 class="mb-5">Our Clients Say!</h1>
 </div>
 
@@ -141,6 +146,31 @@ try {
     <p class="text-center">No reviews available.</p>
 <?php endif; ?>
 
+<!-- Review Form -->
+<?php if (isset($_SESSION['username'])): ?>
+<div class="container my-5">
+    <h4 class="text-center mb-3">Leave a Review</h4>
+    <form action="submit_review.php" method="POST" class="p-4 border rounded bg-light">
+        <div class="mb-3">
+            <label for="rating" class="form-label">Rating</label><br>
+            <?php for ($i = 5; $i >= 1; $i--): ?>
+                <input type="radio" name="rating" id="star<?= $i ?>" value="<?= $i ?>" required>
+                <label for="star<?= $i ?>">★</label>
+            <?php endfor; ?>
+        </div>
+        <div class="mb-3">
+            <label for="comment" class="form-label">Comment</label>
+            <textarea name="comment" id="comment" rows="4" class="form-control" maxlength="200" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+    </form>
+</div>
+<?php else: ?>
+<div class="text-center my-5">
+    <p><a href="login.php">Login</a> to post a review.</p>
+</div>
+<?php endif; ?>
+
 <!-- Footer -->
 <?php include 'footer.php'; ?>
 
@@ -148,8 +178,7 @@ try {
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
 $(document).ready(function () {
-    // Hide the spinner when the page is ready
-    $("#spinner").fadeOut("slow"); // or use .remove() if you want
+    $("#spinner").fadeOut("slow");
 
     let currentPageIndex = 0;
     const perPageDesktop = 6, perPageMobile = 2;
