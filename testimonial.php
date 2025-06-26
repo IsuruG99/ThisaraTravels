@@ -1,198 +1,182 @@
+<?php
+session_start();
+require 'vendor/autoload.php';
+
+try {
+    $client = new MongoDB\Client("mongodb+srv://ThisaraTravels:ThisaraTravels071@thisaratravels.vjuro.mongodb.net/?retryWrites=true&w=majority&appName=ThisaraTravels");
+    $db = $client->ThisaraTravels;
+    $collection = $db->userdata;
+    $cursor = $collection->find();
+} catch (Exception $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Mode</title>
+    <title>Testimonials - View All</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" href="img/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="ssheet.css">
     <style>
-        body {
-            text-align: center;
-            background: #f4f4f4;
-            font-family: Arial, sans-serif;
-            padding: 50px;
-            height: 100vh;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-
-        p {
-            color: #666;
-            text-align: center;
-        }
-
-        .maintenance-message {
-            margin: 0 auto;
+        .user-data-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 20px;
             padding: 20px;
-            height: 1080px;
-            max-height: 60vh;
+        }
+        .user-data {
+            width: 300px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .yellow-star { color: gold; font-size: 18px; }
+        .like-icon { color: red; cursor: pointer; }
+        .like-dislike-icons { margin-top: 10px; }
+        .arrows { text-align: center; margin: 20px 0; }
+        .arrows button { margin: 0 10px; padding: 8px 16px; }
+        #spinner.show {
+            display: flex;
+        }
+        #spinner {
+            display: none;
         }
     </style>
-
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="ssheet.css">
 </head>
-
-<!-- Content Start -->
 <body>
-    <nav class="navbar">
-        <a href="index.php" class="logo-link">
-            <div class="logo">
-                <!-- Image logo -->
-                <img src="img/Logo.png" alt="Logo" class="logo-img">
-                <!-- Logo Text -->
-                <div class="logo-text">
-                    <span class="logo-text1">Thisara</span>
-                    <span class="logo-text2">Travels & Tours</span>
-                </div>
+
+<!-- Spinner -->
+<div id="spinner" style="display: flex;" class="bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+    <div class="spinner-border text-primary" role="status"></div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <a href="index.php" class="logo-link">
+        <div class="logo">
+            <img src="img/Logo.png" alt="Logo" class="logo-img">
+            <div class="logo-text">
+                <span class="logo-text1">Thisara</span>
+                <span class="logo-text2">Travels & Tours</span>
             </div>
-        </a>
-        <ul class="nav-links">
-            <li><a href="index.php" class="active-link" data-page="home">HOME</a></li>
-            <li><a href="about.php" data-page="about">ABOUT</a></li>
-            <li><a href="service.php" data-page="services">SERVICES</a></li>
-            <li class="dropdown">
-                <a data-page="pages">PAGES <i class="fas fa-chevron-down dropdown-icon"></i></a>
-                <ul class="dropdown-menu">
-                    <li><a href="booking.php" data-page="booking">BOOKING</a></li>
-                    <li><a href="testimonial.php" data-page="testimonial">TESTIMONIAL</a></li>
-                </ul>
-            </li>
-            <li><a href="contact.php" data-page="contact">CONTACT</a></li>
-            <li class="navbar-login-item">
-                <?php
-                if (!isset($_SESSION['username'])) {
-                    echo '<a href="login.php" class="navbar-login-button" title="Login">
-                    <img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle">
-                  </a>';
-                } else {
-                    $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
-                    $user_role = $_SESSION['role'] ?? 'user';
-                    $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'user_dashboard.php';
-
-                    echo '<a href="' . $redirect_url . '" class="navbar-profile-button" title="Profile">
-                    <img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle">
-                  </a>';
-                }
-                ?>
-            </li>
-        </ul>
-
-        <div class="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
         </div>
-    </nav>
-    <div class="maintenance-message">
-        <h1>We’ll Be Right Back!</h1>
-        <p>Our website is undergoing maintenance. Please check back later.</p>
+    </a>
+    <ul class="nav-links">
+        <li><a href="index.php">HOME</a></li>
+        <li><a href="about.php">ABOUT</a></li>
+        <li><a href="service.php">SERVICES</a></li>
+        <li class="dropdown">
+            <a>PAGES <i class="fas fa-chevron-down dropdown-icon"></i></a>
+            <ul class="dropdown-menu">
+                <li><a href="booking.php">BOOKING</a></li>
+                <li><a class="active-link" href="testimonial.php">TESTIMONIAL</a></li>
+            </ul>
+        </li>
+        <li><a href="contact.php">CONTACT</a></li>
+        <li class="navbar-login-item">
+            <?php
+            if (!isset($_SESSION['username'])) {
+                echo '<a href="login.php" class="navbar-login-button"><img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle"></a>';
+            } else {
+                $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
+                $user_role = $_SESSION['role'] ?? 'user';
+                $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'user_dashboard.php';
+                echo '<a href="' . $redirect_url . '" class="navbar-profile-button"><img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle"></a>';
+            }
+            ?>
+        </li>
+    </ul>
+    <div class="hamburger">
+        <span></span><span></span><span></span>
     </div>
-</body>
-<!-- Content End -->
+</nav>
 
-<!-- Footer Start -->
-<div class="container-fluid bg-dark text-light footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
-    <div class="container">
-        <div class="copyright">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0 ">
-                    &copy; <a class="border-bottom " href="index.php">Thisara Travels & Tours</a>, All Right Reserved.
-                    Designed By <a class="border-bottom text-decoration-none" href="">WebWizards</a>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">Home</a>
-                        <a href="#" onclick="openCookieSettings()">Cookies</a>
-                        <a href="#">Help</a>
-                        <a href="#">FQAs</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Page Header -->
+<div class="custom-page-header mb-custom p-custom" style="background-image: url('img/01 (1).jpg')">
+    <div class="container text-center">
+        <h1 class="custom-page-title text-white">Testimonial</h1>
     </div>
 </div>
-<!-- Footer End -->
 
+<!-- Testimonials -->
+<div class="container text-center">
+    
+    <h1 class="mb-5">Our Clients Say!</h1>
+</div>
 
+<?php if ($cursor->isDead() === false): ?>
+    <div class="user-data-container">
+        <?php foreach ($cursor as $doc): ?>
+            <div class="user-data">
+                <img src="img/avatar-user.png" alt="User" class="img-fluid rounded-circle mb-2" width="60">
+                <h5><?= htmlspecialchars($doc['UserName']) ?></h5>
+                <p class="text-muted small"><?= htmlspecialchars($doc['date']) ?></p>
+                <div class="rating">
+                    <?php for ($i = 0; $i < $doc['ReviewCount']; $i++) echo '<span class="yellow-star">&#9733;</span>'; ?>
+                </div>
+                <p><?= htmlspecialchars($doc['Comment']) ?></p>
+                <div class="like-dislike-icons">
+                    <i class="fas fa-heart like-icon"></i> <span class="like-count"><?= htmlspecialchars($doc['likeCount'] ?? 0) ?></span>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <div class="arrows">
+        <button class="previous btn btn-outline-primary">Previous</button>
+        <button class="next btn btn-outline-primary">Next</button>
+    </div>
+<?php else: ?>
+    <p class="text-center">No reviews available.</p>
+<?php endif; ?>
 
+<!-- Footer -->
+<?php include 'footer.php'; ?>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
-    // Get the current page URL path
-    const currentPage = window.location.pathname.split('/').pop(); // Extracts the filename
+$(document).ready(function () {
+    // Hide the spinner when the page is ready
+    $("#spinner").fadeOut("slow"); // or use .remove() if you want
 
-    // Select all navigation links
-    const navLinks = document.querySelectorAll('.nav-links a');
+    let currentPageIndex = 0;
+    const perPageDesktop = 6, perPageMobile = 2;
+    const total = $(".user-data").length;
 
-    // Loop through links to find the matching page
-    navLinks.forEach(link => {
-        // Check if the href of the link matches the current page
-        if (link.getAttribute('href') === currentPage) {
-            link.classList.add('active-link'); // Add the active class
-        } else {
-            link.classList.remove('active-link'); // Remove the active class from others
-        }
+    function getPerPage() {
+        return window.innerWidth <= 767 ? perPageMobile : perPageDesktop;
+    }
+
+    function showPage() {
+        let perPage = getPerPage();
+        let start = currentPageIndex * perPage;
+        $(".user-data").hide().slice(start, start + perPage).show();
+    }
+
+    showPage();
+    $(window).resize(showPage);
+    $(".next").click(() => { currentPageIndex = (currentPageIndex + 1) % Math.ceil(total / getPerPage()); showPage(); });
+    $(".previous").click(() => { currentPageIndex = (currentPageIndex - 1 + Math.ceil(total / getPerPage())) % Math.ceil(total / getPerPage()); showPage(); });
+
+    $('.like-icon').click(function () {
+        $(this).toggleClass('clicked');
+        const likeCount = $(this).siblings('.like-count');
+        let count = parseInt(likeCount.text());
+        likeCount.text($(this).hasClass('clicked') ? count + 1 : count - 1);
     });
-    document.addEventListener("DOMContentLoaded", function () {
-        const hamburger = document.querySelector('.hamburger'); // Hamburger menu
-        const navLinks = document.querySelector('.nav-links'); // Navigation links
-        const header = document.querySelector('.custom-page-header'); // Page header
-
-        // Toggle menu function
-        function toggleMenu() {
-            navLinks.classList.toggle('active'); // Toggle menu visibility
-            toggleIcon(); // Toggle hamburger/close icon
-            adjustHeaderMargin(); // Adjust header margin
-        }
-
-        // Toggle hamburger/close icon
-        function toggleIcon() {
-            if (navLinks.classList.contains('active')) {
-                hamburger.classList.add('close-icon'); // Show close icon
-            } else {
-                hamburger.classList.remove('close-icon'); // Show hamburger icon
-            }
-        }
-
-        // Adjust header margin based on menu state
-        function adjustHeaderMargin() {
-            if (navLinks.classList.contains('active')) {
-                const navHeight = navLinks.scrollHeight; // Get dropdown height
-                header.style.marginTop = `${navHeight}px`; // Push header down
-            } else {
-                header.style.marginTop = '0'; // Reset header position
-            }
-        }
-
-        // Close menu when clicking outside
-        function closeMenu(event) {
-            if (!navLinks.contains(event.target) && !hamburger.contains(event.target)) {
-                navLinks.classList.remove('active'); // Hide menu
-                hamburger.classList.remove('close-icon'); // Reset icon to hamburger
-                adjustHeaderMargin(); // Reset header margin
-            }
-        }
-
-        // Reset menu and header margin based on screen size
-        function handleResize() {
-            if (window.innerWidth > 768) { // For larger screens
-                navLinks.classList.remove('active'); // Hide dropdown menu
-                hamburger.classList.remove('close-icon'); // Reset close icon
-                header.style.marginTop = '0'; // Reset header margin
-            } else {
-                header.style.marginTop = '0'; // Ensure header resets properly
-            }
-        }
-
-        // Event listeners
-        hamburger.addEventListener('click', toggleMenu); // Toggle menu on click
-        document.addEventListener('click', closeMenu); // Close menu on outside click
-        window.addEventListener('resize', handleResize); // Reset on resize
-    });
+});
 </script>
-
+</body>
 </html>
