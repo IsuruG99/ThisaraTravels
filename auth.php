@@ -46,7 +46,7 @@ session_start(); ?>
               <?php unset($_SESSION['error_login_password']); endif; ?>
           </div>
           <input type="submit" value="Log In" class="btn solid">
-          <a href="forgot_password.php" class="forgot-password">Forgot Password?</a>
+          <a href="auth-forgot-pw.php" class="forgot-password">Forgot Password?</a>
           <p class="social-text">Or Sign in with social platforms</p>
           <div class="social-media">
             <a href="auth-google-start.php" class="social-icon">

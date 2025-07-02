@@ -39,6 +39,7 @@
 </head>
 
 <!-- Content Start -->
+
 <body>
     <nav class="navbar">
         <a href="index.php" class="logo-link">

@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (isset($_SESSION['username'])) {
+    error_log("Session Username: " . $_SESSION['username']);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
