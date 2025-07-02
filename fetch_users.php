@@ -1,20 +1,23 @@
 <?php
-require 'vendor/autoload.php'; // Ensure Composer's autoload is included
+require 'vendor/autoload.php';
 
-$uri = "mongodb+srv://ThisaraTravels:ThisaraTravels071@thisaratravels.vjuro.mongodb.net/?retryWrites=true&w=majority&appName=ThisaraTravels";
-$databaseName = "ThisaraTravels"; // Your database name
+use MongoDB\Client;
+use MongoDB\BSON\ObjectId;
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+$uri = $_ENV['MONGODB_URI'];
+$databaseName = "ThisaraTravels";
 
 try {
     $client = new MongoDB\Client($uri);
     $database = $client->$databaseName;
-    $usersCollection = $database->users; // The users collection
+    $usersCollection = $database->users;
 
-    // Handle GET request - Fetch all users
     if ($_SERVER["REQUEST_METHOD"] === "GET") {
         // Fetch all users
         $users = $usersCollection->find()->toArray();
-
-        // Check if users are found
         if (!$users) {
             echo json_encode(['error' => 'No users found in the database.']);
             exit();

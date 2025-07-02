@@ -2,8 +2,13 @@
 session_start();
 require 'vendor/autoload.php';
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+$uri = $_ENV['MONGODB_URI'];
+
 try {
-    $client = new MongoDB\Client("mongodb+srv://ThisaraTravels:ThisaraTravels071@thisaratravels.vjuro.mongodb.net/?retryWrites=true&w=majority&appName=ThisaraTravels");
+    $client = new MongoDB\Client($uri);
     $db = $client->ThisaraTravels;
     $collection = $db->userdata;
     $cursor = $collection->find();
