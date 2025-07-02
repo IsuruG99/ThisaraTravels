@@ -17,14 +17,8 @@ session_start();
 
 // Clear previous error messages on POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    unset(
-        $_SESSION['error_username'],
-        $_SESSION['error_email'],
-        $_SESSION['error_password'],
-        $_SESSION['error_login_username'],
-        $_SESSION['error_login_password'],
-        $_SESSION['otp_error']
-    );
+    unset($_SESSION['error_username'], $_SESSION['error_email'], $_SESSION['error_password'],
+        $_SESSION['error_login_username'], $_SESSION['error_login_password'], $_SESSION['otp_error']);
 }
 
 try {

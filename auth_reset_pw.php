@@ -48,12 +48,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = "suraj.kavishka22@gmail.com"; // TODO: Move to .env
-            $mail->Password = "dkywqyapmhlmmnzk"; // TODO: Move to .env
+            $mail->Username = $_ENV['SMTP_USER'];
+            $mail->Password = $_ENV['SMTP_PASS'];
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
-            $mail->setFrom('suraj.kavishka22@gmail.com', 'Thisara Travels & Tours');
+            $mail->setFrom($_ENV['SMTP_USER'], 'Thisara Travels & Tours');
             $mail->addAddress($resetRequest['Email']);
 
             $mail->isHTML(true);
