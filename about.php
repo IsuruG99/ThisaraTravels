@@ -60,8 +60,8 @@ if (isset($_SESSION['username'])) {
             </div>
         </a>
         <ul class="nav-links">
-            <li><a href="index.php" class="active-link" data-page="home">HOME</a></li>
-            <li><a href="about.php" data-page="about">ABOUT</a></li>
+            <li><a href="index.php" data-page="home">HOME</a></li>
+            <li><a href="about.php" class="active-link" data-page="about">ABOUT</a></li>
             <li><a href="service.php" data-page="services">SERVICES</a></li>
             <li class="dropdown">
                 <a data-page="pages">PAGES <i class="fas fa-chevron-down dropdown-icon"></i></a>
