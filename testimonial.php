@@ -76,6 +76,23 @@ try {
                         </ul>
                     </li>
                     <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
+                    <li class="navbar-login-item">
+                <?php
+                if (!isset($_SESSION['username'])) {
+                    echo '<a href="auth.php" class="navbar-login-button" title="Login">
+                    <img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle">
+                  </a>';
+                } else {
+                    $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
+                    $user_role = $_SESSION['role'] ?? 'user';
+                    $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'profile_page.php';
+
+                    echo '<a href="' . $redirect_url . '" class="navbar-profile-button" title="Profile">
+                    <img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle">
+                  </a>';
+                }
+                ?>
+            </li>
                 </ul>
             </div>
         </div>
