@@ -1,4 +1,5 @@
-<?php session_start(); ?>
+<?php
+session_start(); ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,16 +17,16 @@
     <?php unset($_SESSION['error']); ?>
   <?php endif; ?>
   <div class="container <?php echo (
-  isset($_SESSION['error_username']) || 
-  isset($_SESSION['error_email']) || 
-  isset($_SESSION['error_password']) 
-) ? 'sign-up-mode' : ''; ?>">
+    isset($_SESSION['error_username']) ||
+    isset($_SESSION['error_email']) ||
+    isset($_SESSION['error_password'])
+  ) ? 'sign-up-mode' : ''; ?>">
     <div class="forms-container">
       <div class="signIn-signUp">
-        <form action="loginsingupbackend.php" method="POST" class="sign-in-form">
+        <!-- Sign In Form -->
+        <form action="auth-backend.php" method="POST" class="sign-in-form">
           <input type="hidden" name="login" value="1">
           <h2 class="title">Sign In</h2>
-
           <div class="input-field-container">
             <div class="input-field">
               <i class='bx bx-user'></i>
@@ -35,7 +36,6 @@
               <p class="error-message"><?php echo $_SESSION['error_login_username']; ?></p>
               <?php unset($_SESSION['error_login_username']); endif; ?>
           </div>
-
           <div class="input-field-container">
             <div class="input-field">
               <i class='bx bx-lock-alt'></i>
@@ -45,22 +45,19 @@
               <p class="error-message"><?php echo $_SESSION['error_login_password']; ?></p>
               <?php unset($_SESSION['error_login_password']); endif; ?>
           </div>
-
           <input type="submit" value="Log In" class="btn solid">
-          <!-- Forgot Password Link -->
-          <a href="forgot_password.php" class="forgot-password">Forgot Password?</a>
+          <a href="auth-forgot-pw.php" class="forgot-password">Forgot Password?</a>
           <p class="social-text">Or Sign in with social platforms</p>
-          <div class="social-media google-signin">
-            <a href="google-login.php?mode=signup" class="social-icon">
+          <div class="social-media">
+            <a href="auth-google-start.php" class="social-icon">
               <i class="bx bxl-google"></i>
             </a>
           </div>
         </form>
-
-        <form action="loginsingupbackend.php" method="POST" class="sign-up-form">
-          <input type="hidden" name="signup" value="1"> <!-- Hidden input to mark this as a signup form -->
+        <!-- Sign Up Form -->
+        <form action="auth-backend.php" method="POST" class="sign-up-form">
+          <input type="hidden" name="signup" value="1">
           <h2 class="title">Sign Up</h2>
-
           <div class="input-field-container">
             <div class="input-field">
               <i class='bx bx-user'></i>
@@ -70,7 +67,6 @@
               <p class="error-message"><?php echo $_SESSION['error_username']; ?></p>
               <?php unset($_SESSION['error_username']); endif; ?>
           </div>
-
           <div class="input-field-container">
             <div class="input-field">
               <i class='bx bx-envelope'></i>
@@ -80,7 +76,6 @@
               <p class="error-message"><?php echo $_SESSION['error_email']; ?></p>
               <?php unset($_SESSION['error_email']); endif; ?>
           </div>
-
           <div class="input-field-container">
             <div class="input-field">
               <i class='bx bx-lock-alt'></i>
@@ -90,24 +85,22 @@
               <p class="error-message"><?php echo $_SESSION['error_password']; ?></p>
               <?php unset($_SESSION['error_password']); endif; ?>
           </div>
-
           <input type="submit" value="Sign Up" class="btn solid">
           <p class="social-text">Or Sign up with social platforms</p>
-          <div class="social-media google-signup">
-            <a href="google-login.php?mode=signin" class="social-icon">
+          <div class="social-media">
+            <a href="auth-google-start.php" class="social-icon">
               <i class="bx bxl-google"></i>
             </a>
           </div>
         </form>
-
       </div>
     </div>
+    <!-- Panels for switching between sign in and sign up -->
     <div class="panels-container">
       <div class="panel left-panel">
         <div class="content">
-          <h3>New Here ?</h3>
-          <p>Welcome to Thisara Travels & Tours... Please enter your username and password to access your account. If
-            you
+          <h3>New Here?</h3>
+          <p>Welcome to Thisara Travels & Tours. Please enter your username and password to access your account. If you
             don't have an account yet, you can sign up for free.</p>
           <button class="btn transparent" id="sign-up-btn">Sign up</button>
         </div>
@@ -115,14 +108,13 @@
       <div class="panel right-panel">
         <div class="content">
           <h3>One of Us?</h3>
-          <p>Welcome to our platform! Please enter your username and password to access your account. If you
-            don't have an account yet, you can sign up for free.</p>
+          <p>Welcome back! Please enter your username and password to access your account. If you don't have an account
+            yet, you can sign up for free.</p>
           <button class="btn transparent" id="sign-in-btn">Sign in</button>
         </div>
       </div>
     </div>
   </div>
-
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
 
@@ -130,7 +122,7 @@
       padding: 0;
       margin: 0;
       box-sizing: border-box;
-      font-family: "Popping", sans-serif;
+      font-family: "Poppins", sans-serif;
       text-decoration: none;
     }
 
@@ -154,7 +146,6 @@
       text-overflow: ellipsis;
       max-width: 100%;
     }
-
 
     .container {
       position: relative;
@@ -233,8 +224,6 @@
       padding: 0.4rem;
       align-items: center;
       flex-grow: 1;
-      /* Allow input field to take available space */
-
     }
 
     .input-field i {
@@ -253,7 +242,6 @@
       font-size: 1.1rem;
       color: #333;
       flex: 1;
-      /* Allow input field to take available space */
     }
 
     .input-field input::placeholder {
@@ -410,50 +398,26 @@
       opacity: 1;
     }
   </style>
-
-
   <script>
+    // Toggle between sign-in and sign-up modes
     const sign_in = document.querySelector("#sign-in-btn");
     const sign_up = document.querySelector("#sign-up-btn");
     const container = document.querySelector(".container");
-
-    sign_up.addEventListener('click', () => {
-      container.classList.add('sign-up-mode');
-    });
-
-    sign_in.addEventListener('click', () => {
-      container.classList.remove('sign-up-mode');
-    });
-
+    sign_up.addEventListener('click', () => { container.classList.add('sign-up-mode'); });
+    sign_in.addEventListener('click', () => { container.classList.remove('sign-up-mode'); });
   </script>
-
-
   <script>
+    // Hide error messages as user types in input fields
     document.addEventListener('DOMContentLoaded', function () {
-      // Get all input fields
       const inputs = document.querySelectorAll('.input-field-container input');
-
-      // Add input event listener to each field
       inputs.forEach(input => {
         input.addEventListener('input', function () {
-          // Get the parent .input-field-container element
           const parentField = input.closest('.input-field-container');
-
-          // Check if there is an error message
           const errorMessage = parentField.querySelector('.error-message');
-          if (errorMessage) {
-            // Hide the error message
-            errorMessage.style.display = 'none';
-          }
+          if (errorMessage) errorMessage.style.display = 'none';
         });
       });
-    });
-
-
-
-
-
-  </script>
+    });  </script>
 </body>
 
 </html>

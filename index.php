@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (isset($_SESSION['username'])) {
+    error_log("Session Username: " . $_SESSION['username']);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -67,7 +74,7 @@
             <li class="navbar-login-item">
                 <?php
                 if (!isset($_SESSION['username'])) {
-                    echo '<a href="login.php" class="navbar-login-button" title="Login">
+                    echo '<a href="auth.php" class="navbar-login-button" title="Login">
                     <img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle">
                   </a>';
                 } else {

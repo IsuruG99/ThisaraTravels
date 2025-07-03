@@ -1,10 +1,15 @@
 <?php
 session_start();
 require 'vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 
-// MongoDB connection
+$uri = $_ENV['MONGODB_URI'];
+$databaseName = "ThisaraTravels";
+
 try {
-    $client = new MongoDB\Client("mongodb+srv://ThisaraTravels:ThisaraTravels071@thisaratravels.vjuro.mongodb.net/?retryWrites=true&w=majority&appName=ThisaraTravels");
+    // MongoDB connection and data fetch
+    $client = new MongoDB\Client($uri);
     $db = $client->ThisaraTravels;
     $collection = $db->userdata;
 
