@@ -107,12 +107,12 @@ try {
                     <h5><?= htmlspecialchars($doc['UserName']) ?></h5>
                     <p class="text-muted small"><?= htmlspecialchars($doc['date']) ?></p>
                     <div class="rating">
-                        <?php for ($i = 0; $i < $doc['ReviewCount']; $i++) echo '<span class="yellow-star'>&#9733;</span>'; ?>
+                        <?php for ($i = 0; $i < $doc['ReviewCount']; $i++) echo '<span class="yellow-star">&#9733;</span>'; ?>
                     </div>
                     <p><?= htmlspecialchars($doc['Comment']) ?></p>
                     <div class="like-dislike-icons">
                         <i class="fas fa-heart like-icon"></i>
-                        <span class="like-count">0</span>
+                        <span class="like-count"><?= isset($doc['likeCount']) ? htmlspecialchars($doc['likeCount']) : 0 ?></span>
                     </div>
                 </div>
             <?php endforeach; ?>
