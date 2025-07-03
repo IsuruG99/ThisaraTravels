@@ -1,7 +1,7 @@
 <?php
 session_start();
 require 'vendor/autoload.php';
-
+//reminder change the name  testomonial to review page after everything is done
 // MongoDB connection and data fetch
 try {
     $client = new MongoDB\Client("mongodb+srv://ThisaraTravels:ThisaraTravels071@thisaratravels.vjuro.mongodb.net/?retryWrites=true&w=majority&appName=ThisaraTravels");
@@ -205,14 +205,14 @@ $(document).ready(function () {
         return window.innerWidth <= 767 ? perPageMobile : perPageDesktop;
     }
 
-    // Show testimonials for the current page
+    // Show testimonials for the current page( reviews)
     function showPage() {
         let perPage = getPerPage();
         let start = currentPageIndex * perPage;
         $(".user-data").hide().slice(start, start + perPage).show();
     }
 
-    // Initial display and event bindings
+    // Initial display and event binding
     showPage();
     $(window).resize(showPage);
     $(".next").click(() => { 
