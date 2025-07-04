@@ -464,65 +464,104 @@ try {
         <!-- Tab Content -->
         <div class="tab-content" id="profileTabsContent">
             <!-- Bookings Tab -->
-            <!-- <div class="tab-pane fade show active" id="bookings" role="tabpanel">
-                <div class="profile-card">
+            <div class="tab-pane fade show active" id="bookings" role="tabpanel">
+                <!-- <div class="profile-card">
                     <h2 class="profile-card-title">My Bookings</h2>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>Status</th>
-                                    <th>Booking ID</th>
+                                    <th>Pickup Date</th>
                                     <th>Pickup Time</th>
-                                    <th>Start Date</th>
+                                    <th>Vehicle Plate</th>
+                                    <th>Pickup Location</th>
+                                    <th>Dropoff Location</th>
+                                    <th>Booking Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($userBookings as $booking): ?>
                                     <tr>
                                         <td>
-
                                             <span class="badge 
-                                                <?php if ($booking['Status'] === 'Completed') {
-                                                    echo 'badge-success';
-                                                } elseif ($booking['Status'] === 'Pending') {
-                                                    echo 'badge-warning';
-                                                } elseif ($booking['Status'] === 'Denied') {
-                                                    echo 'badge-danger';
-                                                } else {
-                                                    echo 'badge-secondary';
-                                                } ?>">
-                                                <?php echo htmlspecialchars($booking['Status']); ?>
+                                                <?php echo match ($booking['BookingStatus']) {
+                                                    'Completed' => 'bg-success',
+                                                    'Pending' => 'bg-warning',
+                                                    'Denied' => 'bg-danger',
+                                                    'Accepted' => 'bg-primary',
+                                                    default => 'bg-secondary'
+                                                }; ?>">
+                                                <?php echo htmlspecialchars($booking['BookingStatus']); ?>
                                             </span>
                                         </td>
-                                        <td><?php echo htmlspecialchars($booking['_id']); ?></td>
-                                        <td><?php echo htmlspecialchars($booking['pickupTime'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($booking['pickupDate'] ?? 'N/A'); ?></td>
+                                        <td>
+                                            <?php
+                                            try {
+                                                $pickupDate = $booking['PickupDateTime'] instanceof MongoDB\BSON\UTCDateTime
+                                                    ? $booking['PickupDateTime']->toDateTime()
+                                                    : new DateTime($booking['PickupDateTime'] ?? 'now');
+                                                echo htmlspecialchars($pickupDate->format('M j, Y'));
+                                            } catch (Exception $e) {
+                                                echo 'N/A';
+                                            }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <?php
+                                            try {
+                                                echo htmlspecialchars($pickupDate->format('h:i A'));
+                                            } catch (Exception $e) {
+                                                echo 'N/A';
+                                            }
+                                            ?>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($booking['VehiclePlate'] ?? 'N/A'); ?></td>
+                                        <td><?php echo htmlspecialchars($booking['PickupLocation'] ?? 'N/A'); ?></td>
+                                        <td><?php echo htmlspecialchars($booking['DropoffLocation'] ?? 'N/A'); ?></td>
+                                        <td>
+                                            <?php
+                                            $bookingDate = $booking['BookingDate'] instanceof MongoDB\BSON\UTCDateTime
+                                                ? $booking['BookingDate']->toDateTime()
+                                                : new DateTime($booking['BookingDate']);
+                                            echo htmlspecialchars($bookingDate->format('M j, Y'));
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <?php if (($booking['BookingStatus'] ?? '') === 'Pending' || ($booking['BookingStatus'] ?? '') === 'Accepted'): ?>
+                                                <button class="btn btn-sm btn-outline-danger cancel-btn"
+                                                    data-booking-id="<?php echo htmlspecialchars($booking['_id'] instanceof MongoDB\BSON\ObjectId ? $booking['_id']->__toString() : ($booking['_id']['$oid'] ?? '')); ?>">
+                                                    Cancel
+                                                </button>
+                                            <?php endif; ?>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                                 <?php if (empty($userBookings)): ?>
                                     <tr>
-                                        <td colspan="4" class="text-center">No bookings found</td>
+                                        <td colspan="8" class="text-center">No bookings found</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div> -->
+                </div> -->
+            </div>
 
             <!-- Reviews Tab -->
-            <!-- <div class="tab-pane fade" id="reviews" role="tabpanel">
-                <div class="profile-card">
+            <div class="tab-pane fade" id="reviews" role="tabpanel">
+                <!-- <div class="profile-card">
                     <h2 class="profile-card-title">My Reviews</h2>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>Rating</th>
-                                    <th>Date</th>
                                     <th>Vehicle</th>
                                     <th>Comment</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -533,9 +572,15 @@ try {
                                                 <?php echo str_repeat('★', $review['ReviewCount']); ?>
                                             </div>
                                         </td>
-                                        <td><?php echo htmlspecialchars(date('Y-m-d', strtotime($review['date']))); ?></td>
                                         <td><?php echo htmlspecialchars($review['vehicle'] ?? 'N/A'); ?></td>
                                         <td><?php echo htmlspecialchars($review['Comment']); ?></td>
+                                        <td><?php echo htmlspecialchars(date('Y-m-d', strtotime($review['date']))); ?></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger delete-review-btn"
+                                                data-review-id="<?php echo htmlspecialchars($review['_id'] instanceof MongoDB\BSON\ObjectId ? $review['_id']->__toString() : ($review['_id']['$oid'] ?? '')); ?>">
+                                                Delete
+                                            </button>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                                 <?php if (empty($userReviews)): ?>
@@ -548,8 +593,8 @@ try {
                     </div>
                 </div>
             </div>
-        </div>
-    </div> -->
+        </div> -->
+    </div>
 
     <!-- Update Photo Modal -->
     <div class="modal fade" id="updatePhotoModal" tabindex="-1" aria-hidden="true">
