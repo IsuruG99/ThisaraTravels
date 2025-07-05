@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Your Journey - Thisara Travels & Tours</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -19,7 +22,7 @@
             overflow-x: hidden;
         }
 
-        /* Header */
+        /* Header (Nav Bar) */
         .header {
             background: rgba(34, 83, 73, 0.95);
             backdrop-filter: blur(10px);
@@ -31,11 +34,13 @@
 
         .nav-container {
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
+            padding: 0 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 2rem;
+            box-sizing: border-box;
         }
 
         .logo {
@@ -141,6 +146,162 @@
             transform: rotate(180deg);
             scale: 1.1;
             filter: drop-shadow(0 0 5px #6CC4A1);
+        }
+
+        /* Booking Modal */
+        .booking-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .booking-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .booking-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(34, 83, 73, 0.95);
+            color: #F8F1E9;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
+            max-width: 600px;
+            width: 90%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .booking-modal.show {
+            opacity: 1;
+            visibility: visible;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .booking-modal h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .booking-modal .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #224B41;
+            color: #F8F1E9;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .booking-modal .close-btn:hover {
+            background: #6CC4A1;
+            transform: translateY(-2px);
+        }
+
+        .booking-modal .form-control, .booking-modal .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E6F0EA;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: #F8F1E9;
+            color: #224B41;
+            transition: all 0.3s ease;
+        }
+
+        .booking-modal .form-control:focus, .booking-modal .form-select:focus {
+            outline: none;
+            border-color: #2F6DA3;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(47, 109, 163, 0.1);
+        }
+
+        .booking-modal .form-control.custom-location {
+            margin-top: 0.5rem; /* Small gap between dropdown and custom field */
+        }
+
+        .custom-location {
+            display: none;
+        }
+
+        .booking-modal textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .booking-modal .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .booking-modal .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #F8F1E9;
+        }
+
+        .booking-modal .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #2F6DA3 0%, #174038 100%);
+            color: #F8F1E9;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .booking-modal .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(47, 109, 163, 0.3);
+        }
+
+        .booking-modal .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .booking-modal .message.success {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border-left: 4px solid #28a745;
+        }
+
+        .booking-modal .message.error {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border-left: 4px solid #dc3545;
+        }
+
+        .booking-modal .message.show {
+            display: block;
         }
 
         /* Main Container */
@@ -470,6 +631,7 @@
         /* Vehicles Grid */
         .vehicles-section {
             animation: fadeInUp 1s ease 0.3s both;
+            margin-bottom: 2rem;
         }
 
         .section-title {
@@ -664,7 +826,7 @@
                 opacity: 0;
             }
             to {
-                opacity: 0.8;
+                opacity: 1;
             }
         }
 
@@ -692,6 +854,102 @@
             100% {
                 transform: translateX(100%) translateY(100%) rotate(45deg);
             }
+        }
+
+        /* Custom styling for intl-tel-input */
+        .iti {
+            width: 100%;
+            position: relative;
+            display: flex; /* Use flexbox to align flag container and input */
+            align-items: center;
+        }
+
+        .iti input[type="tel"] {
+            width: 100%;
+            padding: 12px 15px 12px 70px; /* Increased left padding for flag and gap */
+            border: 2px solid #E6F0EA;
+            border-radius: 0 10px 10px 0; /* Rounded corners only on right side */
+            font-size: 1rem;
+            background: #F8F1E9;
+            color: #224B41;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .iti input[type="tel"]:focus {
+            outline: none;
+            border-color: #2F6DA3;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(47, 109, 163, 0.1);
+        }
+
+        .iti__flag-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 60px; /* Fixed width for flag container */
+            height: 100%;
+            border: 2px solid #E6F0EA;
+            border-right: none;
+            border-radius: 10px 0 0 10px;
+            background: #F8F1E9;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center flag and dial code */
+            z-index: 1;
+        }
+
+        .iti__selected-flag {
+            background: #F8F1E9;
+            border-radius: 10px 0 0 10px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding-left: 10px; /* Add padding for spacing */
+        }
+
+        .iti__selected-flag:hover {
+            background: #E6F0EA;
+        }
+
+        .iti__country-list {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            background: #F8F1E9;
+            border: 2px solid #E6F0EA;
+            z-index: 2000;
+        }
+
+        .iti__country {
+            padding: 8px 12px;
+            color: #224B41;
+        }
+
+        .iti__country:hover {
+            background: #5AB896;
+            color: #F8F1E9;
+        }
+
+        .iti__country-name {
+            font-weight: 500;
+        }
+
+        .iti__dial-code {
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        /* Ensure the input and flag container align properly with a gap */
+        .iti--allow-dropdown input, .iti--separate-dial-code input {
+            padding-left: 70px !important; /* Increased padding to prevent overlap */
+        }
+
+        /* Placeholder styling */
+        .iti input::placeholder {
+            color: #6c757d;
+            font-style: italic;
         }
 
         /* Responsive Design */
@@ -725,6 +983,35 @@
                 display: block;
                 opacity: 1;
                 transform: translateY(0);
+            }
+
+            .booking-modal {
+                padding: 1.5rem;
+                max-width: 90%;
+            }
+
+            .booking-modal h2 {
+                font-size: 1.5rem;
+            }
+
+            .booking-modal .form-control, .booking-modal .form-select {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+
+            .booking-modal .btn-submit {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+
+            .booking-modal .close-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .booking-modal .message {
+                font-size: 0.9rem;
+                padding: 0.8rem;
             }
 
             .page-title h1 {
@@ -780,11 +1067,102 @@
             .filter-buttons {
                 flex-direction: column;
             }
+
+            .iti input[type="tel"] {
+                padding: 10px 10px 10px 60px; /* Adjusted for smaller screens */
+            }
+
+            .iti__flag-container {
+                width: 50px; /* Smaller width for mobile */
+                padding: 0 8px;
+            }
+        }
+
+        .whatsapp-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #25D366;
+        }
+        
+        .whatsapp-header i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .btn-whatsapp {
+            background: #25D366;
+            border: none;
+            border-radius: 0.375rem;
+            padding: 12px 20px;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-whatsapp:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3);
+            color: white;
+        }
+        
+        .validation-message {
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        
+        .valid {
+            color: #28a745;
+        }
+        
+        .invalid {
+            color: #dc3545;
+        }
+        
+        .phone-info {
+            background: white;
+            padding: 15px;
+            border-radius: 0.375rem;
+            margin-top: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .phone-info h6 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        
+        .info-value {
+            color: #495057;
+        }
+        
+        .search-hint {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header (Nav Bar) -->
     <header class="header">
         <nav class="nav-container">
             <a href="#" class="logo">
@@ -809,6 +1187,118 @@
             </ul>
         </nav>
     </header>
+
+    <!-- Booking Modal -->
+    <div id="booking-modal-overlay" class="booking-modal-overlay"></div>
+    <div id="booking-modal" class="booking-modal">
+        <button class="close-btn" onclick="hideBookingModal()">Close</button>
+        <h2 id="booking-modal-title">Book Your Vehicle</h2>
+        <div id="booking-message" class="message"></div>
+        <form id="booking-form" method="post" action="process_booking.php">
+            <input type="hidden" name="vehicle_type" id="vehicle-type">
+            <input type="hidden" name="vehicle_name" id="vehicle-name">
+            <div class="form-group">
+                <label for="name"><i class="fas fa-user"></i> Your Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required>
+            </div>
+            <div class="form-group">
+                <label for="phone"><i class="fab fa-whatsapp"></i> WhatsApp Number</label>
+                <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your WhatsApp number" required>
+                <div class="search-hint" style="font-size: 12px; color: #888; margin-top: 5px;">
+                    <i class="fas fa-search"></i> You can search countries by name or dial code
+                </div>
+                <div id="validation-message" class="validation-message" style="font-size: 12px; color: red;"></div>
+            </div>
+            <div class="form-group">
+                <label for="pickup-location-select"><i class="fas fa-map-marker-alt"></i> Pick-Up Location</label>
+                <select class="form-select" id="pickup-location-select" name="pickup_location" required>
+                    <option value="" disabled selected>PICK-UP LOCATION</option>
+                    <option value="Colombo Airport">Colombo Airport</option>
+                    <option value="Colombo City">Colombo City</option>
+                    <option value="Mattala Airport">Mattala Airport</option>
+                    <option value="Tissamaharama">Tissamaharama</option>
+                    <option value="Yala">Yala</option>
+                    <option value="Ranna">Ranna</option>
+                    <option value="Tangalle">Tangalle</option>
+                    <option value="Matara">Matara</option>
+                    <option value="Mirissa">Mirissa</option>
+                    <option value="Weligama">Weligama</option>
+                    <option value="Galle">Galle</option>
+                    <option value="Unawatuna">Unawatuna</option>
+                    <option value="Hikkaduwa">Hikkaduwa</option>
+                    <option value="Sigiriyaa">Sigiriyaa</option>
+                    <option value="Kalpitiya">Kalpitiya</option>
+                    <option value="Bentota">Bentota</option>
+                    <option value="Arugam bay">Arugam bay</option>
+                    <option value="Ella">Ella</option>
+                    <option value="Haputale">Haputale</option>
+                    <option value="Trincomalee">Trincomalee</option>
+                    <option value="Kandy">Kandy</option>
+                    <option value="Kataragama">Kataragama</option>
+                    <option value="Pasikuda/Kalkuda">Pasikuda/Kalkuda</option>
+                    <option value="Udawalawe">Udawalawe</option>
+                    <option value="Nuwara Eliya">Nuwara Eliya</option>
+                    <option value="Negombo">Negombo</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="text" class="form-control custom-location" id="custom-pickup-location" name="custom_pickup_location" placeholder="Custom Pick-Up Location">
+            </div>
+            <div class="form-group">
+                <label for="dropoff-location-select"><i class="fas fa-map-marker-alt"></i> Drop-Off Location</label>
+                <select class="form-select" id="dropoff-location-select" name="dropoff_location" required>
+                    <option value="" disabled selected>DROP-OFF LOCATION</option>
+                    <option value="Colombo Airport">Colombo Airport</option>
+                    <option value="Colombo City">Colombo City</option>
+                    <option value="Mattala Airport">Mattala Airport</option>
+                    <option value="Tissamaharama">Tissamaharama</option>
+                    <option value="Yala">Yala</option>
+                    <option value="Ranna">Ranna</option>
+                    <option value="Tangalle">Tangalle</option>
+                    <option value="Matara">Matara</option>
+                    <option value="Mirissa">Mirissa</option>
+                    <option value="Weligama">Weligama</option>
+                    <option value="Galle">Galle</option>
+                    <option value="Unawatuna">Unawatuna</option>
+                    <option value="Hikkaduwa">Hikkaduwa</option>
+                    <option value="Sigiriyaa">Sigiriyaa</option>
+                    <option value="Kalpitiya">Kalpitiya</option>
+                    <option value="Bentota">Bentota</option>
+                    <option value="Arugam bay">Arugam bay</option>
+                    <option value="Ella">Ella</option>
+                    <option value="Haputale">Haputale</option>
+                    <option value="Trincomalee">Trincomalee</option>
+                    <option value="Kandy">Kandy</option>
+                    <option value="Kataragama">Kataragama</option>
+                    <option value="Pasikuda/Kalkuda">Pasikuda/Kalkuda</option>
+                    <option value="Udawalawe">Udawalawe</option>
+                    <option value="Nuwara Eliya">Nuwara Eliya</option>
+                    <option value="Negombo">Negombo</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="text" class="form-control custom-location" id="custom-dropoff-location" name="custom_dropoff_location" placeholder="Custom Drop-Off Location">
+            </div>
+            <div class="form-group">
+                <label for="pickup-date"><i class="fas fa-calendar"></i> Pickup Date</label>
+                <input type="date" class="form-control" id="pickup-date" name="pickup_date" required>
+            </div>
+            <div class="form-group">
+                <label for="dropoff-date"><i class="fas fa-calendar"></i> Drop-Off Date</label>
+                <input type="date" class="form-control" id="dropoff-date" name="dropoff_date" required>
+            </div>
+            <div class="form-group">
+                <label for="pickup-time"><i class="fas fa-clock"></i> Pickup Time</label>
+                <input type="time" class="form-control" id="pickup-time" name="pickup_time" required>
+            </div>
+            <div class="form-group">
+                <label for="special-request"><i class="fas fa-comment"></i> Special Request</label>
+                <textarea class="form-control" id="special-request" name="Special_Request" placeholder="Special Request"></textarea>
+            </div>
+            <div class="form-group">
+                <div class="g-recaptcha" data-sitekey="YOUR_GOOGLE_RECAPTCHA_SITE_KEY"></div>
+            </div>
+            <button class="btn-submit" type="submit">Book Now</button>
+        </form>
+    </div>
 
     <!-- Main Container -->
     <div class="container">
@@ -979,150 +1469,264 @@
         </section>
     </div>
 
-    <script>
-        // Set minimum date to today
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('startDate').min = today;
-        document.getElementById('endDate').min = today;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
 
-        // Update end date minimum when start date changes
-        document.getElementById('startDate').addEventListener('change', function() {
-            document.getElementById('endDate').min = this.value;
+    <script>
+        // --- Set min date ---
+        const today = new Date().toISOString().split('T')[0];
+        ['startDate', 'endDate', 'pickup-date', 'dropoff-date'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.min = today;
         });
 
-        // Search Vehicles Function
+        document.getElementById('startDate')?.addEventListener('change', function () {
+            const endDateEl = document.getElementById('endDate');
+            const dropoffEl = document.getElementById('dropoff-date');
+            if (endDateEl) endDateEl.min = this.value;
+            if (dropoffEl) dropoffEl.min = this.value;
+        });
+
+        // --- Initialize phone input with intl-tel-input ---
+        const phoneInput = document.getElementById('phone');
+        const iti = window.intlTelInput(phoneInput, {
+            initialCountry: "auto",
+            geoIpLookup: function (success, failure) {
+                fetch('https://ipapi.co/json/')
+                    .then(res => res.json())
+                    .then(data => success(data.country_code))
+                    .catch(() => success('us'));
+            },
+            separateDialCode: true,
+            preferredCountries: ["lk", "in", "gb", "us"],
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js",
+            formatOnDisplay: true,
+            nationalMode: true,
+            autoPlaceholder: "aggressive",
+            customPlaceholder: function (placeholder, data) {
+                return "e.g. " + placeholder;
+            }
+        });
+
+        // --- Validate phone number on input ---
+        phoneInput.addEventListener('input', function () {
+            const validationMessage = document.getElementById('validation-message');
+            if (iti.isValidNumber()) {
+                validationMessage.textContent = 'Valid phone number';
+                validationMessage.className = 'validation-message valid';
+            } else {
+                validationMessage.textContent = 'Please enter a valid phone number';
+                validationMessage.className = 'validation-message invalid';
+            }
+        });
+
+        // --- Booking Modal Functions ---
+        function showBookingModal(title, type, name) {
+            const modal = document.getElementById('booking-modal');
+            const overlay = document.getElementById('booking-modal-overlay');
+            const modalTitle = document.getElementById('booking-modal-title');
+            const vehicleTypeInput = document.getElementById('vehicle-type');
+            const vehicleNameInput = document.getElementById('vehicle-name');
+            const message = document.getElementById('booking-message');
+            const form = document.getElementById('booking-form');
+            const pickupSelect = document.getElementById('pickup-location-select');
+            const dropoffSelect = document.getElementById('dropoff-location-select');
+            const customPickup = document.getElementById('custom-pickup-location');
+            const customDropoff = document.getElementById('custom-dropoff-location');
+
+            modalTitle.textContent = title;
+            vehicleTypeInput.value = type;
+            vehicleNameInput.value = name;
+            message.style.display = 'none';
+            message.className = 'message';
+            form.style.display = 'block';
+
+            // Reset dropdowns
+            pickupSelect.value = '';
+            dropoffSelect.value = '';
+            customPickup.style.display = 'none';
+            customPickup.required = false;
+            customPickup.value = '';
+            customDropoff.style.display = 'none';
+            customDropoff.required = false;
+            customDropoff.value = '';
+
+            // Set pre-fill dates
+            const startDate = document.getElementById('startDate')?.value;
+            const endDate = document.getElementById('endDate')?.value;
+            if (startDate) document.getElementById('pickup-date').value = startDate;
+            if (endDate) document.getElementById('dropoff-date').value = endDate;
+
+            modal.classList.add('show');
+            overlay.classList.add('show');
+        }
+
+        function hideBookingModal() {
+            document.getElementById('booking-modal').classList.remove('show');
+            document.getElementById('booking-modal-overlay').classList.remove('show');
+            const msg = document.getElementById('booking-message');
+            msg.style.display = 'none';
+            msg.className = 'message';
+            document.getElementById('booking-form').style.display = 'block';
+        }
+
+        function showModalMessage(text, type) {
+            const message = document.getElementById('booking-message');
+            const form = document.getElementById('booking-form');
+            message.textContent = text;
+            message.className = `message ${type} show`;
+            form.style.display = 'none';
+            if (type === 'success') setTimeout(hideBookingModal, 3000);
+        }
+
+        // --- Custom location toggle ---
+        document.getElementById('pickup-location-select')?.addEventListener('change', function () {
+            const custom = document.getElementById('custom-pickup-location');
+            if (this.value === 'Other') {
+                custom.style.display = 'block';
+                custom.required = true;
+            } else {
+                custom.style.display = 'none';
+                custom.required = false;
+                custom.value = '';
+            }
+        });
+
+        document.getElementById('dropoff-location-select')?.addEventListener('change', function () {
+            const custom = document.getElementById('custom-dropoff-location');
+            if (this.value === 'Other') {
+                custom.style.display = 'block';
+                custom.required = true;
+            } else {
+                custom.style.display = 'none';
+                custom.required = false;
+                custom.value = '';
+            }
+        });
+
+        // --- Booking Form Submit ---
+        document.getElementById('booking-form')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const phone = iti.getNumber();
+            const pickup = document.getElementById('pickup-location-select').value;
+            const dropoff = document.getElementById('dropoff-location-select').value;
+            const customPickup = document.getElementById('custom-pickup-location').value.trim();
+            const customDropoff = document.getElementById('custom-dropoff-location').value.trim();
+            const pickupDate = document.getElementById('pickup-date').value;
+            const dropoffDate = document.getElementById('dropoff-date').value;
+            const pickupTime = document.getElementById('pickup-time').value;
+            const vehicleName = document.getElementById('vehicle-name').value;
+
+            if (!name || !phone || !pickup || !dropoff || !pickupDate || !dropoffDate || !pickupTime) {
+                showModalMessage('Please fill in all required fields.', 'error');
+                return;
+            }
+            if (pickup === 'Other' && !customPickup) {
+                showModalMessage('Please specify a custom pick-up location.', 'error');
+                return;
+            }
+            if (dropoff === 'Other' && !customDropoff) {
+                showModalMessage('Please specify a custom drop-off location.', 'error');
+                return;
+            }
+            if (!iti.isValidNumber()) {
+                showModalMessage('Please enter a valid phone number.', 'error');
+                return;
+            }
+
+            document.getElementById('phone').value = phone;
+
+            showModalMessage(`Booking request for ${vehicleName} submitted successfully!\nDates: ${pickupDate} to ${dropoffDate}`, 'success');
+        });
+
+        // --- Overlay click to close ---
+        document.getElementById('booking-modal-overlay')?.addEventListener('click', hideBookingModal);
+
+        // --- Smooth Scroll ---
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // --- Booking Filter/Vehicle Logic ---
         function searchVehicles() {
             const loading = document.getElementById('loading');
-            const vehiclesGrid = document.getElementById('vehiclesGrid');
-            
-            // Show loading
+            const grid = document.getElementById('vehiclesGrid');
             loading.style.display = 'block';
-            vehiclesGrid.style.opacity = '0.5';
-            
-            // Get filter values
-            const vehicleType = document.getElementById('vehicleType').value;
+            grid.style.opacity = '0.5';
+
+            const type = document.getElementById('vehicleType').value;
             const capacity = document.getElementById('capacity').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            
-            // Simulate API call delay
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+
             setTimeout(() => {
-                filterVehicles(vehicleType, capacity);
-                checkAvailability(startDate, endDate);
-                
-                // Hide loading
+                filterVehicles(type, capacity);
+                checkAvailability(start, end);
                 loading.style.display = 'none';
-                vehiclesGrid.style.opacity = '1';
+                grid.style.opacity = '1';
             }, 1500);
         }
 
-        // Filter Vehicles Function
         function filterVehicles(type, capacity) {
             const cards = document.querySelectorAll('.vehicle-card');
-            
             cards.forEach(card => {
                 let show = true;
-                
-                // Filter by vehicle type
-                if (type && card.dataset.type !== type) {
-                    show = false;
-                }
-                
-                // Filter by capacity
+                if (type && card.dataset.type !== type) show = false;
                 if (capacity) {
-                    const cardCapacity = parseInt(card.dataset.capacity);
+                    const cap = parseInt(card.dataset.capacity);
                     const [min, max] = capacity.split('-').map(n => parseInt(n.replace('+', '')));
-                    
                     if (capacity.includes('+')) {
-                        if (cardCapacity < min) show = false;
+                        if (cap < min) show = false;
                     } else {
-                        if (cardCapacity < min || cardCapacity > max) show = false;
+                        if (cap < min || cap > max) show = false;
                     }
                 }
-                
-                // Show/hide card with animation
-                if (show) {
-                    card.style.display = 'block';
-                    card.style.animation = 'fadeInUp 0.5s ease';
-                } else {
-                    card.style.display = 'none';
-                }
+                card.style.display = show ? 'block' : 'none';
+                if (show) card.style.animation = 'fadeInUp 0.5s ease';
             });
         }
 
-        // Check Availability Function (simulated)
         function checkAvailability(startDate, endDate) {
             const cards = document.querySelectorAll('.vehicle-card');
-            
-            // Simulate availability check
-            cards.forEach((card, index) => {
-                const statusElement = card.querySelector('.availability-status');
-                const bookButton = card.querySelector('.book-btn');
-                
-                // Randomly set availability for demo (in real app, this would check database)
-                const isAvailable = Math.random() > 0.3;
-                
-                if (isAvailable) {
-                    statusElement.className = 'availability-status status-available';
-                    statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Available';
-                    bookButton.disabled = false;
-                    bookButton.innerHTML = '<i class="fas fa-calendar-plus"></i> Book Now';
-                } else {
-                    statusElement.className = 'availability-status status-unavailable';
-                    statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Unavailable';
-                    bookButton.disabled = true;
-                    bookButton.innerHTML = '<i class="fas fa-ban"></i> Not Available';
-                }
+            cards.forEach(card => {
+                const status = card.querySelector('.availability-status');
+                const btn = card.querySelector('.book-btn');
+                const available = Math.random() > 0.3;
+                status.className = available ? 'availability-status status-available' : 'availability-status status-unavailable';
+                status.innerHTML = available
+                    ? '<i class="fas fa-check-circle"></i> Available'
+                    : '<i class="fas fa-times-circle"></i> Unavailable';
+                btn.disabled = !available;
+                btn.innerHTML = available
+                    ? '<i class="fas fa-calendar-plus"></i> Book Now'
+                    : '<i class="fas fa-ban"></i> Not Available';
             });
         }
 
-        // Clear Filters Function
         function clearFilters() {
-            document.getElementById('vehicleType').value = '';
-            document.getElementById('capacity').value = '';
-            document.getElementById('startDate').value = '';
-            document.getElementById('endDate').value = '';
-            
-            // Show all vehicles
-            const cards = document.querySelectorAll('.vehicle-card');
-            cards.forEach(card => {
+            ['vehicleType', 'capacity', 'startDate', 'endDate'].forEach(id => document.getElementById(id).value = '');
+            document.querySelectorAll('.vehicle-card').forEach(card => {
                 card.style.display = 'block';
                 card.style.animation = 'fadeInUp 0.5s ease';
             });
         }
 
-        // Book Vehicle Function
         function bookVehicle(type, name) {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            
-            if (!startDate || !endDate) {
-                alert('Please select your travel dates first!');
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            if (!start || !end) {
+                showBookingModal('Booking Form', type, name);
+                showModalMessage('Please select your travel dates first!', 'error');
                 return;
             }
-            
-            // In real application, this would redirect to booking form or show modal
-            alert(`Booking request for ${name}\nDates: ${startDate} to ${endDate}\n\nYou will be redirected to the booking form.`);
-            
-            // Here you would typically:
-            // 1. Collect additional booking details
-            // 2. Send booking request to server
-            // 3. Redirect to confirmation page
+            showBookingModal(`Book ${name}`, type, name);
         }
-
-        // Add smooth scroll behavior
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
     </script>
 </body>
 </html>
