@@ -1,3 +1,60 @@
+<?php
+session_start(); // Start the session
+
+// MongoDB connection
+require 'vendor/autoload.php'; // Include MongoDB client
+try {
+    $client = new MongoDB\Client("mongodb+srv://ThisaraTravels:ThisaraTravels071@thisaratravels.vjuro.mongodb.net/?retryWrites=true&w=majority&appName=ThisaraTravels");
+    $db = $client->ThisaraTravels;
+    $usersCollection = $db->users;
+    $settingsCollection = $db->settings;
+    $bookingsCollection = $db->bookings; // New bookings collection
+
+    // Fetch maintenance mode setting
+    $settings = $settingsCollection->findOne(['name' => 'maintenance_mode']);
+    $maintenance_mode = isset($settings['status']) && strtolower($settings['status']) === 'on';
+
+} catch (Exception $e) {
+    error_log("Database connection error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'error' => 'Database connection failed.']);
+    exit;
+}
+
+// Debugging: Log session username
+if (isset($_SESSION['username'])) {
+    error_log("Session Username: " . $_SESSION['username']);
+}
+
+// Maintenance mode logic
+if ($maintenance_mode) {
+    if (isset($_SESSION['username']) && !empty($_SESSION['username'])) {
+        $username = $_SESSION['username'];
+        $user = $usersCollection->findOne(['UserName' => $username]);
+
+        if ($user && isset($user['role']) && strtolower($user['role']) === 'admin') {
+            error_log("Admin user logged in, access granted.");
+        } else {
+            error_log("Redirecting user to maintenance.php (Not admin).");
+            header('Location: maintenance.php');
+            exit();
+        }
+    } else {
+        error_log("Redirecting guest to maintenance.php.");
+        header('Location: maintenance.php');
+        exit();
+    }
+}
+
+// Handle session messages
+$errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
+$form_data = isset($_SESSION['form_data']) ? $_SESSION['form_data'] : [];
+$success = isset($_SESSION['success']) ? $_SESSION['success'] : [];
+
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -238,7 +295,7 @@
         }
 
         .booking-modal .form-control.custom-location {
-            margin-top: 0.5rem; /* Small gap between dropdown and custom field */
+            margin-top: 0.5rem;
         }
 
         .custom-location {
@@ -304,6 +361,67 @@
             display: block;
         }
 
+        /* Confirmation View */
+        .confirmation-view {
+            display: none;
+            color: #F8F1E9;
+        }
+
+        .confirmation-view.show {
+            display: block;
+        }
+
+        .confirmation-view h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .confirmation-view .booking-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .confirmation-view .booking-details p {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+        }
+
+        .confirmation-view .confirmation-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .confirmation-view .btn-confirm, .confirmation-view .btn-cancel {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirmation-view .btn-confirm {
+            background: linear-gradient(135deg, #2F6DA3 0%, #174038 100%);
+            color: #F8F1E9;
+        }
+
+        .confirmation-view .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(47, 109, 163, 0.3);
+        }
+
+        .confirmation-view .btn-cancel {
+            background: #dc3545;
+            color: #F8F1E9;
+        }
+
+        .confirmation-view .btn-cancel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+        }
+
         /* Main Container */
         .container {
             max-width: 1400px;
@@ -348,6 +466,7 @@
         .intro-section::before {
             content: '';
             position: absolute;
+oul
             top: 0;
             left: -20%;
             width: 60%;
@@ -724,8 +843,8 @@
             display: flex;
             align-items: center;
             gap: 0.3rem;
-            color: #666;
             font-size: 0.7rem;
+            color: #666;
         }
 
         .feature i {
@@ -856,102 +975,6 @@
             }
         }
 
-        /* Custom styling for intl-tel-input */
-        .iti {
-            width: 100%;
-            position: relative;
-            display: flex; /* Use flexbox to align flag container and input */
-            align-items: center;
-        }
-
-        .iti input[type="tel"] {
-            width: 100%;
-            padding: 12px 15px 12px 70px; /* Increased left padding for flag and gap */
-            border: 2px solid #E6F0EA;
-            border-radius: 0 10px 10px 0; /* Rounded corners only on right side */
-            font-size: 1rem;
-            background: #F8F1E9;
-            color: #224B41;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        .iti input[type="tel"]:focus {
-            outline: none;
-            border-color: #2F6DA3;
-            transform: scale(1.02);
-            box-shadow: 0 0 0 3px rgba(47, 109, 163, 0.1);
-        }
-
-        .iti__flag-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 60px; /* Fixed width for flag container */
-            height: 100%;
-            border: 2px solid #E6F0EA;
-            border-right: none;
-            border-radius: 10px 0 0 10px;
-            background: #F8F1E9;
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Center flag and dial code */
-            z-index: 1;
-        }
-
-        .iti__selected-flag {
-            background: #F8F1E9;
-            border-radius: 10px 0 0 10px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            padding-left: 10px; /* Add padding for spacing */
-        }
-
-        .iti__selected-flag:hover {
-            background: #E6F0EA;
-        }
-
-        .iti__country-list {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-height: 300px;
-            overflow-y: auto;
-            background: #F8F1E9;
-            border: 2px solid #E6F0EA;
-            z-index: 2000;
-        }
-
-        .iti__country {
-            padding: 8px 12px;
-            color: #224B41;
-        }
-
-        .iti__country:hover {
-            background: #5AB896;
-            color: #F8F1E9;
-        }
-
-        .iti__country-name {
-            font-weight: 500;
-        }
-
-        .iti__dial-code {
-            color: #6c757d;
-            font-weight: 600;
-        }
-
-        /* Ensure the input and flag container align properly with a gap */
-        .iti--allow-dropdown input, .iti--separate-dial-code input {
-            padding-left: 70px !important; /* Increased padding to prevent overlap */
-        }
-
-        /* Placeholder styling */
-        .iti input::placeholder {
-            color: #6c757d;
-            font-style: italic;
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .nav-container {
@@ -1068,13 +1091,8 @@
                 flex-direction: column;
             }
 
-            .iti input[type="tel"] {
-                padding: 10px 10px 10px 60px; /* Adjusted for smaller screens */
-            }
-
-            .iti__flag-container {
-                width: 50px; /* Smaller width for mobile */
-                padding: 0 8px;
+            .confirmation-view .confirmation-buttons {
+                flex-direction: column;
             }
         }
 
@@ -1083,7 +1101,7 @@
             margin-bottom: 30px;
             color: #25D366;
         }
-        
+
         .whatsapp-header i {
             font-size: 2.5rem;
             margin-bottom: 10px;
@@ -1094,7 +1112,7 @@
             color: #495057;
             margin-bottom: 8px;
         }
-        
+
         .btn-whatsapp {
             background: #25D366;
             border: none;
@@ -1105,27 +1123,27 @@
             width: 100%;
             transition: all 0.3s ease;
         }
-        
+
         .btn-whatsapp:hover {
             background: #128C7E;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3);
             color: white;
         }
-        
+
         .validation-message {
             font-size: 0.875rem;
             margin-top: 5px;
         }
-        
+
         .valid {
             color: #28a745;
         }
-        
+
         .invalid {
             color: #dc3545;
         }
-        
+
         .phone-info {
             background: white;
             padding: 15px;
@@ -1133,57 +1151,161 @@
             margin-top: 20px;
             border: 1px solid #dee2e6;
         }
-        
+
         .phone-info h6 {
             color: #495057;
             margin-bottom: 10px;
         }
-        
+
         .info-item {
             display: flex;
             justify-content: space-between;
             margin-bottom: 5px;
         }
-        
+
         .info-label {
             font-weight: 600;
             color: #6c757d;
         }
-        
+
         .info-value {
             color: #495057;
         }
-        
+
         .search-hint {
             font-size: 0.875rem;
             color: #6c757d;
             margin-top: 5px;
         }
+
+        /* Container wrapper for the phone input */
+        .iti {
+            width: 100%;
+        }
+
+        #phone {
+            padding-left: 68px !important;
+            height: 45px;
+            font-size: 1rem;
+            width: 100%;
+            border: 2px solid #E6F0EA;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background: #F8F1E9;
+            color: #224B41;
+        }
+
+        #phone:focus {
+            border-color: #2F6DA3;
+            outline: none;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(47, 109, 163, 0.1);
+        }
+
+        .iti__flag-container {
+            background-color: #F8F1E9;
+            border: 2px solid #E6F0EA;
+            border-right: none;
+            border-radius: 10px 0 0 10px;
+            height: 45px;
+            z-index: 2001;
+            margin-right: 10px;
+        }
+
+        .iti__country-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 300px;
+            max-height: 220px;
+            overflow-y: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 15px;
+            z-index: 2002 !important;
+            background: #F8F1E9;
+            border: 2px solid #E6F0EA;
+        }
+
+        .iti__country {
+            padding: 8px 12px;
+            transition: background 0.3s;
+            color: #224B41;
+        }
+
+        .iti__country:hover {
+            background-color: #E6F0EA;
+        }
+
+        .iti__country.iti__highlight {
+            background-color: #2F6DA3;
+            color: #F8F1E9;
+        }
+
+        .iti__selected-flag {
+            height: 45px;
+            display: flex;
+            align-items: center;
+        }
+
+        .iti--separate-dial-code.iti--show-flags .iti__selected-dial-code {
+            margin-left: 0 !important;
+        }
+
+        .iti__selected-flag {
+            padding: 0px !important;
+        }
+
+        .iti__search-input {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #E6F0EA;
+            margin: 5px 10px;
+            width: calc(100% - 20px);
+            background: #F8F1E9;
+            color: #224B41;
+        }
+
+        .dropdown-toggle::after {
+    display: none !important;
+}
+
     </style>
 </head>
 <body>
     <!-- Header (Nav Bar) -->
     <header class="header">
         <nav class="nav-container">
-            <a href="#" class="logo">
+            <a href="index.php" class="logo">
                 <i class="fas fa-car"></i> Thisara Travels
             </a>
             <ul class="nav-links">
-                <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="#"><i class="fas fa-info-circle"></i> About</a></li>
-                <li><a href="#"><i class="fas fa-concierge-bell"></i> Services</a></li>
+                <li><a href="index.php"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="about.php"><i class="fas fa-info-circle"></i> About</a></li>
+                <li><a href="service.php"><i class="fas fa-concierge-bell"></i> Services</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle">
                         <i class="fas fa-file-alt"></i> Page
                         <i class="fas fa-chevron-down dropdown-icon"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="#"><i class="fas fa-star"></i> Reviews</a></li>
-                        <li><a href="#"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+                        <li><a href="testimonial.php"><i class="fas fa-star"></i> Reviews</a></li>
+                        <li><a href="booking.php"><i class="fas fa-calendar-check"></i> Bookings</a></li>
                     </ul>
                 </li>
-                <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
-                <li><a href="#"><i class="fas fa-user"></i> Profile</a></li>
+                <li><a href="contact.php"><i class="fas fa-envelope"></i> Contact</a></li>
+                <li>
+                    <?php
+                    if (!isset($_SESSION['username'])) {
+                        echo '<a href="login.php"><i class="fas fa-user"></i> Login</a>';
+                    } else {
+                        $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
+                        $user_role = $_SESSION['role'] ?? 'user';
+                        $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'user_dashboard.php';
+                        echo '<a href="' . $redirect_url . '"><i class="fas fa-user"></i> Profile</a>';
+                    }
+                    ?>
+                </li>
             </ul>
         </nav>
     </header>
@@ -1194,7 +1316,7 @@
         <button class="close-btn" onclick="hideBookingModal()">Close</button>
         <h2 id="booking-modal-title">Book Your Vehicle</h2>
         <div id="booking-message" class="message"></div>
-        <form id="booking-form" method="post" action="process_booking.php">
+        <form id="booking-form" method="post">
             <input type="hidden" name="vehicle_type" id="vehicle-type">
             <input type="hidden" name="vehicle_name" id="vehicle-name">
             <div class="form-group">
@@ -1204,10 +1326,10 @@
             <div class="form-group">
                 <label for="phone"><i class="fab fa-whatsapp"></i> WhatsApp Number</label>
                 <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your WhatsApp number" required>
-                <div class="search-hint" style="font-size: 12px; color: #888; margin-top: 5px;">
+                <div class="search-hint">
                     <i class="fas fa-search"></i> You can search countries by name or dial code
                 </div>
-                <div id="validation-message" class="validation-message" style="font-size: 12px; color: red;"></div>
+                <div id="validation-message" class="validation-message"></div>
             </div>
             <div class="form-group">
                 <label for="pickup-location-select"><i class="fas fa-map-marker-alt"></i> Pick-Up Location</label>
@@ -1298,6 +1420,14 @@
             </div>
             <button class="btn-submit" type="submit">Book Now</button>
         </form>
+        <div id="confirmation-view" class="confirmation-view">
+            <h3>Confirm Your Booking</h3>
+            <div id="booking-details" class="booking-details"></div>
+            <div class="confirmation-buttons">
+                <button class="btn-confirm" onclick="confirmBooking()">Confirm</button>
+                <button class="btn-cancel" onclick="cancelBooking()">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <!-- Main Container -->
@@ -1470,6 +1600,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
 
     <script>
@@ -1491,36 +1622,59 @@
         const phoneInput = document.getElementById('phone');
         const iti = window.intlTelInput(phoneInput, {
             initialCountry: "auto",
-            geoIpLookup: function (success, failure) {
-                fetch('https://ipapi.co/json/')
-                    .then(res => res.json())
-                    .then(data => success(data.country_code))
-                    .catch(() => success('us'));
+            geoIpLookup: async function (success, failure) {
+                try {
+                    const res = await fetch('https://ipapi.co/json/');
+                    const data = await res.json();
+                    success(data.country_code || 'lk');
+                } catch (error) {
+                    console.error('GeoIP lookup failed:', error);
+                    success('lk');
+                }
             },
             separateDialCode: true,
             preferredCountries: ["lk", "in", "gb", "us"],
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js",
             formatOnDisplay: true,
-            nationalMode: true,
+            nationalMode: false,
             autoPlaceholder: "aggressive",
             customPlaceholder: function (placeholder, data) {
                 return "e.g. " + placeholder;
-            }
+            },
+            allowDropdown: true
         });
 
-        // --- Validate phone number on input ---
-        phoneInput.addEventListener('input', function () {
+        // Check if flag sprite is loaded
+        const flagSprite = new Image();
+        flagSprite.src = 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags.png';
+        flagSprite.onerror = () => {
+            console.error('Failed to load flag sprite.');
+        };
+
+        // --- Validate phone number ---
+        phoneInput.addEventListener('input', validatePhone);
+        phoneInput.addEventListener('blur', validatePhone);
+        phoneInput.addEventListener('countrychange', validatePhone);
+
+        function validatePhone() {
             const validationMessage = document.getElementById('validation-message');
             if (iti.isValidNumber()) {
                 validationMessage.textContent = 'Valid phone number';
                 validationMessage.className = 'validation-message valid';
             } else {
-                validationMessage.textContent = 'Please enter a valid phone number';
+                const errorCode = iti.getValidationError();
+                let message = 'Please enter a valid phone number';
+                if (errorCode === intlTelInputUtils.validationError.TOO_SHORT) message = 'Phone number is too short';
+                else if (errorCode === intlTelInputUtils.validationError.TOO_LONG) message = 'Phone number is too long';
+                else if (errorCode === intlTelInputUtils.validationError.INVALID_COUNTRY_CODE) message = 'Invalid country code';
+                validationMessage.textContent = message;
                 validationMessage.className = 'validation-message invalid';
             }
-        });
+        }
 
         // --- Booking Modal Functions ---
+        let bookingData = null;
+
         function showBookingModal(title, type, name) {
             const modal = document.getElementById('booking-modal');
             const overlay = document.getElementById('booking-modal-overlay');
@@ -1529,6 +1683,7 @@
             const vehicleNameInput = document.getElementById('vehicle-name');
             const message = document.getElementById('booking-message');
             const form = document.getElementById('booking-form');
+            const confirmationView = document.getElementById('confirmation-view');
             const pickupSelect = document.getElementById('pickup-location-select');
             const dropoffSelect = document.getElementById('dropoff-location-select');
             const customPickup = document.getElementById('custom-pickup-location');
@@ -1540,8 +1695,10 @@
             message.style.display = 'none';
             message.className = 'message';
             form.style.display = 'block';
+            confirmationView.classList.remove('show');
 
-            // Reset dropdowns
+            // Reset form
+            form.reset();
             pickupSelect.value = '';
             dropoffSelect.value = '';
             customPickup.style.display = 'none';
@@ -1551,7 +1708,7 @@
             customDropoff.required = false;
             customDropoff.value = '';
 
-            // Set pre-fill dates
+            // Pre-fill dates
             const startDate = document.getElementById('startDate')?.value;
             const endDate = document.getElementById('endDate')?.value;
             if (startDate) document.getElementById('pickup-date').value = startDate;
@@ -1568,15 +1725,41 @@
             msg.style.display = 'none';
             msg.className = 'message';
             document.getElementById('booking-form').style.display = 'block';
+            document.getElementById('confirmation-view').classList.remove('show');
+            bookingData = null;
         }
 
         function showModalMessage(text, type) {
             const message = document.getElementById('booking-message');
             const form = document.getElementById('booking-form');
+            const confirmationView = document.getElementById('confirmation-view');
             message.textContent = text;
             message.className = `message ${type} show`;
             form.style.display = 'none';
+            confirmationView.classList.remove('show');
             if (type === 'success') setTimeout(hideBookingModal, 3000);
+        }
+
+        function showConfirmationView(data) {
+            const form = document.getElementById('booking-form');
+            const confirmationView = document.getElementById('confirmation-view');
+            const bookingDetails = document.getElementById('booking-details');
+            const modalTitle = document.getElementById('booking-modal-title');
+
+            modalTitle.textContent = 'Confirm Your Booking';
+            bookingDetails.innerHTML = `
+                <p><strong>Vehicle:</strong> ${data.vehicle_name}</p>
+                <p><strong>Name:</strong> ${data.name}</p>
+                <p><strong>WhatsApp Number:</strong> ${data.phone}</p>
+                <p><strong>Pick-Up Location:</strong> ${data.pickup_location}${data.custom_pickup_location ? ` (${data.custom_pickup_location})` : ''}</p>
+                <p><strong>Drop-Off Location:</strong> ${data.dropoff_location}${data.custom_dropoff_location ? ` (${data.custom_dropoff_location})` : ''}</p>
+                <p><strong>Pickup Date:</strong> ${data.pickup_date}</p>
+                <p><strong>Drop-Off Date:</strong> ${data.dropoff_date}</p>
+                <p><strong>Pickup Time:</strong> ${data.pickup_time}</p>
+                <p><strong>Special Request:</strong> ${data.Special_Request || 'None'}</p>
+            `;
+            form.style.display = 'none';
+            confirmationView.classList.add('show');
         }
 
         // --- Custom location toggle ---
@@ -1605,7 +1788,7 @@
         });
 
         // --- Booking Form Submit ---
-        document.getElementById('booking-form')?.addEventListener('submit', function (e) {
+        document.getElementById('booking-form')?.addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const name = document.getElementById('name').value.trim();
@@ -1617,7 +1800,9 @@
             const pickupDate = document.getElementById('pickup-date').value;
             const dropoffDate = document.getElementById('dropoff-date').value;
             const pickupTime = document.getElementById('pickup-time').value;
+            const vehicleType = document.getElementById('vehicle-type').value;
             const vehicleName = document.getElementById('vehicle-name').value;
+            const specialRequest = document.getElementById('special-request').value.trim();
 
             if (!name || !phone || !pickup || !dropoff || !pickupDate || !dropoffDate || !pickupTime) {
                 showModalMessage('Please fill in all required fields.', 'error');
@@ -1636,10 +1821,78 @@
                 return;
             }
 
-            document.getElementById('phone').value = phone;
+            // Prepare data for confirmation
+            bookingData = {
+                vehicle_type: vehicleType,
+                vehicle_name: vehicleName,
+                name: name,
+                phone: phone,
+                pickup_location: pickup,
+                dropoff_location: dropoff,
+                custom_pickup_location: customPickup,
+                custom_dropoff_location: customDropoff,
+                pickup_date: pickupDate,
+                dropoff_date: dropoffDate,
+                pickup_time: pickupTime,
+                Special_Request: specialRequest
+            };
 
-            showModalMessage(`Booking request for ${vehicleName} submitted successfully!\nDates: ${pickupDate} to ${dropoffDate}`, 'success');
+            try {
+                const response = await fetch('process_booking.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bookingData)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    showConfirmationView(bookingData);
+                } else {
+                    showModalMessage(result.error || 'Failed to process booking.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showModalMessage('An error occurred while processing your booking.', 'error');
+            }
         });
+
+        async function confirmBooking() {
+            if (!bookingData) {
+                showModalMessage('No booking data to confirm.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('process_booking.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ...bookingData, confirm: true })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    showModalMessage(`Booking for ${bookingData.vehicle_name} confirmed successfully!`, 'success');
+                    bookingData = null;
+                } else {
+                    showModalMessage(result.error || 'Failed to confirm booking.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showModalMessage('An error occurred while confirming your booking.', 'error');
+            }
+        }
+
+        function cancelBooking() {
+            const form = document.getElementById('booking-form');
+            const confirmationView = document.getElementById('confirmation-view');
+            form.style.display = 'block';
+            confirmationView.classList.remove('show');
+            bookingData = null;
+        }
 
         // --- Overlay click to close ---
         document.getElementById('booking-modal-overlay')?.addEventListener('click', hideBookingModal);
