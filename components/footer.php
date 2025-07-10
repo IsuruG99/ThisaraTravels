@@ -11,18 +11,46 @@
         
         <!-- Logo and Description -->
         <div class="footer-col">
-            <img src="img/logo-white.png" alt="Thisara Travels" class="footer-logo">
-            <p>Your trusted travel partner in Sri Lanka since 2010</p>
+            <div class="logo-column rounded p-4">
+                <div class="row-1">
+                    <div class="logo-container">
+                        <!-- Image logo -->
+                        <img src="img/Logo.png" alt="Thisara Travels" class="footer-logo">
+                        <!-- Logo Text -->
+                        <div class="logo-text">
+                            <span class="logo-text1">Thisara</span>
+                            <span class="logo-text2">Travels & Tours</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="description">
+                    <p>We are a leading travel agency in Sri Lanka, offering a wide range of tour packages and travel services since 2010.</p>
+                </div>
+
+                <div class="social-icons">
+                    <a href="https://www.facebook.com" target="_blank" class="text-white me-4"><i class="bi bi-facebook"></i></a>
+                    <a href="https://www.instagram.com" target="_blank" class="text-white me-4"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
         </div>
         
+
+
+
         <!-- Quick Links -->
         <div class="footer-col">
-            <h3>Quick Links</h3>
-                <ul><a href="tours.php">Tour Packages</a></ul>
-                <ul><a href="about.php">About Us</a></ul>
-                <ul><a href="contact.php">Contact</a></ul>
+            <div class="quick-links p-4 rounded">
+                <h3 class="mb-4">Quick Links</h3>
+                <p><a href="tours.php">Tour Packages</a></p>
+                <p><a href="about.php">About Us</a></p>
+                <p><a href="contact.php">Contact Us</a></p>
+            </div>    
         </div>
         
+
+
+
         <!-- Contact Information-->
         <div class="footer-col">
             <div class="text-white p-4 rounded">
@@ -37,7 +65,7 @@
                     </div>
                     <div>
                         <p class="mb-0 small" style="color: #cccccc; text-align: left">Drop a Line</p>
-                        <a href="tel:+94777562425" class="text-white text-decoration-none">+94 77 756 2425</a>
+                        <a href="tel:+94777562425" class="text-white text-decoration-none">+94 71 512 3719</a>
                     </div>
                 </div>
 
@@ -50,7 +78,7 @@
                     </div>
                     <div>
                         <p class="mb-0 small" style="color: #cccccc; text-align: left">Email Address</p>
-                        <a href="mailto:bookings@lankatrek.com" class="text-white text-decoration-none">bookings@lankatrek.com</a>
+                        <a href="mailto:bookings@thisaratravels.com" class="text-white text-decoration-none">bookings@thisaratravels.com</a>
                     </div>
                 </div>
 
@@ -63,7 +91,7 @@
                     </div>
                     <div>
                         <p class="mb-0 small" style="color: #cccccc; text-align: left">Visit office</p>
-                        <p class="mb-0 text-white">436A, Methsara, Delgalla.</p>
+                        <p class="mb-0 text-white">Binkama, Angunakolapelessa</p>
                     </div>
                 </div>
             </div>

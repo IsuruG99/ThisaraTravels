@@ -32,7 +32,7 @@ if (isset($_SESSION['username'])) {
         }
 
         .maintenance-message {
-            margin: 0 auto;
+            margin: 30px auto;
             padding: 20px;
             height: 1080px;
             max-height: 60vh;
