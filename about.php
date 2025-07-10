@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (isset($_SESSION['username'])) {
+    error_log("Session Username: " . $_SESSION['username']);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -53,8 +60,8 @@
             </div>
         </a>
         <ul class="nav-links">
-            <li><a href="index.php" class="active-link" data-page="home">HOME</a></li>
-            <li><a href="about.php" data-page="about">ABOUT</a></li>
+            <li><a href="index.php" data-page="home">HOME</a></li>
+            <li><a href="about.php" class="active-link" data-page="about">ABOUT</a></li>
             <li><a href="service.php" data-page="services">SERVICES</a></li>
             <li class="dropdown">
                 <a data-page="pages">PAGES <i class="fas fa-chevron-down dropdown-icon"></i></a>
@@ -67,13 +74,13 @@
             <li class="navbar-login-item">
                 <?php
                 if (!isset($_SESSION['username'])) {
-                    echo '<a href="login.php" class="navbar-login-button" title="Login">
+                    echo '<a href="auth.php" class="navbar-login-button" title="Login">
                     <img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle">
                   </a>';
                 } else {
                     $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
                     $user_role = $_SESSION['role'] ?? 'user';
-                    $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'user_dashboard.php';
+                    $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'profile_page.php';
 
                     echo '<a href="' . $redirect_url . '" class="navbar-profile-button" title="Profile">
                     <img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle">
