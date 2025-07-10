@@ -176,7 +176,7 @@ try {
 </div>
 <?php else: ?>
 <div class="container text-center my-5">
-    <p><a href="login.php">Login</a> to leave a review.</p>
+    <p><a href="auth.php">Login</a> to leave a review.</p>
 </div>
 <?php endif; ?>
 
