@@ -29,8 +29,8 @@
                 </div>
 
                 <div class="social-icons">
-                    <a href="https://www.facebook.com" target="_blank" class="text-white me-3"><i class="bi bi-facebook"></i></a>
-                    <a href="https://www.instagram.com" target="_blank" class="text-white me-3"><i class="bi bi-instagram"></i></a>
+                    <a href="https://www.facebook.com" target="_blank" class="text-white"><i class="bi bi-facebook"></i></a>
+                    <a href="https://www.instagram.com" target="_blank" class="text-white"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
         </div>
