@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="css/footer.css">
+<link href="css/footer.css" rel="stylesheet" type="text/css">
 <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Bootstrap Icons -->
@@ -13,13 +13,13 @@
         <div class="footer-col">
             <div class="logo-column rounded p-4">
                 <div class="row-1">
-                    <div class="logo-container">
+                    <div class="footer-logo">
                         <!-- Image logo -->
-                        <img src="img/Logo.png" alt="Thisara Travels" class="footer-logo">
+                        <img src="img/Logo.png" alt="Thisara Travels" class="footer-logo-img">
                         <!-- Logo Text -->
-                        <div class="logo-text">
-                            <span class="logo-text1">Thisara</span>
-                            <span class="logo-text2">Travels & Tours</span>
+                        <div class="footer-logo-text">
+                            <span class="footer-logo-text1">Thisara</span>
+                            <span class="footer-logo-text2">Travels & Tours</span>
                         </div>
                     </div>
                 </div>
@@ -29,8 +29,8 @@
                 </div>
 
                 <div class="social-icons">
-                    <a href="https://www.facebook.com" target="_blank" class="text-white me-4"><i class="bi bi-facebook"></i></a>
-                    <a href="https://www.instagram.com" target="_blank" class="text-white me-4"><i class="bi bi-instagram"></i></a>
+                    <a href="https://www.facebook.com" target="_blank" class="text-white me-3"><i class="bi bi-facebook"></i></a>
+                    <a href="https://www.instagram.com" target="_blank" class="text-white me-3"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
         </div>

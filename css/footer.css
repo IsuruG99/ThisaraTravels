@@ -40,6 +40,43 @@
 
 
 
+/* Logo Image Styling */
+.footer-logo-img {
+    width: 60px;
+    height: auto;
+    margin-right: 4px;
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.footer-logo-text {
+    font-weight: 700;
+    color: transparent;
+    background: linear-gradient(45deg, #00BFAE, #FF6A00);
+    -webkit-background-clip: text; /* Clips the gradient to the text */
+    background-clip: text;
+    letter-spacing: 3px;
+}
+
+.footer-logo-text1 {
+    font-family: 'Rockabilly', sans-serif!important;
+    color: #289AA9;
+    font-size: 40px; 
+    font-weight: bold;
+    line-height: 1.2;
+}
+.footer-logo-text2 {
+   font-size: 20px;
+   letter-spacing: 2px;
+}
+
+.footer-logo:hover .footer-logo-img {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform: scale(1.1);
+}
+
+
+
 /* footer - Quick Links */
 .footer-col p a {
     color: #fff;
