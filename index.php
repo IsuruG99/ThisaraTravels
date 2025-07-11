@@ -46,6 +46,7 @@ if (isset($_SESSION['username'])) {
 </head>
 
 <!-- Content Start -->
+
 <body>
     <nav class="navbar">
         <a href="index.php" class="logo-link">
@@ -97,11 +98,6 @@ if (isset($_SESSION['username'])) {
         </div>
     </nav>
 
-    <div class="maintenance-message">
-        <h1>We’ll Be Right Back!</h1>
-        <p>Our website is undergoing maintenance. Please check back later.</p>
-    </div>
-    
     <!-- Home Page Loading -->
     <div class="loading-homepage">
         <?php include 'home-page.php'; ?>
