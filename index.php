@@ -11,13 +11,13 @@ if (isset($_SESSION['username'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Mode</title>
+    <title>Thisara Travels & Tours | Best Travels & Tour Agent in Sri Lanka</title>
     <style>
         body {
             text-align: center;
             background: #f4f4f4;
             font-family: Arial, sans-serif;
-            padding: 50px;
+            /* padding: 50px; */
             height: 100vh;
         }
 
@@ -32,7 +32,7 @@ if (isset($_SESSION['username'])) {
         }
 
         .maintenance-message {
-            margin: 0 auto;
+            margin: 30px auto;
             padding: 20px;
             height: 1080px;
             max-height: 60vh;
@@ -96,35 +96,24 @@ if (isset($_SESSION['username'])) {
             <span></span>
         </div>
     </nav>
+
     <div class="maintenance-message">
         <h1>We’ll Be Right Back!</h1>
         <p>Our website is undergoing maintenance. Please check back later.</p>
     </div>
+    
+    <!-- Home Page Loading -->
+    <div class="loading-homepage">
+        <?php include 'home-page.php'; ?>
+    </div>
+
+    <!-- Footer Start -->
+    <?php include 'components/footer.php'; ?>
+    <!-- Footer End -->
 </body>
 <!-- Content End -->
 
-<!-- Footer Start -->
-<div class="container-fluid bg-dark text-light footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
-    <div class="container">
-        <div class="copyright">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0 ">
-                    &copy; <a class="border-bottom " href="index.php">Thisara Travels & Tours</a>, All Right Reserved.
-                    Designed By <a class="border-bottom text-decoration-none" href="">WebWizards</a>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">Home</a>
-                        <a href="#" onclick="openCookieSettings()">Cookies</a>
-                        <a href="#">Help</a>
-                        <a href="#">FQAs</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Footer End -->
+
 
 
 

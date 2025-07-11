@@ -11,7 +11,7 @@
 	    --bg-color: #ffffff;
     --text-color: #000000;
     --hover-color: #FBDC5C;
-	-nav-height: 0px;
+	--nav-height: 0px;
 }
 @media (prefers-color-scheme: dark) {
     :root {
@@ -389,7 +389,6 @@
     /* Navbar Styling */
     .navbar {
         margin: 0!important; /* Remove all margins */
-        w
         position: relative!important; /* Prevent overlapping issues */
         z-index: 1000!important; /* Ensure navbar stays on top */
     }
@@ -477,7 +476,7 @@
     }
 }
 
-/
+
 /* Ensure Visibility on Small Screens */
 @media screen and (max-width: 768px) {
     .hamburger {
@@ -1370,8 +1369,8 @@ margin-top: 40px;
 	}
 	@media (max-width: 768px) {
     .form-control,
-    .form-select,
-     {
+    .form-select
+    {
         width: 100%;
         max-width: 100%;
         height: 55px; /* Optional: To maintain consistent height */
@@ -1381,19 +1380,19 @@ margin-top: 40px;
     textarea.form-control {
         height: auto; /* Allow textareas to grow based on content */
     }
-
-
-
-}
-		.iti__country-list{
-			width: 270px;
-		}
 }
 		
-			  .iti--allow-dropdown input, .iti--allow-dropdown input[type=text], .iti--allow-dropdown input[type=tel], .iti--separate-dial-code input, .iti--separate-dial-code input[type=text], .iti--separate-dial-code input[type=tel] {
-width:150px!important;
-    
+.iti__country-list{
+	width: 270px;
 }
+
+		
+.iti--allow-dropdown input, 
+.iti--allow-dropdown input[type=text], 
+.iti--allow-dropdown input[type=tel], 
+.iti--separate-dial-code input, 
+.iti--separate-dial-code input[type=text], 
+.iti--separate-dial-code input[type=tel] {width:150px!important;}
 
 /* Custom Gallery Section */
 .custom-gallery {
