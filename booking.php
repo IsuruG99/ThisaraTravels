@@ -1306,7 +1306,7 @@ oul
                     } else {
                         $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
                         $user_role = $_SESSION['role'] ?? 'user';
-                        $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'profile_page.php';
+                        $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'profile-page.php';
                         echo '<a href="' . $redirect_url . '"><i class="fas fa-user"></i> Profile</a>';
                     }
                     ?>
