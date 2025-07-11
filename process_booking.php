@@ -13,9 +13,13 @@ require 'vendor/autoload.php'; // Ensure MongoDB PHP library is installed via Co
 use MongoDB\Client;
 use MongoDB\BSON\UTCDateTime;
 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+$uri = $_ENV['MONGODB_URI'];
+
 try {
-    // Connect to MongoDB Atlas
-    $mongoUri = "mongodb+srv://developer:developer1234@thisaratours.awkmodj.mongodb.net/?retryWrites=true&w=majority&appName=ThisaraTours";
+    $client = new MongoDB\Client($uri);
     $client = new Client($mongoUri);
     $database = $client->selectDatabase('ThisaraTours');
     $bookingsCollection = $database->selectCollection('bookings');

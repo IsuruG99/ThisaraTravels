@@ -409,7 +409,7 @@ try {
                     return false;
                 }
 
-                fetch('profile_settings.php', {
+                fetch('profile-backend.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -440,7 +440,7 @@ try {
                     return false;
                 }
 
-                fetch('profile_settings.php', {
+                fetch('profile-backend.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -465,7 +465,7 @@ try {
         <div class="tab-content" id="profileTabsContent">
             <!-- Bookings Tab -->
             <div class="tab-pane fade show active" id="bookings" role="tabpanel">
-                <!-- <div class="profile-card">
+                <div class="profile-card">
                     <h2 class="profile-card-title">My Bookings</h2>
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -546,12 +546,12 @@ try {
                             </tbody>
                         </table>
                     </div>
-                </div> -->
+                </div>
             </div>
 
             <!-- Reviews Tab -->
             <div class="tab-pane fade" id="reviews" role="tabpanel">
-                <!-- <div class="profile-card">
+                <div class="profile-card">
                     <h2 class="profile-card-title">My Reviews</h2>
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -593,7 +593,7 @@ try {
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
     </div>
 
     <!-- Update Photo Modal -->
@@ -630,7 +630,7 @@ try {
             e.preventDefault();
             const formData = new FormData(this);
 
-            fetch('profile_settings.php', {
+            fetch('profile-backend.php', {
                 method: 'POST',
                 body: formData
             })
