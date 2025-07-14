@@ -90,7 +90,7 @@ try {
                     if ($insertResult->getInsertedCount() === 1) {
                         $_SESSION['otp'] = $otp;
                         $_SESSION['email'] = $email;
-                        header("Location: submit_otp.php");
+                        header("Location: auth-otp.php");
                         exit;
                     } else {
                         $_SESSION['error'] = "There was an error inserting the user into the database.";
@@ -119,7 +119,7 @@ try {
                 if (empty($_SESSION['error_login_username']) && empty($_SESSION['error_login_password'])) {
                     if (!$user['Verified']) {
                         $_SESSION['otp_error'] = "Account not verified. Please verify your OTP.";
-                        header("Location: submit_otp.php");
+                        header("Location: auth-otp.php");
                         exit;
                     }
                     $_SESSION['username'] = $user['UserName'];
