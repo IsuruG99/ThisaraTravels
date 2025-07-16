@@ -2,7 +2,9 @@
 require 'vendor/autoload.php';
 use MongoDB\Client;
 use MongoDB\Database;
+use MongoDB\Collection;
 use \PHPMailer\PHPMailer\PHPMailer;
+
 
 
 // =============================================
@@ -59,12 +61,38 @@ function getMailer(): PHPMailer {
 // =============================================
 function redirectWithError(string $location, string $message = ""): never {
     $_SESSION['error'] = $message;
-    header("Location: $location");
+    header(header: "Location: $location");
     exit;
 }
 
 function redirectWithSuccess(string $location, string $message): never {
     $_SESSION['success_message'] = $message;
     header(header: "Location: $location");
+    exit;
+}
+
+// =============================================
+// 6. USER MANAGEMENT FUNCTIONS
+// =============================================
+function getUsersCollection(): Collection {
+    return getMongoDB()->selectCollection(collectionName: 'users');
+}
+
+function getCurrentUser(string $userId): ?array {
+    try {
+        return getUsersCollection()->findOne(filter: ['_id' => new MongoDB\BSON\ObjectID($userId)]);
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
+function validatePassword(array $user, string $password): bool {
+    return !empty($user['Password']) && password_verify(password: $password, hash: $user['Password']);
+}
+
+function jsonResponse(array $data, int $statusCode = 200): never {
+    http_response_code(response_code: $statusCode);
+    header(header: 'Content-Type: application/json');
+    echo json_encode(value: $data);
     exit;
 }
