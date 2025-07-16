@@ -8,9 +8,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $newPassword = $_POST['new_password'];
 
     try {
-        $db = getMongoDB();
         // Find the reset token in the database
-        $resetRequest = $db->password_resets->findOne(['token' => $token]);
+        $db = getMongoDB();
+        $resetRequest = $db->password_resets->findOne(filter: ['token' => $token]);
         // Check if token is valid and not expired
         if ($resetRequest && new DateTime() < new DateTime(datetime: $resetRequest['expires_at'])) {
             $hashedPassword = password_hash(password: $newPassword, algo: PASSWORD_BCRYPT);
@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 update: ['$set' => ['Password' => $hashedPassword]]
             );
             // Delete the reset token to prevent reuse
-            $db->password_resets->deleteOne(['token' => $token]);
+            $db->password_resets->deleteOne(filter: ['token' => $token]);
             // Send confirmation email
             $mail = getMailer();
             try {

@@ -37,7 +37,7 @@ function getMongoDB(): Database {
 }
 
 // =============================================
-// 4. EMAIL CONFIGURATION
+// 4. MAILER CONFIGURATION
 // =============================================
 function getMailer(): PHPMailer {
     $mail = new PHPMailer(exceptions: true);
@@ -57,7 +57,7 @@ function getMailer(): PHPMailer {
 }
 
 // =============================================
-// 5. UTILITY FUNCTIONS
+// 5. HELPER FUNCTIONS
 // =============================================
 function redirectWithError(string $location, string $message = ""): never {
     $_SESSION['error'] = $message;
@@ -65,10 +65,22 @@ function redirectWithError(string $location, string $message = ""): never {
     exit;
 }
 
-function redirectWithSuccess(string $location, string $message): never {
-    $_SESSION['success_message'] = $message;
-    header(header: "Location: $location");
-    exit;
+function validateCsrfToken(): void {
+    if (empty($_POST['csrf_token']) || !hash_equals(known_string: $_SESSION['csrf_token'], user_string: $_POST['csrf_token'])) {
+        redirectWithError(location: 'auth.php', message: "CSRF token validation failed");
+    }
+}
+
+function clearAuthErrors(): void {
+    $errors = [
+        'error_username', 'error_email', 'error_password',
+        'error_login_username', 'error_login_password', 'otp_error'
+    ];
+    foreach ($errors as $error) unset($_SESSION[$error]);
+}
+
+function isFieldTaken(string $field, string $value, MongoDB\Collection $collection): bool {
+    return $collection->findOne(filter: [$field => $value]) !== null;
 }
 
 // =============================================
@@ -96,3 +108,4 @@ function jsonResponse(array $data, int $statusCode = 200): never {
     echo json_encode(value: $data);
     exit;
 }
+

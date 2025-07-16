@@ -1,5 +1,9 @@
 <?php
-session_start(); ?>
+session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -27,6 +31,7 @@ session_start(); ?>
         <!-- Sign In Form -->
         <form action="auth-backend.php" method="POST" class="sign-in-form">
           <input type="hidden" name="login" value="1">
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
           <h2 class="title">Sign In</h2>
           <div class="input-field-container">
             <div class="input-field">
@@ -58,6 +63,7 @@ session_start(); ?>
         <!-- Sign Up Form -->
         <form action="auth-backend.php" method="POST" class="sign-up-form">
           <input type="hidden" name="signup" value="1">
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
           <h2 class="title">Sign Up</h2>
           <div class="input-field-container">
             <div class="input-field">

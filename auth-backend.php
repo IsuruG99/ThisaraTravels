@@ -6,25 +6,24 @@ try {
 
     // Clear previous error messages on POST
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        unset($_SESSION['error_username'], $_SESSION['error_email'], $_SESSION['error_password'],
-            $_SESSION['error_login_username'], $_SESSION['error_login_password'], $_SESSION['otp_error']);
+        clearAuthErrors();      // Clear previous error messages
         if (isset($_POST['signup'])) {
-            // --- Signup Logic ---
-            $username = trim(string: $_POST["username"]);
-            $email = trim(string: $_POST["email"]);
+            validateCsrfToken();    // CSRF Check
+            $username = trim($_POST["username"]);
+            $email = trim($_POST["email"]);
             $password = $_POST["password"];
 
-            // Validate input and check for duplicates
+            // Validate input
             if (empty($username)) {
                 $_SESSION['error_username'] = "Username is required.";
-            } elseif ($collection->findOne(filter: ['UserName' => $username])) {
+            } elseif (isFieldTaken(field: 'UserName', value: $username, collection: $collection)) {
                 $_SESSION['error_username'] = "Username already taken.";
             }
             if (empty($email)) {
                 $_SESSION['error_email'] = "Email is required.";
             } elseif (!filter_var(value: $email, filter: FILTER_VALIDATE_EMAIL)) {
                 $_SESSION['error_email'] = "Invalid email format.";
-            } elseif ($collection->findOne(filter: ['Email' => $email])) {
+            } elseif (isFieldTaken(field: 'Email', value: $email, collection: $collection)) {
                 $_SESSION['error_email'] = "Email already registered.";
             }
             if (empty($password)) {
@@ -68,10 +67,11 @@ try {
             header(header: "Location: auth.php");
             exit;
         } elseif (isset($_POST['login'])) {
-            // --- Login Logic ---
+            validateCsrfToken();    // CSRF Check
             $username = trim(string: $_POST["username"]);
             $password = $_POST["password"];
-            
+
+            // Validate input
             if (empty($username)) {
                 $_SESSION['error_login_username'] = "Username is required.";
             }
@@ -84,18 +84,18 @@ try {
                     $_SESSION['error_login_username'] = "Username not found.";
                 } elseif (!password_verify(password: $password, hash: $user['Password'])) {
                     $_SESSION['error_login_password'] = "Incorrect password.";
-                }                
+                }
                 if (empty($_SESSION['error_login_username']) && empty($_SESSION['error_login_password'])) {
                     if (!$user['Verified']) {
                         $_SESSION['otp_error'] = "Account not verified. Please verify your OTP.";
                         header(header: "Location: auth-otp.php");
                         exit;
-                    }                    
+                    }
                     $_SESSION['username'] = $user['UserName'];
                     $_SESSION['role'] = $user['role'];
                     $_SESSION['user_id'] = (string) $user['_id'];
                     $_SESSION['profile_image'] = $user['ProfilePhoto'] ?? 'img/default_profile.png';
-                    $_SESSION['success_message'] = "Login successful!";                    
+                    $_SESSION['success_message'] = "Login successful!";
                     header(header: "Location: index.php");
                     exit;
                 }
