@@ -1,16 +1,15 @@
 <?php
-require 'vendor/autoload.php';
+require 'auth-config.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
+// Initialize Google Client
 $client = new Google_Client();
-$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
-$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
-$client->setRedirectUri('http://localhost:8000/auth-google-callback.php');
-$client->addScope('email');
-$client->addScope('profile');
+$client->setClientId(clientId: $_ENV['GOOGLE_CLIENT_ID']);
+$client->setClientSecret(clientSecret: $_ENV['GOOGLE_CLIENT_SECRET']);
+$client->setRedirectUri(redirectUri: 'http://localhost:8000/auth-google-callback.php');
+$client->addScope(scope_or_scopes: 'email');
+$client->addScope(scope_or_scopes: 'profile');
 
+// Generate and redirect to authentication URL
 $auth_url = $client->createAuthUrl();
-header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));
+header(header: 'Location: ' . filter_var(value: $auth_url, filter: FILTER_SANITIZE_URL));
 exit;

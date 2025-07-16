@@ -8,20 +8,19 @@ $_SESSION = array();
 session_destroy();
 
 // Clear the session cookie (optional, but recommended)
-if (ini_get("session.use_cookies")) {
+if (ini_get(option: "session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(
-        session_name(),
-        '',
-        time() - 42000,
-        $params["path"],
-        $params["domain"],
-        $params["secure"],
-        $params["httponly"]
+        name: session_name(),
+        value: '',
+        expires_or_options: time() - 42000,
+        path: $params["path"],
+        domain: $params["domain"],
+        secure: $params["secure"],
+        httponly: $params["httponly"]
     );
 }
 
 // Redirect to index.php after logging out
-header("Location: index.php");
+header(header: "Location: index.php");
 exit();
-?>
