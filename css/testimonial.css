@@ -29,7 +29,10 @@ body {
 .hero-section::before {
     content: "";
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     opacity: 0.18;
     background-image: url('img/01 (1).jpg');
     background-size: cover;
@@ -44,7 +47,7 @@ body {
     letter-spacing: 1px;
     margin-bottom: 0.5rem;
     color: #fff;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
 .hero-section p {
@@ -89,7 +92,7 @@ body {
     background: linear-gradient(to right, #0d4f4b, #128377);
     border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     text-align: center;
     border: 1px solid #1aa193;
     height: 100%;
@@ -158,14 +161,21 @@ form .form-select {
 /* Restore original logo and profile icon sizes */
 .navbar-brand img,
 .logo-img {
-    height: 60px !important; /* Back to original size */
+    height: 60px !important;
+    /* Back to original size */
     width: auto;
 }
+
+.navbar-brand img {
+    height: 40px;
+}
+
 
 .logo-img,
 .navbar-login-icon,
 .navbar-profile-icon {
-    height: 60px !important; /* Back to original size */
+    height: 60px !important;
+    /* Back to original size */
     width: 60px !important;
     border-radius: 50%;
     object-fit: cover;
@@ -174,12 +184,24 @@ form .form-select {
 /* Optional: Restore header font size */
 .custom-page-title,
 .container h1 {
-    font-size: 2.5rem !important; /* Or your previous value */
+    font-size: 2.5rem !important;
+    /* Or your previous value */
 }
 
 /* Restore hero-section padding if needed */
 .hero-section {
-    padding: 30px 0 !important; /* Or your previous value */
+    padding: 30px 0 !important;
+    /* Or your previous value */
     min-height: unset !important;
     color: #fff;
+}
+
+
+.container {
+    max-width: 1200px;
+}
+
+.btn-success {
+    background-color: #1c4b4b;
+    border-color: #1c4b4b;
 }

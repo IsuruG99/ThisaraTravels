@@ -1,30 +1,23 @@
 <?php
-session_start();
-require 'vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
-$uri = $_ENV['MONGODB_URI'];
-$databaseName = "ThisaraTravels";
+require 'auth-config.php';
 
 try {
-    $client = new MongoDB\Client($uri);
-    $db = $client->$databaseName;
-    $collection = $db->userdata;
-
+    $db = getMongoDB();
+    $collection = $db->selectCollection(collectionName: 'userdata');
+    
     $filter = [];
     if (isset($_GET['vehicle']) && $_GET['vehicle'] !== '') {
         $filter['vehicle'] = $_GET['vehicle'];
     }
 
-    $documents = $collection->find($filter)->toArray();
+    $documents = $collection->find(filter: $filter)->toArray();
 
     $totalRating = 0;
-    $reviewCount = count($documents);
+    $reviewCount = count(value: $documents);
     foreach ($documents as $doc) {
         $totalRating += (int)$doc['ReviewCount'];
     }
-    $avgRating = $reviewCount ? round($totalRating / $reviewCount, 1) : 0;
+    $avgRating = $reviewCount ? round(num: $totalRating / $reviewCount, precision: 1) : 0;
 
 } catch (Exception $e) {
     die("Database connection failed: " . $e->getMessage());
@@ -41,20 +34,8 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="testimonial.css">
+    <link rel="stylesheet" href="css/testimonial.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <style>
-        .navbar-brand img {
-            height: 40px;
-        }
-        .container {
-            max-width: 1200px;
-        }
-        .btn-success {
-            background-color: #1c4b4b;
-            border-color: #1c4b4b;
-        }
-    </style>
 </head>
 <body>
 
@@ -85,11 +66,11 @@ try {
                     <li class="navbar-login-item ms-2">
                         <?php
                         if (!isset($_SESSION['username'])) {
-                            echo '<a href="login.php" class="navbar-login-button"><img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle" style="width:32px;height:32px;"></a>';
+                            echo '<a href="auth.php" class="navbar-login-button"><img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle" style="width:32px;height:32px;"></a>';
                         } else {
                             $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
                             $user_role = $_SESSION['role'] ?? 'user';
-                            $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'user_dashboard.php';
+                            $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'profile_page.php';
                             echo '<a href="' . $redirect_url . '" class="navbar-profile-button"><img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle" style="width:32px;height:32px;"></a>';
                         }
                         ?>
