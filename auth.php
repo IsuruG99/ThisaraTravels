@@ -105,6 +105,7 @@ session_start(); ?>
             don't have an account yet, you can sign up for free.</p>
           <button class="btn transparent" id="sign-up-btn">Sign up</button>
         </div>
+        <img src="img/sl-tour.png" alt="" class="img">
       </div>
       <div class="panel right-panel">
         <div class="content">
@@ -113,6 +114,7 @@ session_start(); ?>
             yet, you can sign up for free.</p>
           <button class="btn transparent" id="sign-in-btn">Sign in</button>
         </div>
+        <img src="img/sl-map.png" alt="" class="img">
       </div>
     </div>
   </div>
