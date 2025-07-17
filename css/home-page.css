@@ -15,9 +15,11 @@ body {
 
 /* Welcome Section */
 .welcome {
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://via.placeholder.com/1920x600?text=Sri+Lanka+Beach') center/cover no-repeat;
-    height: 50vh;
+    /* background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('img/welcome-1.jpg') center/cover no-repeat; */
+    background-color: #666;
+    height: 90vh;
     display: flex;
+    z-index: -90;
     align-items: center;
     justify-content: center;
     text-align: center;
@@ -221,7 +223,8 @@ body {
     border-radius: 8px;
 }
 
-.prev, .next {
+.prev,
+.next {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -242,7 +245,8 @@ body {
     right: 10px;
 }
 
-.prev:hover, .next:hover {
+.prev:hover,
+.next:hover {
     background-color: rgba(0, 0, 0, 0.8);
 }
 
@@ -260,11 +264,15 @@ body {
         flex-direction: column;
     }
 
-    .about-text, .about-image {
+    .about-text,
+    .about-image {
         width: 100%;
     }
 
-    .services h2, .vehicles h2, .who-we-are h2, .gallery h2 {
+    .services h2,
+    .vehicles h2,
+    .who-we-are h2,
+    .gallery h2 {
         font-size: 1.5rem;
     }
 }
