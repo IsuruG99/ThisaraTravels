@@ -3,7 +3,7 @@ require 'auth-config.php';
 
 try {
     $db = getMongoDB();
-    $collection = $db->selectCollection(collectionName: 'userdata');
+    $collection = $db->selectCollection(collectionName: 'reviews');
     
     $filter = [];
     if (isset($_GET['vehicle']) && $_GET['vehicle'] !== '') {

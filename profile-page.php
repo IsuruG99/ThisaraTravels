@@ -39,7 +39,7 @@ try {
     $client = new MongoDB\Client($uri);
     $database = $client->ThisaraTravels;
     $bookingsCollection = $database->booking;
-    $reviewsCollection = $database->userdata;
+    $reviewsCollection = $database->reviews;
     $username = $_SESSION['username'];
 
     // Get user bookings

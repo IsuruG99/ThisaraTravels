@@ -10,7 +10,7 @@ $uri = $_ENV['MONGODB_URI'];
 try {
     $client = new MongoDB\Client($uri);
     $db = $client->ThisaraTravels;
-    $collection = $db->userdata;
+    $collection = $db->reviews;
     $cursor = $collection->find();
 } catch (Exception $e) {
     die("Database connection failed: " . $e->getMessage());
