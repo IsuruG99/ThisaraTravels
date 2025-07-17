@@ -1,7 +1,77 @@
-<link rel="stylesheet" href="css/header.css">
+<?php
+// header.php
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/header.css">
+</head>
+<body>
+    <nav class="navbar noselect">
+        <div class="logo">
+            <a href="index.php"></a>
+            <div class="header-logo">
+                <!-- Image logo -->
+                <img src="img/Logo.png" alt="Thisara Travels" class="footer-logo-img">
+                <!-- Logo Text -->
+                <div class="footer-logo-text">
+                    <span class="header-logo-text1">Thisara</span>
+                    <span class="header-logo-text2">Travels & Tours</span>
+                </div>
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.php" class="active">Home</a></li>
+            <li><a href="about.php">About</a></li>
+            <li><a href="services.php">Services</a></li>
+            <li><a href="portfolio.php">Portfolio</a></li>
+            <li><a href="contact.php">Contact</a></li>
+        </ul>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+    <script>
+        // Toggle mobile menu
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
 
-<header class="site-header">
-    <div class="container">
-        
-    </div>
-</header>
+        // Close mobile menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Add scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Keyboard navigation support
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    link.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

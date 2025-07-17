@@ -1,157 +1,134 @@
 <?php
-session_start();
-require 'vendor/autoload.php';
+require 'auth-config.php';
+
+// Authentication check
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
-    exit;
+    jsonResponse(data: ['success' => false, 'error' => 'Unauthorized'], statusCode: 401);
 }
 
 $userId = $_SESSION['user_id'];
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+$collection = getUsersCollection();
 
 try {
-    $client = new MongoDB\Client($_ENV['MONGODB_URI']);
-    $collection = $client->ThisaraTravels->users;
+    switch (true) {
+        // Profile photo upload
+        case ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profilePhoto'])):
+            handleProfilePhotoUpload(userId: $userId, collection: $collection);
+            break;
+        // Field update (username/email)
+        case ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['field'])):
+            handleFieldUpdate(userId: $userId, collection: $collection);
+            break;       
+        // Password change
+        case ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])):
+            handlePasswordChange(userId: $userId, collection: $collection);
+            break;
+        // Default case - get user data
+        default:
+            fetchUserData(userId: $userId, collection: $collection);
+    }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => 'Database connection failed.']);
-    exit;
+    jsonResponse(data: ['success' => false, 'error' => 'Server error'], statusCode: 500);
 }
 
-// Handle profile photo upload (no password check needed)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profilePhoto'])) {
+function handleProfilePhotoUpload(string $userId, MongoDB\Collection $collection): never {
     $targetDirectory = "uploads/profile_photo/";
-    if (!file_exists($targetDirectory)) {
-        mkdir($targetDirectory, 0777, true);
+    if (!file_exists(filename: $targetDirectory)) {
+        mkdir(directory: $targetDirectory, permissions: 0777, recursive: true);
     }
-
-    $fileExtension = pathinfo($_FILES['profilePhoto']['name'], PATHINFO_EXTENSION);
-    $newFileName = "profile_{$userId}_" . time() . ".$fileExtension";
-    $targetFilePath = $targetDirectory . $newFileName;
-
-    if (move_uploaded_file($_FILES['profilePhoto']['tmp_name'], $targetFilePath)) {
-        $updateResult = $collection->updateOne(
-            ['_id' => new MongoDB\BSON\ObjectID($userId)],
-            ['$set' => ['ProfilePhoto' => $targetFilePath]]
-        );
-
-        if ($updateResult->getModifiedCount() > 0) {
-            $_SESSION['profile_image'] = $targetFilePath;
-            echo json_encode([
-                'success' => true,
-                'message' => 'Profile photo updated successfully',
-                'newPhotoPath' => $targetFilePath
-            ]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'No changes made']);
-        }
-    } else {
-        echo json_encode(['success' => false, 'error' => 'Failed to upload photo']);
+    $fileExtension = pathinfo(path: $_FILES['profilePhoto']['name'], flags: PATHINFO_EXTENSION);
+    $targetFilePath = $targetDirectory . "profile_{$userId}_" . time() . ".$fileExtension";
+    if (!move_uploaded_file(from: $_FILES['profilePhoto']['tmp_name'], to: $targetFilePath)) {
+        jsonResponse(data: ['success' => false, 'error' => 'Failed to upload photo']);
     }
-    exit;
+    $updateResult = $collection->updateOne(
+        filter: ['_id' => new MongoDB\BSON\ObjectID($userId)],
+        update: ['$set' => ['ProfilePhoto' => $targetFilePath]]
+    );
+    if ($updateResult->getModifiedCount() === 0) {
+        jsonResponse(data: ['success' => false, 'error' => 'No changes made']);
+    }
+    $_SESSION['profile_image'] = $targetFilePath;
+    jsonResponse(data: [
+        'success' => true,
+        'message' => 'Profile photo updated successfully',
+        'newPhotoPath' => $targetFilePath
+    ]);
 }
 
-// Handle username/email updates
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['field'])) {
-    $user = $collection->findOne(['_id' => new MongoDB\BSON\ObjectID($userId)]);
+function handleFieldUpdate(string $userId, MongoDB\Collection $collection): never {
+    $user = getCurrentUser(userId: $userId);
     if (!$user) {
-        echo json_encode(['success' => false, 'error' => 'User not found']);
-        exit;
+        jsonResponse(data: ['success' => false, 'error' => 'User not found'], statusCode: 404);
     }
-
     $field = $_POST['field'];
     $value = $_POST[$field] ?? '';
-
-    // Verify password for non-OAuth users
+    // Password verification for non-OAuth users
     if (!empty($user['Password'])) {
         $passwordField = $field . '_current_password';
-        if (empty($_POST[$passwordField]) || !password_verify($_POST[$passwordField], $user['Password'])) {
-            echo json_encode(['success' => false, 'error' => 'Current password is incorrect']);
-            exit;
+        if (empty($_POST[$passwordField]) || !validatePassword(user: $user, password: $_POST[$passwordField])) {
+            jsonResponse(data: ['success' => false, 'error' => 'Current password is incorrect']);
         }
     }
-
-    // Validate email format
-    if ($field === 'email' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(['success' => false, 'error' => 'Invalid email format']);
-        exit;
+    // Email validation
+    if ($field === 'email' && !filter_var(value: $value, filter: FILTER_VALIDATE_EMAIL)) {
+        jsonResponse(data: ['success' => false, 'error' => 'Invalid email format']);
     }
-
     // Check for duplicates
-    $existing = $collection->findOne([$field => $value, '_id' => ['$ne' => new MongoDB\BSON\ObjectID($userId)]]);
-    if ($existing) {
-        echo json_encode(['success' => false, 'error' => "{$field} already in use"]);
-        exit;
+    if ($collection->findOne(filter: [$field => $value, '_id' => ['$ne' => new MongoDB\BSON\ObjectID($userId)]])) {
+        jsonResponse(data: ['success' => false, 'error' => "$field already in use"]);
     }
-
     $updateResult = $collection->updateOne(
-        ['_id' => new MongoDB\BSON\ObjectID($userId)],
-        ['$set' => [$field === 'username' ? 'UserName' : 'Email' => $value]]
+        filter: ['_id' => new MongoDB\BSON\ObjectID($userId)],
+        update: ['$set' => [$field === 'username' ? 'UserName' : 'Email' => $value]]
     );
-
-    if ($updateResult->getModifiedCount() > 0) {
-        if ($field === 'UserName') {
-            $_SESSION['username'] = $value;
-        }
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['success' => false, 'error' => 'No changes made']);
+    if ($updateResult->getModifiedCount() === 0) {
+        jsonResponse(data: ['success' => false, 'error' => 'No changes made']);
     }
-    exit;
+    if ($field === 'username') {
+        $_SESSION['username'] = $value;
+    }
+    jsonResponse(data: ['success' => true]);
 }
 
-// Handle password change
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
-    $user = $collection->findOne(['_id' => new MongoDB\BSON\ObjectID($userId)]);
+function handlePasswordChange(string $userId, MongoDB\Collection $collection): never {
+    $user = getCurrentUser(userId: $userId);
     if (!$user) {
-        echo json_encode(['success' => false, 'error' => 'User not found']);
-        exit;
+        jsonResponse(data: ['success' => false, 'error' => 'User not found'], statusCode: 404);
     }
-
     // Verify current password for non-OAuth users
     if (!empty($user['Password'])) {
-        $passwordField = 'current_password';
-        if (empty($_POST[$passwordField]) || !password_verify($_POST[$passwordField], $user['Password'])) {
-            echo json_encode(['success' => false, 'error' => 'Current password is incorrect']);
-            exit;
+        if (empty($_POST['current_password']) || !validatePassword(user: $user, password: $_POST['current_password'])) {
+            jsonResponse(data: ['success' => false, 'error' => 'Current password is incorrect']);
         }
     }
-
-    $newPassword = $_POST['new_password'];
-    $confirmPassword = $_POST['confirm_password'];
-
-    if ($newPassword !== $confirmPassword) {
-        echo json_encode(['success' => false, 'error' => 'Passwords do not match']);
-        exit;
+    if ($_POST['new_password'] !== $_POST['confirm_password']) {
+        jsonResponse(data: ['success' => false, 'error' => 'Passwords do not match']);
     }
-
     $updateResult = $collection->updateOne(
-        ['_id' => new MongoDB\BSON\ObjectID($userId)],
-        ['$set' => ['Password' => password_hash($newPassword, PASSWORD_DEFAULT)]]
+        filter: ['_id' => new MongoDB\BSON\ObjectID($userId)],
+        update: ['$set' => ['Password' => password_hash(password: $_POST['new_password'], algo: PASSWORD_DEFAULT)]]
     );
-
-    if ($updateResult->getModifiedCount() > 0) {
-        echo json_encode(['success' => true, 'message' => 'Password updated successfully']);
-    } else {
-        echo json_encode(['success' => false, 'error' => 'No changes made']);
-    }
-    exit;
+    jsonResponse(data: [
+        'success' => $updateResult->getModifiedCount() > 0,
+        'message' => $updateResult->getModifiedCount() > 0 
+            ? 'Password updated successfully' 
+            : 'No changes made'
+    ]);
 }
 
-// Fetch current settings (GET request)
-$user = $collection->findOne(['_id' => new MongoDB\BSON\ObjectID($userId)]);
-if ($user) {
+function fetchUserData(string $userId, MongoDB\Collection $collection): never {
+    $user = getCurrentUser(userId: $userId);
+    if (!$user) {
+        jsonResponse(data: ['success' => false, 'error' => 'User not found'], statusCode: 404);
+    }
     $_SESSION['profile_image'] = $user['ProfilePhoto'] ?? null;
     $_SESSION['has_password'] = !empty($user['Password']);
-
-    echo json_encode([
+    jsonResponse(data: [
         'success' => true,
         'username' => $user['UserName'],
         'email' => $user['Email'],
         'profilePhoto' => $_SESSION['profile_image'],
         'hasPassword' => $_SESSION['has_password']
     ]);
-} else {
-    echo json_encode(['success' => false, 'error' => 'User not found']);
 }
-?>

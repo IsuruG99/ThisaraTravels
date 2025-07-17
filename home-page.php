@@ -2,12 +2,14 @@
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sri Lanka Travel & Vehicle Rental</title>
     <link rel="stylesheet" href="css/home-page.css">
 </head>
+
 <body>
     <main>
         <!-- Welcome Section with Background Image -->
@@ -23,10 +25,12 @@
             <div class="about-container">
                 <div class="about-text">
                     <h2>Our Business</h2>
-                    <p>We are a premier travel and vehicle rental agency in Sri Lanka, dedicated to making your journey unforgettable. From exploring ancient cultural sites to cruising along scenic coastlines, we provide reliable vehicles and tailored travel experiences to suit your needs.</p>
+                    <p>We are a premier travel and vehicle rental agency in Sri Lanka, dedicated to making your journey
+                        unforgettable. From exploring ancient cultural sites to cruising along scenic coastlines, we
+                        provide reliable vehicles and tailored travel experiences to suit your needs.</p>
                 </div>
                 <div class="about-image">
-                    <img src="img/welcome-1" alt="Sri Lankan Culture">
+                    <img src="img/welcome-1.jpg" alt="Sri Lankan Culture">
                 </div>
             </div>
         </section>
@@ -37,7 +41,8 @@
             <div class="services-grid">
                 <div class="service-card">
                     <h3>Vehicle Rentals</h3>
-                    <p>Choose from a wide range of vehicles, including cars, vans, and tuk-tuks, for your travel needs.</p>
+                    <p>Choose from a wide range of vehicles, including cars, vans, and tuk-tuks, for your travel needs.
+                    </p>
                 </div>
                 <div class="service-card">
                     <h3>Guided Tours</h3>
@@ -55,19 +60,19 @@
             <h2>Our Vehicles</h2>
             <div class="vehicle-grid">
                 <div class="vehicle-card">
-                    <img src="img/vehicles/vehicle-1" alt="KDH Van">
+                    <img src="img/vehicles/vehicle-1.png" alt="KDH Van">
                     <h3>Vehicle 1</h3>
                     <p>Ideal for city tours and solo travelers.</p>
                     <button class="book-now">Book Now</button>
                 </div>
                 <div class="vehicle-card">
-                    <img src="img/vehicles/vehicle-2" alt="Van High Roof">
+                    <img src="img/vehicles/vehicle-2.png" alt="Van High Roof">
                     <h3>Vehicle 2</h3>
                     <p>Spacious for group adventures.</p>
                     <button class="book-now">Book Now</button>
                 </div>
                 <div class="vehicle-card">
-                    <img src="img/vehicles/vehicle-3" alt="Wagon Car">
+                    <img src="img/vehicles/vehicle-3.png" alt="Wagon Car">
                     <h3>Vehicle 3</h3>
                     <p>Fun and authentic for local exploration.</p>
                     <button class="book-now">Book Now</button>
@@ -78,7 +83,10 @@
         <!-- Who We Are -->
         <section class="who-we-are">
             <h2>Who We Are</h2>
-            <p>With over 10 years of experience, we are a trusted name in Sri Lanka’s travel industry. Our team is passionate about showcasing the island’s rich heritage, natural beauty, and vibrant culture. We pride ourselves on exceptional customer service and a commitment to creating lifelong memories for our clients.</p>
+            <p>With over 10 years of experience, we are a trusted name in Sri Lanka’s travel industry. Our team is
+                passionate about showcasing the island’s rich heritage, natural beauty, and vibrant culture. We pride
+                ourselves on exceptional customer service and a commitment to creating lifelong memories for our
+                clients.</p>
         </section>
 
         <!-- Slideshow Gallery -->
@@ -86,13 +94,13 @@
             <h2>Our Memories</h2>
             <div class="slideshow-container">
                 <div class="slide active">
-                    <img src="img/slideshow/memory-1" alt="Client Memory 1">
+                    <img src="img/slideshow/memory-1.jpg" alt="Client Memory 1">
                 </div>
                 <div class="slide">
-                    <img src="img/slideshow/memory-2" alt="Client Memory 2">
+                    <img src="img/slideshow/memory-2.jpg" alt="Client Memory 2">
                 </div>
                 <div class="slide">
-                    <img src="img/slideshow/memory-3" alt="Client Memory 3">
+                    <img src="img/slideshow/memory-3.jpg" alt="Client Memory 3">
                 </div>
                 <button class="prev">❮</button>
                 <button class="next">❯</button>
@@ -140,4 +148,5 @@
         });
     </script>
 </body>
+
 </html>
