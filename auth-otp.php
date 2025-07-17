@@ -121,13 +121,13 @@ try {
         <h2>OTP Verification</h2>
 
         <!-- OTP Submission Form -->
-        <form method="POST" action="submit_otp.php">
+        <form method="POST" action="auth-otp.php">
             <input type="text" name="otp" placeholder="Enter your OTP" required>
             <button type="submit">Submit OTP</button>
         </form>
 
         <!-- Resend OTP Form -->
-        <form method="POST" action="submit_otp.php">
+        <form method="POST" action="auth-otp.php">
             <button type="submit" name="resend" class="resend-btn" <?php echo ($_SESSION['otp_attempts'] >= 3) ? '' : 'disabled'; ?>>Resend OTP</button>
         </form>
 

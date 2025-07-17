@@ -513,6 +513,24 @@ header("Pragma: no-cache");
             display: block;
         }
 
+        .booking-modal .message .try-again-btn {
+            background: linear-gradient(135deg, #2F6DA3 0%, #174038 100%);
+            color: #F8F1E9;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .booking-modal .message .try-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(47, 109, 163, 0.3);
+        }
+
         /* Confirmation View */
         .confirmation-view {
             display: none;
@@ -1864,26 +1882,36 @@ function showBookingModal(title, type, name) {
     modalTitle.textContent = title;
     vehicleTypeInput.value = type;
     vehicleNameInput.value = name;
-    message.style.display = 'none';
-    message.className = 'message';
-    form.style.display = 'block';
+    
+    // Check if there's already an error message from server-side
+    const hasExistingError = message.classList.contains('show') && message.classList.contains('error');
+    
+    if (!hasExistingError) {
+        // Only reset message and show form if there's no existing error
+        message.style.display = 'none';
+        message.className = 'message';
+        form.style.display = 'block';
+        
+        // Reset form
+        form.reset();
+        pickupSelect.value = '';
+        dropoffSelect.value = '';
+        customPickup.style.display = 'none';
+        customPickup.required = false;
+        customPickup.value = '';
+        customDropoff.style.display = 'none';
+        customDropoff.required = false;
+        customDropoff.value = '';
 
-    // Reset form
-    form.reset();
-    pickupSelect.value = '';
-    dropoffSelect.value = '';
-    customPickup.style.display = 'none';
-    customPickup.required = false;
-    customPickup.value = '';
-    customDropoff.style.display = 'none';
-    customDropoff.required = false;
-    customDropoff.value = '';
-
-    // Pre-fill dates
-    const startDate = document.getElementById('startDate')?.value;
-    const endDate = document.getElementById('endDate')?.value;
-    if (startDate) document.getElementById('pickup-date').value = startDate;
-    if (endDate) document.getElementById('dropoff-date').value = endDate;
+        // Pre-fill dates
+        const startDate = document.getElementById('startDate')?.value;
+        const endDate = document.getElementById('endDate')?.value;
+        if (startDate) document.getElementById('pickup-date').value = startDate;
+        if (endDate) document.getElementById('dropoff-date').value = endDate;
+    } else {
+        // If there's an existing error, keep form hidden
+        form.style.display = 'none';
+    }
 
     modal.classList.add('show');
     overlay.classList.add('show');
@@ -1893,19 +1921,259 @@ function hideBookingModal() {
     document.getElementById('booking-modal').classList.remove('show');
     document.getElementById('booking-modal-overlay').classList.remove('show');
     const msg = document.getElementById('booking-message');
+    const form = document.getElementById('booking-form');
+    
+    // Reset message and form display
     msg.style.display = 'none';
     msg.className = 'message';
-    document.getElementById('booking-form').style.display = 'block';
+    form.style.display = 'block';
 }
 
 function showModalMessage(text, type) {
     const message = document.getElementById('booking-message');
     const form = document.getElementById('booking-form');
-    message.textContent = text;
+    
+    // Create message content with try again button for errors
+    if (type === 'error') {
+        message.innerHTML = `
+            <div style="margin-bottom: 10px;">${text}</div>
+            <button type="button" onclick="retryBookingForm()" class="try-again-btn">Try Again</button>
+        `;
+    } else {
+        message.textContent = text;
+    }
+    
     message.className = `message ${type} show`;
     message.style.display = 'block';
     form.style.display = 'none';
+    
     if (type === 'success') setTimeout(hideBookingModal, 3000);
+}
+
+// Function to retry booking form after error
+function retryBookingForm() {
+    const message = document.getElementById('booking-message');
+    const form = document.getElementById('booking-form');
+    
+    // Hide message and show form
+    message.style.display = 'none';
+    message.className = 'message';
+    form.style.display = 'block';
+}
+
+// Function to show date selection message without opening booking modal
+function showDateSelectionMessage(text) {
+    // Create a temporary notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(220, 53, 69, 0.95);
+        color: white;
+        padding: 20px 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        font-size: 1rem;
+        font-weight: 600;
+        animation: slideIn 0.3s ease;
+        backdrop-filter: blur(10px);
+        border: 2px solid #dc3545;
+        min-width: 300px;
+        text-align: center;
+        cursor: pointer;
+    `;
+    
+    // Add content with instruction
+    notification.innerHTML = `
+        <div style="margin-bottom: 10px;">
+            <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+            ${text}
+        </div>
+        <div style="font-size: 0.9rem; color: #ffc107; margin-top: 10px;">
+            Please select dates in the filter section above
+        </div>
+    `;
+    
+    // Add click handler to close notification
+    notification.onclick = function() {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    };
+    
+    // Highlight the filter section
+    highlightFilterSection();
+    
+    // Add animation keyframes if not already present
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+                }
+                70% {
+                    box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Remove notification after 5 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 5000);
+}
+
+// Function to highlight filter section
+function highlightFilterSection() {
+    const filterSection = document.querySelector('.filter-section');
+    const dateInputs = document.querySelectorAll('#startDate, #endDate');
+    
+    if (filterSection) {
+        // Add pulse animation to filter section
+        filterSection.style.animation = 'pulse 2s infinite';
+        filterSection.style.border = '2px solid #dc3545';
+        
+        // Remove animation after 6 seconds
+        setTimeout(() => {
+            filterSection.style.animation = '';
+            filterSection.style.border = '';
+        }, 6000);
+    }
+    
+    // Highlight date inputs
+    dateInputs.forEach(input => {
+        input.style.borderColor = '#dc3545';
+        input.style.boxShadow = '0 0 0 3px rgba(220, 53, 69, 0.2)';
+        
+        // Remove highlight after 6 seconds
+        setTimeout(() => {
+            input.style.borderColor = '';
+            input.style.boxShadow = '';
+        }, 6000);
+    });
+    
+    // Scroll to filter section
+    filterSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Function to show login message without opening booking modal
+function showLoginMessage(text) {
+    // Create a temporary notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 193, 7, 0.95);
+        color: #333;
+        padding: 20px 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        font-size: 1rem;
+        font-weight: 600;
+        animation: slideIn 0.3s ease;
+        backdrop-filter: blur(10px);
+        border: 2px solid #FF8F00;
+        min-width: 300px;
+        text-align: center;
+        cursor: pointer;
+    `;
+    
+    // Add content with login link
+    notification.innerHTML = `
+        <div style="margin-bottom: 10px;">
+            <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+            ${text}
+        </div>
+        <div style="font-size: 0.9rem; color: #666;">
+            <a href="auth.php" style="color: #FF8F00; text-decoration: none; font-weight: bold;">
+                Click here to login
+            </a>
+        </div>
+    `;
+    
+    // Add click handler to navigate to login page
+    notification.onclick = function() {
+        window.location.href = 'auth.php';
+    };
+    
+    // Add animation keyframes if not already present
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Remove notification after 6 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 6000);
 }
 
 // --- Custom location toggle ---
@@ -2077,15 +2345,53 @@ function clearFilters() {
 }
 
 function bookVehicle(type, name) {
+    // Check if user is logged in
+    <?php if (!isset($_SESSION['username']) || empty($_SESSION['username'])): ?>
+    // Show login message without opening the booking modal
+    showLoginMessage('Please log in to create booking.');
+    return;
+    <?php endif; ?>
+    
     const start = document.getElementById('startDate').value;
     const end = document.getElementById('endDate').value;
     if (!start || !end) {
-        showBookingModal('Booking Form', type, name);
-        showModalMessage('Please select your travel dates first!', 'error');
+        // Show error message without opening booking modal
+        showDateSelectionMessage('Please select your travel dates first!');
         return;
     }
     showBookingModal(`Book ${name}`, type, name);
 }
+
+// --- Check for server-side errors and show modal if needed ---
+document.addEventListener('DOMContentLoaded', function() {
+    const bookingMessage = document.getElementById('booking-message');
+    if (bookingMessage && bookingMessage.classList.contains('show')) {
+        // If there's a server-side error message, show the modal
+        const modal = document.getElementById('booking-modal');
+        const overlay = document.getElementById('booking-modal-overlay');
+        const form = document.getElementById('booking-form');
+        
+        // Show the modal
+        modal.classList.add('show');
+        overlay.classList.add('show');
+        
+        // Hide the form since there's an error
+        form.style.display = 'none';
+        
+        // Set modal title
+        const modalTitle = document.getElementById('booking-modal-title');
+        modalTitle.textContent = 'Booking Error';
+        
+        // Add try again button for server-side errors
+        if (bookingMessage.classList.contains('error')) {
+            const currentText = bookingMessage.textContent;
+            bookingMessage.innerHTML = `
+                <div style="margin-bottom: 10px;">${currentText}</div>
+                <button type="button" onclick="retryBookingForm()" class="try-again-btn">Try Again</button>
+            `;
+        }
+    }
+});
 
 </script>
 
