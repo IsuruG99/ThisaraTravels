@@ -68,179 +68,7 @@ try {
     <title>User Profile - <?php echo htmlspecialchars($_SESSION['username']); ?></title>
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #4e73df;
-            --secondary: #858796;
-            --light: #f8f9fc;
-            --dark: #5a5c69;
-        }
-
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Nunito', sans-serif;
-        }
-
-        .profile-header {
-            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
-            color: white;
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profile-picture {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-username {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-top: 1rem;
-        }
-
-        .profile-email {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .profile-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .profile-card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--light);
-            padding-bottom: 0.5rem;
-        }
-
-        .table-responsive {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table th {
-            background-color: var(--primary);
-            color: white;
-            font-weight: 600;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: rgba(78, 115, 223, 0.05);
-        }
-
-        .badge {
-            font-weight: 500;
-            padding: 0.5em 0.8em;
-        }
-
-        .badge-success {
-            background-color: #1cc88a;
-        }
-
-        .badge-warning {
-            background-color: #f6c23e;
-        }
-
-        .badge-danger {
-            background-color: #e74a3b;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .btn-primary:hover {
-            background-color: #3a5bc7;
-            border-color: #3a5bc7;
-        }
-
-        .btn-outline-primary {
-            color: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .star-rating {
-            color: #f6c23e;
-            font-size: 1.2rem;
-        }
-
-        .nav-tabs .nav-link {
-            color: var(--dark);
-            font-weight: 600;
-        }
-
-        .nav-tabs .nav-link.active {
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-        }
-
-        .update-photo-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            color: var(--primary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-        }
-
-        .edit-icon {
-            cursor: pointer;
-            margin-left: 10px;
-            font-size: 1.2rem;
-            vertical-align: middle;
-            transition: all 0.3s ease;
-        }
-
-        .edit-icon:hover {
-            color: var(--primary);
-            transform: scale(1.1);
-        }
-
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
-
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="css/profile-page.css">
 </head>
 
 <body>
@@ -409,7 +237,7 @@ try {
                     return false;
                 }
 
-                fetch('profile_settings.php', {
+                fetch('profile-backend.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -440,7 +268,7 @@ try {
                     return false;
                 }
 
-                fetch('profile_settings.php', {
+                fetch('profile-backend.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -464,7 +292,7 @@ try {
         <!-- Tab Content -->
         <div class="tab-content" id="profileTabsContent">
             <!-- Bookings Tab -->
-            <!-- <div class="tab-pane fade show active" id="bookings" role="tabpanel">
+            <div class="tab-pane fade show active" id="bookings" role="tabpanel">
                 <div class="profile-card">
                     <h2 class="profile-card-title">My Bookings</h2>
                     <div class="table-responsive">
@@ -472,47 +300,85 @@ try {
                             <thead>
                                 <tr>
                                     <th>Status</th>
-                                    <th>Booking ID</th>
+                                    <th>Pickup Date</th>
                                     <th>Pickup Time</th>
-                                    <th>Start Date</th>
+                                    <th>Vehicle Plate</th>
+                                    <th>Pickup Location</th>
+                                    <th>Dropoff Location</th>
+                                    <th>Booking Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($userBookings as $booking): ?>
                                     <tr>
                                         <td>
-
                                             <span class="badge 
-                                                <?php if ($booking['Status'] === 'Completed') {
-                                                    echo 'badge-success';
-                                                } elseif ($booking['Status'] === 'Pending') {
-                                                    echo 'badge-warning';
-                                                } elseif ($booking['Status'] === 'Denied') {
-                                                    echo 'badge-danger';
-                                                } else {
-                                                    echo 'badge-secondary';
-                                                } ?>">
-                                                <?php echo htmlspecialchars($booking['Status']); ?>
+                                                <?php echo match ($booking['BookingStatus']) {
+                                                    'Completed' => 'bg-success',
+                                                    'Pending' => 'bg-warning',
+                                                    'Denied' => 'bg-danger',
+                                                    'Accepted' => 'bg-primary',
+                                                    default => 'bg-secondary'
+                                                }; ?>">
+                                                <?php echo htmlspecialchars($booking['BookingStatus']); ?>
                                             </span>
                                         </td>
-                                        <td><?php echo htmlspecialchars($booking['_id']); ?></td>
-                                        <td><?php echo htmlspecialchars($booking['pickupTime'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($booking['pickupDate'] ?? 'N/A'); ?></td>
+                                        <td>
+                                            <?php
+                                            try {
+                                                $pickupDate = $booking['PickupDateTime'] instanceof MongoDB\BSON\UTCDateTime
+                                                    ? $booking['PickupDateTime']->toDateTime()
+                                                    : new DateTime($booking['PickupDateTime'] ?? 'now');
+                                                echo htmlspecialchars($pickupDate->format('M j, Y'));
+                                            } catch (Exception $e) {
+                                                echo 'N/A';
+                                            }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <?php
+                                            try {
+                                                echo htmlspecialchars($pickupDate->format('h:i A'));
+                                            } catch (Exception $e) {
+                                                echo 'N/A';
+                                            }
+                                            ?>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($booking['VehiclePlate'] ?? 'N/A'); ?></td>
+                                        <td><?php echo htmlspecialchars($booking['PickupLocation'] ?? 'N/A'); ?></td>
+                                        <td><?php echo htmlspecialchars($booking['DropoffLocation'] ?? 'N/A'); ?></td>
+                                        <td>
+                                            <?php
+                                            $bookingDate = $booking['BookingDate'] instanceof MongoDB\BSON\UTCDateTime
+                                                ? $booking['BookingDate']->toDateTime()
+                                                : new DateTime($booking['BookingDate']);
+                                            echo htmlspecialchars($bookingDate->format('M j, Y'));
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <?php if (($booking['BookingStatus'] ?? '') === 'Pending' || ($booking['BookingStatus'] ?? '') === 'Accepted'): ?>
+                                                <button class="btn btn-sm btn-outline-danger cancel-btn"
+                                                    data-booking-id="<?php echo htmlspecialchars($booking['_id'] instanceof MongoDB\BSON\ObjectId ? $booking['_id']->__toString() : ($booking['_id']['$oid'] ?? '')); ?>">
+                                                    Cancel
+                                                </button>
+                                            <?php endif; ?>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                                 <?php if (empty($userBookings)): ?>
                                     <tr>
-                                        <td colspan="4" class="text-center">No bookings found</td>
+                                        <td colspan="8" class="text-center">No bookings found</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div> -->
+            </div>
 
             <!-- Reviews Tab -->
-            <!-- <div class="tab-pane fade" id="reviews" role="tabpanel">
+            <div class="tab-pane fade" id="reviews" role="tabpanel">
                 <div class="profile-card">
                     <h2 class="profile-card-title">My Reviews</h2>
                     <div class="table-responsive">
@@ -520,9 +386,10 @@ try {
                             <thead>
                                 <tr>
                                     <th>Rating</th>
-                                    <th>Date</th>
                                     <th>Vehicle</th>
                                     <th>Comment</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -533,9 +400,15 @@ try {
                                                 <?php echo str_repeat('★', $review['ReviewCount']); ?>
                                             </div>
                                         </td>
-                                        <td><?php echo htmlspecialchars(date('Y-m-d', strtotime($review['date']))); ?></td>
                                         <td><?php echo htmlspecialchars($review['vehicle'] ?? 'N/A'); ?></td>
                                         <td><?php echo htmlspecialchars($review['Comment']); ?></td>
+                                        <td><?php echo htmlspecialchars(date('Y-m-d', strtotime($review['date']))); ?></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger delete-review-btn"
+                                                data-review-id="<?php echo htmlspecialchars($review['_id'] instanceof MongoDB\BSON\ObjectId ? $review['_id']->__toString() : ($review['_id']['$oid'] ?? '')); ?>">
+                                                Delete
+                                            </button>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                                 <?php if (empty($userReviews)): ?>
@@ -549,7 +422,7 @@ try {
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
     <!-- Update Photo Modal -->
     <div class="modal fade" id="updatePhotoModal" tabindex="-1" aria-hidden="true">
@@ -585,7 +458,7 @@ try {
             e.preventDefault();
             const formData = new FormData(this);
 
-            fetch('profile_settings.php', {
+            fetch('profile-backend.php', {
                 method: 'POST',
                 body: formData
             })

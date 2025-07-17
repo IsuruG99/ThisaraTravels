@@ -223,7 +223,8 @@ body {
     border-radius: 8px;
 }
 
-.prev, .next {
+.prev,
+.next {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -244,7 +245,8 @@ body {
     right: 10px;
 }
 
-.prev:hover, .next:hover {
+.prev:hover,
+.next:hover {
     background-color: rgba(0, 0, 0, 0.8);
 }
 
@@ -262,11 +264,15 @@ body {
         flex-direction: column;
     }
 
-    .about-text, .about-image {
+    .about-text,
+    .about-image {
         width: 100%;
     }
 
-    .services h2, .vehicles h2, .who-we-are h2, .gallery h2 {
+    .services h2,
+    .vehicles h2,
+    .who-we-are h2,
+    .gallery h2 {
         font-size: 1.5rem;
     }
 }
