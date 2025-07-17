@@ -1,0 +1,218 @@
+.noselect {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: default; 
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #123524;
+    padding: 15px 30px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 90px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+}
+
+/* Logo Image Styling */
+.header-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-logo-img {
+    width: 70px;
+    height: auto;
+    margin-right: 4px;
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header-logo-text {
+    font-weight: 700;
+    color: transparent;
+    background: linear-gradient(45deg, #00BFAE, #FF6A00);
+    -webkit-background-clip: text; /* Clips the gradient to the text */
+    background-clip: text;
+    letter-spacing: 3px;
+}
+
+.header-logo-text1 {
+    font-family: 'Rockabilly', sans-serif!important;
+    color: #289AA9;
+    font-size: 40px; 
+    font-weight: bold;
+    line-height: 1.2;
+}
+.header-logo-text2 {
+   font-size: 20px;
+   letter-spacing: 2px;
+}
+
+.header-logo:hover .footer-logo-img {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform: scale(1.1);
+    cursor: pointer;
+}
+/*End of Logo Image Styling */
+
+
+
+
+/* Navigation Links */
+.nav-links {
+    display: flex;
+    list-style: none;
+}
+
+.nav-links li {
+    margin-left: 20px;
+}
+
+.nav-links a {
+    color: #fff;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    text-decoration: none;
+    position: relative;
+    padding: 5px 0;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: gold;
+}
+
+.nav-links a:hover::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    /* background-color: #3498DB; */
+    bottom: 0;
+    left: 0;
+    transition: width 0.3s ease;
+}
+
+.nav-links a.active {
+    color: goldenrod;
+    font-weight: 700;
+}
+
+/* Hamburger Menu */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background-color: #fff;
+    margin: 2px 0;
+    transition: all 0.3s ease;
+}
+
+/* Scroll Effect */
+.navbar.scrolled {
+    background-color: #34495E;
+}
+
+/* Mobile Menu */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 60px;
+        right: 0;
+        background-color:#123524;
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .nav-links li {
+        margin: 10px 0;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .hamburger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -7px);
+    }
+}
+
+/* Tablet Adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .navbar {
+        padding: 15px 20px;
+    }
+
+    .nav-links li {
+        margin-left: 15px;
+    }
+
+    .nav-links a {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-logo-text {
+        font-size: 24px;
+        letter-spacing: 0px;
+    }
+    .header-logo-text1 {
+        font-size: 24px;
+    }
+    .header-logo-text2 {
+        letter-spacing: 0px;
+        font-size: 14px;
+    }
+    .header-logo-img {
+        width: 40px;
+    }
+    .navbar {
+        height: 80px;
+    }
+    .nav-links a {
+        font-size: 14px;
+    }
+    .nav-links li {
+        margin-left: 10px;
+    }
+    .hamburger span {
+        width: 20px;
+    }
+}
