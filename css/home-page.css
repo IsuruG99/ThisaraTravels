@@ -15,9 +15,11 @@ body {
 
 /* Welcome Section */
 .welcome {
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://via.placeholder.com/1920x600?text=Sri+Lanka+Beach') center/cover no-repeat;
-    height: 50vh;
+    /* background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('img/welcome-1.jpg') center/cover no-repeat; */
+    background-color: #666;
+    height: 90vh;
     display: flex;
+    z-index: -90;
     align-items: center;
     justify-content: center;
     text-align: center;
