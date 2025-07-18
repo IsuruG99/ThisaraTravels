@@ -288,8 +288,6 @@ try {
             </div>
         </div>
     <?php endif; ?>
-
-    <!-- Footer -->
     <?php include 'components/footer.php'; ?>
     <script>
                     function fillVehicleDetails(select) {
