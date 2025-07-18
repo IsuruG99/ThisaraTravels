@@ -56,7 +56,7 @@ try {
 
 <body>
     <!-- Navbar -->
-    <header>
+    <!-- <header>
         <nav class="navbar navbar-expand-lg navbar-dark custom-navbar py-2">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="index.php">
@@ -96,7 +96,7 @@ try {
                 </div>
             </div>
         </nav>
-    </header>
+    </header> -->
     <!-- Header Start -->
     <?php include 'components/header.php'; ?>
     <!-- Header End -->

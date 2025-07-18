@@ -17,9 +17,6 @@ if (isset($_SESSION['username'])) {
     <link rel="stylesheet" type="text/css" href="ssheet.css">
 </head>
 <body>
-    <!-- Header Start -->
-    <?php include 'components/header.php'; ?>
-    <!-- Header End -->
 
      <!-- Home Page Loading -->
     <div class="loading-homepage">
