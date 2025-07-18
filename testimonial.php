@@ -97,8 +97,9 @@ try {
             </div>
         </nav>
     </header>
-
-    <!-- Header Section -->
+    <!-- Header Start -->
+    <?php include 'components/header.php'; ?>
+    <!-- Header End -->
     <div class="hero-section text-center">
         <div class="container">
             <h1>Testimonials</h1>
@@ -151,6 +152,7 @@ try {
                     <span class="star<?= $i <= round(num: $avgRating) ? ' filled' : '' ?>">&#9733;</span>
                 <?php endfor; ?>
                 <span class="ms-2">(<?= $avgRating ?> out of 5 from <?= $starCount ?> reviews)</span>
+
             </div>
         </div>
     <?php endif; ?>
@@ -185,6 +187,7 @@ try {
                                 echo '<span class="star filled">&#9733;</span>'; ?>
                         </div>
                         <p class="review-comment">"<?= htmlspecialchars(string: $doc['comment']) ?>"</p>
+
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -303,11 +306,8 @@ try {
                     }
                 </script>
 
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
-
-
-

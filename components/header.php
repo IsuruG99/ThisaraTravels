@@ -1,5 +1,7 @@
 <?php
-// header.php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +17,7 @@
             <a href="index.php"></a>
             <div class="header-logo">
                 <!-- Image logo -->
-                <img src="img/Logo.png" alt="Thisara Travels" class="footer-logo-img">
+                <img src="img/Logo.png" alt="Thisara Travels" class="header-logo-img">
                 <!-- Logo Text -->
                 <div class="footer-logo-text">
                     <span class="header-logo-text1">Thisara</span>
@@ -27,8 +29,20 @@
             <li><a href="index.php" class="active">Home</a></li>
             <li><a href="about.php">About</a></li>
             <li><a href="services.php">Services</a></li>
-            <li><a href="portfolio.php">Portfolio</a></li>
+            <!-- <li><a href="portfolio.php">Portfolio</a></li> -->
             <li><a href="contact.php">Contact</a></li>
+            <li><a href="booking.php">Booking</a></li>
+            <li><a href="testimonial.php">Reviews</a></li>
+            <?php
+                        if (!isset($_SESSION['username'])) {
+                            echo '<a href="auth.php" class="navbar-login-button"><img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle" style="width:32px;height:32px;"></a>';
+                        } else {
+                            $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
+                            $user_role = $_SESSION['role'] ?? 'user';
+                            $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'profile-page.php';
+                            echo '<a href="' . $redirect_url . '" class="navbar-profile-button"><img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle" style="width:32px;height:32px;"></a>';
+                        }
+                        ?>
         </ul>
         <div class="hamburger">
             <span></span>

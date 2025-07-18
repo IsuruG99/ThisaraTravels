@@ -21,7 +21,7 @@ if (isset($_SESSION['username'])) {
     <?php include 'components/header.php'; ?>
     <!-- Header End -->
 
-    <!-- Home Page Loading -->
+     <!-- Home Page Loading -->
     <div class="loading-homepage">
         <?php include 'home-page.php'; ?>
     </div>

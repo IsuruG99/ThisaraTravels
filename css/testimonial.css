@@ -158,29 +158,6 @@ form .form-select {
     padding: 8px;
 }
 
-/* Restore original logo and profile icon sizes */
-.navbar-brand img,
-.logo-img {
-    height: 60px !important;
-    /* Back to original size */
-    width: auto;
-}
-
-.navbar-brand img {
-    height: 40px;
-}
-
-
-.logo-img,
-.navbar-login-icon,
-.navbar-profile-icon {
-    height: 60px !important;
-    /* Back to original size */
-    width: 60px !important;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
 /* Optional: Restore header font size */
 .custom-page-title,
 .container h1 {

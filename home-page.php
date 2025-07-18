@@ -8,17 +8,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sri Lanka Travel & Vehicle Rental</title>
     <link rel="stylesheet" href="css/home-page.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 
 <body>
     <main>
-        <!-- Welcome Section with Background Image -->
-        <section class="welcome">
+        <!-- import header/navbar section -->
+        <?php include 'components/header.php'; ?>
+        
+        <!-- ------------------------- -->
+         <section class="welcome-slideshow" id="welcome">
             <div class="welcome-content">
                 <h1>Welcome to Your Sri Lankan Adventure</h1>
                 <p>Experience the beauty of Sri Lanka with our top-tier travel and vehicle rental services.</p>
             </div>
         </section>
+        <!-- ------------------------- -->
+
+        <!-- Welcome Section with Background Image -->
+        <!-- <section class="welcome">
+            <div class="welcome-content">
+                <h1>Welcome to Your Sri Lankan Adventure</h1>
+                <p>Experience the beauty of Sri Lanka with our top-tier travel and vehicle rental services.</p>
+            </div>
+        </section> -->
 
         <!-- About Our Business -->
         <section class="about-business">
@@ -108,6 +122,28 @@
         </section>
     </main>
 
+    <script>
+        const images = [
+            'img/welcome-1.jpg',
+            'img/welcome-2.jpg',
+            'img/welcome-3.jpg'
+        ];
+
+        let current = 0;
+        const section = document.getElementById('welcome');
+
+        function changeBackground() {
+            section.style.backgroundImage = `url(${images[current]})`;
+            current = (current + 1) % images.length;
+        }
+
+        //initial background
+        changeBackground();
+        // Change background every 5 seconds
+        setInterval(changeBackground, 5000);
+    </script>
+    
+    
     <script>
         // Slideshow functionality
         document.addEventListener('DOMContentLoaded', () => {
