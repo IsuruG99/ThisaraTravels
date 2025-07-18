@@ -17,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <a href="index.php"></a>
             <div class="header-logo">
                 <!-- Image logo -->
-                <img src="img/Logo.png" alt="Thisara Travels" class="footer-logo-img">
+                <img src="img/Logo.png" alt="Thisara Travels" class="header-logo-img">
                 <!-- Logo Text -->
                 <div class="footer-logo-text">
                     <span class="header-logo-text1">Thisara</span>
@@ -29,7 +29,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <li><a href="index.php" class="active">Home</a></li>
             <li><a href="about.php">About</a></li>
             <li><a href="services.php">Services</a></li>
-            <li><a href="portfolio.php">Portfolio</a></li>
+            <!-- <li><a href="portfolio.php">Portfolio</a></li> -->
             <li><a href="contact.php">Contact</a></li>
             <li><a href="booking.php">Booking</a></li>
             <li><a href="testimonial.php">Reviews</a></li>

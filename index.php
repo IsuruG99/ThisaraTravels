@@ -16,23 +16,14 @@ if (isset($_SESSION['username'])) {
         <!-- Customized Bootstrap Stylesheet -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="ssheet.css">
+        <link rel="stylesheet" href="css/header.css">
     </head>
 
 
     <body>
-        <!-- Header Start -->
-        <?php include 'components/header.php'; ?>
-        <!-- Header End -->
-
-
         <!-- Home Page Loading -->
         <div class="loading-homepage">
             <?php include 'home-page.php'; ?>
         </div>
-
-
-        <!-- Footer Start -->
-        <?php include 'components/footer.php'; ?>
-        <!-- Footer End -->
     </body>
 </html>
