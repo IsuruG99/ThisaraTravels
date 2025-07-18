@@ -112,7 +112,7 @@ try {
                     }
                     ?>
                 </div>
-                <p><?= htmlspecialchars($document['Comment']) ?></p>
+                <p><?= htmlspecialchars($document['comment']) ?></p>
                 <div class="like-dislike-icons">
                     <i class="fas fa-heart like-icon"></i> <span class="like-count"><?= htmlspecialchars($document['likeCount'] ?? 0) ?></span>
                 </div>
