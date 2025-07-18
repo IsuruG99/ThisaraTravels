@@ -30,7 +30,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="adBookings.php">
+                    <a href="adBooking.php">
                         <i class="fas fa-calendar-check"></i>
                         <span>Bookings</span>
                     </a>
@@ -68,21 +68,29 @@
             </div>
 
             <?php
-            // Start session only if not already started
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
+            require '../auth-config.php';
             
             // Get vehicle ID from URL
             $vehicleId = $_GET['id'] ?? null;
             
-            if ($vehicleId === null || !isset($_SESSION['vehicles'][$vehicleId])) {
-                echo '<div class="alert alert-error">Vehicle not found.</div>';
+            if ($vehicleId === null) {
+                echo '<div class="alert alert-error">Vehicle ID not provided.</div>';
                 echo '<a href="adVehicles.php" class="btn btn-secondary">Back to Vehicles</a>';
                 exit;
             }
             
-            $vehicle = $_SESSION['vehicles'][$vehicleId];
+            try {
+                $vehicle = getVehiclesCollection()->findOne(['_id' => new MongoDB\BSON\ObjectID($vehicleId)]);
+                if (!$vehicle) {
+                    echo '<div class="alert alert-error">Vehicle not found.</div>';
+                    echo '<a href="adVehicles.php" class="btn btn-secondary">Back to Vehicles</a>';
+                    exit;
+                }
+            } catch (Exception $e) {
+                echo '<div class="alert alert-error">Error fetching vehicle: ' . $e->getMessage() . '</div>';
+                echo '<a href="adVehicles.php" class="btn btn-secondary">Back to Vehicles</a>';
+                exit;
+            }
             
             // Handle form submission
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -90,7 +98,7 @@
                 $seatCount = trim($_POST['seat_count'] ?? '');
                 $acNac = $_POST['ac_nac'] ?? '';
                 $featuresArr = $_POST['features'] ?? [];
-                $features = is_array($featuresArr) ? implode(', ', $featuresArr) : '';
+                $features = $featuresArr; // Store as array
                 
                 $errors = [];
                 
@@ -108,7 +116,7 @@
                 }
                 
                 // Handle file upload
-                $photo = $vehicle['photo']; // Keep existing photo by default
+                $photo = $vehicle['vehiclePhoto'] ?? '';
                 if (isset($_FILES['vehicle_photo']) && $_FILES['vehicle_photo']['error'] === UPLOAD_ERR_OK) {
                     $uploadDir = 'uploads/';
                     if (!is_dir($uploadDir)) {
@@ -129,8 +137,8 @@
                         
                         if (move_uploaded_file($_FILES['vehicle_photo']['tmp_name'], $uploadPath)) {
                             // Delete old photo if it exists
-                            if (!empty($vehicle['photo']) && file_exists($vehicle['photo'])) {
-                                unlink($vehicle['photo']);
+                            if (!empty($vehicle['vehiclePhoto']) && file_exists($vehicle['vehiclePhoto'])) {
+                                unlink($vehicle['vehiclePhoto']);
                             }
                             $photo = $uploadPath;
                         } else {
@@ -141,25 +149,41 @@
                 
                 // If no errors, update vehicle
                 if (empty($errors)) {
-                    $_SESSION['vehicles'][$vehicleId] = [
-                        'name' => $vehicleName,
-                        'seat_count' => (int)$seatCount,
-                        'ac_nac' => $acNac,
-                        'features' => $features,
-                        'photo' => $photo
-                    ];
-                    
-                    // Redirect to vehicles list with success message
-                    header('Location: adVehicles.php?updated=1');
-                    exit;
+                    try {
+                        getVehiclesCollection()->updateOne(
+                            ['_id' => new MongoDB\BSON\ObjectID($vehicleId)],
+                            ['$set' => [
+                                'vehicle_name' => $vehicleName,
+                                'seat_count' => (int)$seatCount,
+                                'ac_nac' => $acNac,
+                                'features' => $features,
+                                'vehiclePhoto' => $photo,
+                                'updated_at' => new MongoDB\BSON\UTCDateTime()
+                            ]]
+                        );
+                        
+                        // Redirect to vehicles list with success message
+                        header('Location: adVehicles.php?updated=1');
+                        exit;
+                    } catch (Exception $e) {
+                        echo '<div class="alert alert-error">Error updating vehicle: ' . $e->getMessage() . '</div>';
+                    }
                 }
             }
             
             // Parse existing features for checkboxes
             $existingFeatures = [];
             if (!empty($vehicle['features'])) {
-                $existingFeatures = array_map('trim', explode(',', $vehicle['features']));
+                if ($vehicle['features'] instanceof \MongoDB\Model\BSONArray) {
+                    $existingFeatures = iterator_to_array($vehicle['features']);
+                } elseif (is_array($vehicle['features'])) {
+                    $existingFeatures = $vehicle['features'];
+                } else {
+                    $existingFeatures = array_map('trim', explode(',', $vehicle['features']));
+                }
             }
+
+            $selectedAcNac = $_POST['ac_nac'] ?? ($vehicle['ac_nac'] ?? '');
             ?>
 
             <?php if (!empty($errors)): ?>
@@ -177,13 +201,13 @@
                     <div class="form-group">
                         <label for="vehicle_name" class="form-label">Vehicle Name *</label>
                         <input type="text" id="vehicle_name" name="vehicle_name" class="form-control" 
-                               value="<?php echo htmlspecialchars($_POST['vehicle_name'] ?? $vehicle['name']); ?>" required>
+                               value="<?php echo htmlspecialchars($_POST['vehicle_name'] ?? (isset($vehicle['vehicle_name']) ? $vehicle['vehicle_name'] : '')); ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="seat_count" class="form-label">Number of Seats *</label>
                         <input type="number" id="seat_count" name="seat_count" class="form-control" 
-                               value="<?php echo htmlspecialchars($_POST['seat_count'] ?? $vehicle['seat_count']); ?>" 
+                               value="<?php echo htmlspecialchars($_POST['seat_count'] ?? (isset($vehicle['seat_count']) ? $vehicle['seat_count'] : '')); ?>" 
                                min="1" max="50" required>
                     </div>
 
@@ -191,8 +215,8 @@
                         <label for="ac_nac" class="form-label">AC/NAC *</label>
                         <select id="ac_nac" name="ac_nac" class="form-control" required>
                             <option value="">Select AC/NAC</option>
-                            <option value="AC" <?php echo (isset($_POST['ac_nac']) ? $_POST['ac_nac'] : $vehicle['ac_nac']) === 'AC' ? 'selected' : ''; ?>>AC</option>
-                            <option value="NAC" <?php echo (isset($_POST['ac_nac']) ? $_POST['ac_nac'] : $vehicle['ac_nac']) === 'NAC' ? 'selected' : ''; ?>>Non-AC</option>
+                            <option value="AC" <?php echo $selectedAcNac === 'AC' ? 'selected' : ''; ?>>AC</option>
+                            <option value="NAC" <?php echo $selectedAcNac === 'NAC' ? 'selected' : ''; ?>>Non-AC</option>
                         </select>
                     </div>
 
@@ -219,10 +243,10 @@
 
                     <div class="form-group">
                         <label for="vehicle_photo" class="form-label">Vehicle Photo</label>
-                        <?php if (!empty($vehicle['photo'])): ?>
+                        <?php if (!empty($vehicle['vehiclePhoto'])): ?>
                             <div style="margin-bottom: 1rem;">
                                 <p class="form-text">Current photo:</p>
-                                <img src="<?php echo htmlspecialchars($vehicle['photo']); ?>" alt="Current Vehicle" class="img-preview">
+                                <img src="<?php echo htmlspecialchars($vehicle['vehiclePhoto']); ?>" alt="Current Vehicle" class="img-preview">
                             </div>
                         <?php endif; ?>
                         <div class="file-upload">

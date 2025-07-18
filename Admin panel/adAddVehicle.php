@@ -30,7 +30,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="adBookings.php">
+                    <a href="adBooking.php">
                         <i class="fas fa-calendar-check"></i>
                         <span>Bookings</span>
                     </a>
@@ -68,10 +68,7 @@
             </div>
 
             <?php
-            // Start session only if not already started
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
+            require '../auth-config.php';
             
             // Handle form submission
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -127,22 +124,21 @@
                 // If no errors, save vehicle
                 if (empty($errors)) {
                     $vehicle = [
-                        'name' => $vehicleName,
+                        'vehicle_name' => $vehicleName,
                         'seat_count' => (int)$seatCount,
                         'ac_nac' => $acNac,
                         'features' => $features,
-                        'photo' => $photo
+                        'vehiclePhoto' => $photo
                     ];
                     
-                    if (!isset($_SESSION['vehicles'])) {
-                        $_SESSION['vehicles'] = [];
+                    // Insert into MongoDB
+                    if (insertVehicle($vehicle)) {
+                        // Redirect to vehicles list with success message
+                        header('Location: adVehicles.php?success=1');
+                        exit;
+                    } else {
+                        $errors[] = "Failed to add vehicle to database.";
                     }
-                    
-                    $_SESSION['vehicles'][] = $vehicle;
-                    
-                    // Redirect to vehicles list with success message
-                    header('Location: adVehicles.php?success=1');
-                    exit;
                 }
             }
             ?>
