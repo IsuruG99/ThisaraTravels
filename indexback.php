@@ -10,7 +10,7 @@ $uri = $_ENV['MONGODB_URI'];
 try {
     $client = new MongoDB\Client($uri);
     $db = $client->ThisaraTravels;
-    $collection = $db->userdata;
+    $collection = $db->reviews;
     $cursor = $collection->find();
 } catch (Exception $e) {
     die("Database connection failed: " . $e->getMessage());
@@ -112,7 +112,7 @@ try {
                     }
                     ?>
                 </div>
-                <p><?= htmlspecialchars($document['Comment']) ?></p>
+                <p><?= htmlspecialchars($document['comment']) ?></p>
                 <div class="like-dislike-icons">
                     <i class="fas fa-heart like-icon"></i> <span class="like-count"><?= htmlspecialchars($document['likeCount'] ?? 0) ?></span>
                 </div>
