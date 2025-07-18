@@ -7,31 +7,46 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userId = $_SESSION['user_id'];
-$collection = getUsersCollection();
+$userCollection = getUsersCollection();
+
 
 try {
     switch (true) {
         // Profile photo upload
         case ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profilePhoto'])):
-            handleProfilePhotoUpload(userId: $userId, collection: $collection);
+            handleProfilePhotoUpload(userId: $userId, userCollection: $userCollection);
             break;
         // Field update (username/email)
         case ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['field'])):
-            handleFieldUpdate(userId: $userId, collection: $collection);
-            break;       
+            handleFieldUpdate(userId: $userId, userCollection: $userCollection);
+            break;
         // Password change
         case ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])):
-            handlePasswordChange(userId: $userId, collection: $collection);
+            handlePasswordChange(userId: $userId, userCollection: $userCollection);
+            break;
+        // Review deletion
+        case ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_id'])):
+            $reviewsCollection = getReviewsCollection();
+            handleReviewDeletion(
+                userId: $userId,
+                reviewId: $_POST['review_id'],
+                reviewsCollection: $reviewsCollection
+            );
+            break;
+        // Booking cancellation
+        case ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['booking_id'])):
+            handleBookingCancellation(userId: $userId, bookingId: $_POST['booking_id']);
             break;
         // Default case - get user data
         default:
-            fetchUserData(userId: $userId, collection: $collection);
+            fetchUserData(userId: $userId, userCollection: $userCollection);
     }
 } catch (Exception $e) {
     jsonResponse(data: ['success' => false, 'error' => 'Server error'], statusCode: 500);
 }
 
-function handleProfilePhotoUpload(string $userId, MongoDB\Collection $collection): never {
+function handleProfilePhotoUpload(string $userId, MongoDB\Collection $userCollection): never
+{
     $targetDirectory = "uploads/profile_photo/";
     if (!file_exists(filename: $targetDirectory)) {
         mkdir(directory: $targetDirectory, permissions: 0777, recursive: true);
@@ -41,7 +56,7 @@ function handleProfilePhotoUpload(string $userId, MongoDB\Collection $collection
     if (!move_uploaded_file(from: $_FILES['profilePhoto']['tmp_name'], to: $targetFilePath)) {
         jsonResponse(data: ['success' => false, 'error' => 'Failed to upload photo']);
     }
-    $updateResult = $collection->updateOne(
+    $updateResult = $userCollection->updateOne(
         filter: ['_id' => new MongoDB\BSON\ObjectID($userId)],
         update: ['$set' => ['ProfilePhoto' => $targetFilePath]]
     );
@@ -56,7 +71,8 @@ function handleProfilePhotoUpload(string $userId, MongoDB\Collection $collection
     ]);
 }
 
-function handleFieldUpdate(string $userId, MongoDB\Collection $collection): never {
+function handleFieldUpdate(string $userId, MongoDB\Collection $userCollection): never
+{
     $user = getCurrentUser(userId: $userId);
     if (!$user) {
         jsonResponse(data: ['success' => false, 'error' => 'User not found'], statusCode: 404);
@@ -75,10 +91,10 @@ function handleFieldUpdate(string $userId, MongoDB\Collection $collection): neve
         jsonResponse(data: ['success' => false, 'error' => 'Invalid email format']);
     }
     // Check for duplicates
-    if ($collection->findOne(filter: [$field => $value, '_id' => ['$ne' => new MongoDB\BSON\ObjectID($userId)]])) {
+    if ($userCollection->findOne(filter: [$field => $value, '_id' => ['$ne' => new MongoDB\BSON\ObjectID($userId)]])) {
         jsonResponse(data: ['success' => false, 'error' => "$field already in use"]);
     }
-    $updateResult = $collection->updateOne(
+    $updateResult = $userCollection->updateOne(
         filter: ['_id' => new MongoDB\BSON\ObjectID($userId)],
         update: ['$set' => [$field === 'username' ? 'UserName' : 'Email' => $value]]
     );
@@ -91,7 +107,41 @@ function handleFieldUpdate(string $userId, MongoDB\Collection $collection): neve
     jsonResponse(data: ['success' => true]);
 }
 
-function handlePasswordChange(string $userId, MongoDB\Collection $collection): never {
+function handleBookingCancellation(string $userId, string $bookingId): never
+{
+    $bookingsCollection = getBookingsCollection();
+    try {
+        $objectId = new MongoDB\BSON\ObjectId($bookingId);
+        // convert userId to UserName
+        $user = getCurrentUser(userId: $userId);
+        $username = $user['UserName'] ?? '';
+        // Verify the booking belongs to the current user before updating
+        $booking = $bookingsCollection->findOne(filter: [
+            '_id' => $objectId,
+            'username' => $username
+        ]);
+        if (!$booking) {
+            jsonResponse(data: ['success' => false, 'error' => 'Booking not found or unauthorized'], statusCode: 404);
+        }
+        // Only allow cancellation if booking isn't already completed
+        if (($booking['status'] ?? '') === 'completed') {
+            jsonResponse(data: ['success' => false, 'error' => 'Completed bookings cannot be cancelled']);
+        }
+        $updateResult = $bookingsCollection->updateOne(
+            filter: ['_id' => $objectId],
+            update: ['$set' => ['status' => 'cancelled']]
+        );
+        if ($updateResult->getModifiedCount() === 0) {
+            jsonResponse(data: ['success' => false, 'error' => 'No changes made']);
+        }
+        jsonResponse(data: ['success' => true, 'message' => 'Booking cancelled successfully']);
+    } catch (Exception $e) {
+        jsonResponse(data: ['success' => false, 'error' => 'Server error'], statusCode: 500);
+    }
+}
+
+function handlePasswordChange(string $userId, MongoDB\Collection $userCollection): never
+{
     $user = getCurrentUser(userId: $userId);
     if (!$user) {
         jsonResponse(data: ['success' => false, 'error' => 'User not found'], statusCode: 404);
@@ -105,19 +155,44 @@ function handlePasswordChange(string $userId, MongoDB\Collection $collection): n
     if ($_POST['new_password'] !== $_POST['confirm_password']) {
         jsonResponse(data: ['success' => false, 'error' => 'Passwords do not match']);
     }
-    $updateResult = $collection->updateOne(
+    $updateResult = $userCollection->updateOne(
         filter: ['_id' => new MongoDB\BSON\ObjectID($userId)],
         update: ['$set' => ['Password' => password_hash(password: $_POST['new_password'], algo: PASSWORD_DEFAULT)]]
     );
     jsonResponse(data: [
         'success' => $updateResult->getModifiedCount() > 0,
-        'message' => $updateResult->getModifiedCount() > 0 
-            ? 'Password updated successfully' 
+        'message' => $updateResult->getModifiedCount() > 0
+            ? 'Password updated successfully'
             : 'No changes made'
     ]);
 }
 
-function fetchUserData(string $userId, MongoDB\Collection $collection): never {
+function handleReviewDeletion(string $userId, string $reviewId, MongoDB\Collection $reviewsCollection): never
+{
+
+    $objectId = new MongoDB\BSON\ObjectId($reviewId);
+
+    // Verify the review belongs to the current user before deletion
+    $review = $reviewsCollection->findOne(filter: [
+        '_id' => $objectId,
+        'userId' => new MongoDB\BSON\ObjectId($userId)
+    ]);
+
+    if (!$review) {
+        jsonResponse(data: ['success' => false, 'error' => 'Review not found or unauthorized'], statusCode: 404);
+    }
+
+    $deleteResult = $reviewsCollection->deleteOne(filter: ['_id' => $objectId]);
+
+    if ($deleteResult->getDeletedCount() === 0) {
+        jsonResponse(data: ['success' => false, 'error' => 'Failed to delete review'], statusCode: 500);
+    }
+
+    jsonResponse(data: ['success' => true, 'message' => 'Review deleted successfully']);
+}
+
+function fetchUserData(string $userId, MongoDB\Collection $userCollection): never
+{
     $user = getCurrentUser(userId: $userId);
     if (!$user) {
         jsonResponse(data: ['success' => false, 'error' => 'User not found'], statusCode: 404);
@@ -132,3 +207,4 @@ function fetchUserData(string $userId, MongoDB\Collection $collection): never {
         'hasPassword' => $_SESSION['has_password']
     ]);
 }
+

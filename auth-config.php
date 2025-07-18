@@ -7,6 +7,7 @@ use \PHPMailer\PHPMailer\PHPMailer;
 
 
 
+
 // =============================================
 // 1. BOOTSTRAP & ENVIRONMENT
 // =============================================
@@ -89,19 +90,23 @@ function isFieldTaken(string $field, string $value, MongoDB\Collection $collecti
 function getUsersCollection(): Collection {
     return getMongoDB()->selectCollection(collectionName: 'users');
 }
-
+function getBookingsCollection(): Collection {
+    return getMongoDB()->selectCollection(collectionName: 'bookings');
+}
+function getReviewsCollection(): Collection {
+    return getMongoDB()->selectCollection(collectionName: 'reviews');
+}
 function getCurrentUser(string $userId): ?array {
     try {
-        return getUsersCollection()->findOne(filter: ['_id' => new MongoDB\BSON\ObjectID($userId)]);
+        $doc = getUsersCollection()->findOne(filter: ['_id' => new MongoDB\BSON\ObjectID($userId)]);
+        return $doc ? $doc->getArrayCopy() : null;
     } catch (Exception $e) {
         return null;
     }
 }
-
 function validatePassword(array $user, string $password): bool {
     return !empty($user['Password']) && password_verify(password: $password, hash: $user['Password']);
 }
-
 function jsonResponse(array $data, int $statusCode = 200): never {
     http_response_code(response_code: $statusCode);
     header(header: 'Content-Type: application/json');
