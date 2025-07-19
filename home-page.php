@@ -9,6 +9,7 @@
     <title>Sri Lanka Travel & Vehicle Rental</title>
     <link rel="stylesheet" href="css/home-page.css">
     <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 
@@ -120,9 +121,20 @@
                 <button class="next">❯</button>
             </div>
         </section>
+
+        <!-- import footer section -->
+        <?php include 'components/footer.php'; ?>
     </main>
 
+
+
+
+
+
+    <!-- // Scripts (JS) Section Starting // -->
+
     <script>
+        // Welcome Section Background Images Slideshow
         const images = [
             'img/welcome-1.jpg',
             'img/welcome-2.jpg',
@@ -145,7 +157,7 @@
     
     
     <script>
-        // Slideshow functionality
+        // Memory/Gallery Slideshow functionality
         document.addEventListener('DOMContentLoaded', () => {
             const slides = document.querySelectorAll('.slide');
             const prevButton = document.querySelector('.prev');
