@@ -94,9 +94,10 @@ function handleFieldUpdate(string $userId, MongoDB\Collection $userCollection): 
     if ($userCollection->findOne(filter: [$field => $value, '_id' => ['$ne' => new MongoDB\BSON\ObjectID($userId)]])) {
         jsonResponse(data: ['success' => false, 'error' => "$field already in use"]);
     }
+    // Update the email & set Verified to false to force OTP verification
     $updateResult = $userCollection->updateOne(
         filter: ['_id' => new MongoDB\BSON\ObjectID($userId)],
-        update: ['$set' => [$field === 'username' ? 'UserName' : 'Email' => $value]]
+        update: ['$set' => [$field === 'username' ? 'UserName' : 'Email' => $value, 'Verified' => false]]
     );
     if ($updateResult->getModifiedCount() === 0) {
         jsonResponse(data: ['success' => false, 'error' => 'No changes made']);
