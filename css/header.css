@@ -12,6 +12,23 @@
     box-sizing: border-box;
 }
 
+
+@font-face {
+    font-family: 'Rockabilly';
+    src: url('../fonts/Rockabilly.woff2') format('woff2'),
+         url('../fonts/Rockabilly.woff') format('woff'),
+         url('../fonts/Rockabilly.ttf') format('truetype');
+    font-weight: bold;
+}
+@font-face {
+    font-family: 'Hey August';
+    src: url('fonts/"fonts/Hey August.ttf"') format('woff2'),
+         url('fonts/RHey August.woff') format('woff'),
+         url('fonts/Hey August.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
 /* Navbar Styles */
 .navbar {
     display: flex;
@@ -66,7 +83,7 @@
 .header-logo-text2 {
     padding-left: 5px !important;
     font-size: 20px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     letter-spacing: 1px !important;
     background: linear-gradient(45deg, #00BFAE, #FF6A00) !important;
     -webkit-background-clip: text !important;
@@ -76,6 +93,11 @@
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3) !important;
     text-decoration: none !important;
 }
+/* .header-logo-text2:hover {
+    font-size: 22px !important;
+    letter-spacing: 0 !important;
+    transition: color 0.5s ease !important;
+} */
 
 .header-logo:hover .header-logo-img {
     transition: transform 0.3s ease, box-shadow 0.3s ease !important;

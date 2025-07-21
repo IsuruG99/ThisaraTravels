@@ -30,14 +30,6 @@
         </section>
         <!-- ------------------------- -->
 
-        <!-- Welcome Section with Background Image -->
-        <!-- <section class="welcome">
-            <div class="welcome-content">
-                <h1>Welcome to Your Sri Lankan Adventure</h1>
-                <p>Experience the beauty of Sri Lanka with our top-tier travel and vehicle rental services.</p>
-            </div>
-        </section> -->
-
         <!-- About Our Business -->
         <section class="about-business">
             <div class="about-container">
@@ -197,6 +189,12 @@
                 });
             });
         });
+    </script>
+
+    <script>
+        window.onload = function() {
+            window.scrollTo(0, 0);
+        };
     </script>
 </body>
 

@@ -14,7 +14,6 @@ if (isset($_SESSION['username'])) {
     <title>Thisara Travels & Tours | Best Travels & Tour Agent in Sri Lanka</title>
     <!-- Customized Bootstrap Stylesheet -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="ssheet.css">
 </head>
 
 
