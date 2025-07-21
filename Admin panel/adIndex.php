@@ -1,29 +1,20 @@
 <?php
-session_start();
+require 'adminBackend.php';
 
-// Ensure sessions are initialized
-if (!isset($_SESSION['vehicles'])) {
-    $_SESSION['vehicles'] = [];
-}
+// Fetch statistics from MongoDB
+$totalVehicles = getVehiclesCollection()->countDocuments();
+$totalBookings = getBookingsCollection()->countDocuments();
+$totalUsers = getUsersCollection()->countDocuments();
 
-if (!isset($_SESSION['bookings'])) {
-    $_SESSION['bookings'] = [];
-}
-
-if (!isset($_SESSION['users'])) {
-    $_SESSION['users'] = [];
-}
-
-// Calculate statistics
-$totalVehicles = count($_SESSION['vehicles']);
-$totalBookings = count($_SESSION['bookings']);
-$totalUsers = count($_SESSION['users']);
-
-// Get recent vehicles (last 5)
-$recentVehicles = array_slice(array_reverse($_SESSION['vehicles']), 0, 5);
+// Fetch recent vehicles (last 3 added)
+$recentVehiclesCursor = getVehiclesCollection()->find([], [
+    'sort' => ['_id' => -1],
+    'limit' => 3
+]);
+$recentVehicles = iterator_to_array($recentVehiclesCursor);
 
 // Get recent bookings (last 5)
-$recentBookings = array_slice(array_reverse($_SESSION['bookings']), 0, 5);
+$recentBookings = getRecentBookings(); // Use the function from adminBackend.php
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -57,7 +48,7 @@ $recentBookings = array_slice(array_reverse($_SESSION['bookings']), 0, 5);
                     </a>
                 </li>
                 <li>
-                    <a href="adBookings.php">
+                    <a href="adBooking.php">
                         <i class="fas fa-calendar-check"></i>
                         <span>Bookings</span>
                     </a>
@@ -99,7 +90,7 @@ $recentBookings = array_slice(array_reverse($_SESSION['bookings']), 0, 5);
                     <div class="stat-icon">
                         <i class="fas fa-car" style="color: #238636;"></i>
                     </div>
-                    <div class="stat-number"><?php echo count($_SESSION['vehicles'] ?? []); ?></div>
+                    <div class="stat-number"><?php echo $totalVehicles; ?></div>
                     <div class="stat-label">Total Vehicles</div>
                 </div>
                 
@@ -107,7 +98,7 @@ $recentBookings = array_slice(array_reverse($_SESSION['bookings']), 0, 5);
                     <div class="stat-icon">
                         <i class="fas fa-calendar-check" style="color: #58a6ff;"></i>
                     </div>
-                    <div class="stat-number"><?php echo count($_SESSION['bookings'] ?? []); ?></div>
+                    <div class="stat-number"><?php echo $totalBookings; ?></div>
                     <div class="stat-label">Total Bookings</div>
                 </div>
                 
@@ -115,7 +106,7 @@ $recentBookings = array_slice(array_reverse($_SESSION['bookings']), 0, 5);
                     <div class="stat-icon">
                         <i class="fas fa-users" style="color: #d29922;"></i>
                     </div>
-                    <div class="stat-number"><?php echo count($_SESSION['users'] ?? []); ?></div>
+                    <div class="stat-number"><?php echo $totalUsers; ?></div>
                     <div class="stat-label">Total Users</div>
                 </div>
             </div>
@@ -138,7 +129,7 @@ $recentBookings = array_slice(array_reverse($_SESSION['bookings']), 0, 5);
                     <div class="action-desc">Manage all vehicles in the system</div>
                 </a>
                 
-                <a href="adBookings.php" class="action-card">
+                <a href="adBooking.php" class="action-card">
                     <div class="action-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
@@ -164,9 +155,6 @@ $recentBookings = array_slice(array_reverse($_SESSION['bookings']), 0, 5);
                     </div>
                     <div class="recent-list">
                         <?php
-                        $vehicles = $_SESSION['vehicles'] ?? [];
-                        $recentVehicles = array_slice($vehicles, -3);
-                        
                         if (empty($recentVehicles)) {
                             echo '<div class="empty-state">';
                             echo '<div class="empty-icon"><i class="fas fa-car"></i></div>';
@@ -174,22 +162,13 @@ $recentBookings = array_slice(array_reverse($_SESSION['bookings']), 0, 5);
                             echo '<p>Add your first vehicle to get started</p>';
                             echo '</div>';
                         } else {
-                            foreach (array_reverse($recentVehicles) as $vehicle) {
+                            foreach ($recentVehicles as $vehicle) {
                                 echo '<div class="recent-item">';
                                 echo '<div class="recent-item-info">';
-                                echo '<div class="recent-item-title">' . htmlspecialchars($vehicle['name']) . '</div>';
-                                
-                                // Handle different possible field names for seats and AC
-                                $seats = $vehicle['seats'] ?? $vehicle['seat_count'] ?? 'N/A';
-                                $ac = $vehicle['ac'] ?? $vehicle['ac_nac'] ?? 'N/A';
-                                
-                                // Format AC display
-                                if (is_bool($ac)) {
-                                    $acDisplay = $ac ? 'AC' : 'Non-AC';
-                                } else {
-                                    $acDisplay = $ac;
-                                }
-                                
+                                echo '<div class="recent-item-title">' . htmlspecialchars($vehicle['vehicle_name'] ?? '') . '</div>';
+                                $seats = $vehicle['seat_count'] ?? $vehicle['seats'] ?? 'N/A';
+                                $ac = $vehicle['ac_nac'] ?? $vehicle['ac'] ?? 'N/A';
+                                $acDisplay = ($ac === 'AC' || $ac === 'NAC') ? ($ac === 'AC' ? 'AC' : 'Non-AC') : $ac;
                                 echo '<div class="recent-item-desc">' . $seats . ' seats • ' . $acDisplay . '</div>';
                                 echo '</div>';
                                 echo '<div class="recent-item-date">Added recently</div>';
@@ -203,13 +182,10 @@ $recentBookings = array_slice(array_reverse($_SESSION['bookings']), 0, 5);
                 <div class="recent-card">
                     <div class="recent-header">
                         <h3 class="recent-title">Recent Bookings</h3>
-                        <a href="adBookings.php" class="recent-link">View All</a>
+                        <a href="adBooking.php" class="recent-link">View All</a>
                     </div>
                     <div class="recent-list">
                         <?php
-                        $bookings = $_SESSION['bookings'] ?? [];
-                        $recentBookings = array_slice($bookings, -3);
-                        
                         if (empty($recentBookings)) {
                             echo '<div class="empty-state">';
                             echo '<div class="empty-icon"><i class="fas fa-calendar"></i></div>';
@@ -217,13 +193,14 @@ $recentBookings = array_slice(array_reverse($_SESSION['bookings']), 0, 5);
                             echo '<p>Bookings will appear here when users make reservations</p>';
                             echo '</div>';
                         } else {
-                            foreach (array_reverse($recentBookings) as $booking) {
+                            foreach ($recentBookings as $booking) {
                                 echo '<div class="recent-item">';
+                                // Display booking details here, e.g.:
                                 echo '<div class="recent-item-info">';
-                                echo '<div class="recent-item-title">' . htmlspecialchars($booking['vehicle_name']) . '</div>';
-                                echo '<div class="recent-item-desc">' . htmlspecialchars($booking['customer_name']) . ' • ' . $booking['date'] . '</div>';
+                                echo '<div class="recent-item-title">Booking ID: ' . htmlspecialchars((string)($booking["_id"] ?? '')) . '</div>';
+                                // Add more booking fields as needed
                                 echo '</div>';
-                                echo '<div class="recent-item-date">' . ucfirst($booking['status']) . '</div>';
+                                echo '<div class="recent-item-date">Added recently</div>';
                                 echo '</div>';
                             }
                         }

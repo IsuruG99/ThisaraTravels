@@ -113,4 +113,17 @@ function jsonResponse(array $data, int $statusCode = 200): never {
     echo json_encode(value: $data);
     exit;
 }
+function getVehiclesCollection(): MongoDB\Collection {
+    return getMongoDB()->selectCollection('vehicles');
+}
+
+function insertVehicle(array $vehicle): bool {
+    try {
+        $result = getVehiclesCollection()->insertOne($vehicle);
+        return $result->getInsertedCount() > 0;
+    } catch (Exception $e) {
+        // Optionally log the error or handle it as needed
+        return false;
+    }
+}
 

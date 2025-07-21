@@ -1438,6 +1438,83 @@ header("Pragma: no-cache");
         .dropdown-toggle::after {
             display: none !important;
         }
+
+        /* Autocomplete Styles */
+        .autocomplete-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .autocomplete-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E6F0EA;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: #F8F1E9;
+            color: #224B41;
+            transition: all 0.3s ease;
+        }
+
+        .autocomplete-input:focus {
+            outline: none;
+            border-color: #2F6DA3;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(47, 109, 163, 0.1);
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #F8F1E9;
+            border: 2px solid #E6F0EA;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .autocomplete-dropdown.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            color: #224B41;
+            border-bottom: 1px solid #E6F0EA;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #E6F0EA;
+        }
+
+        .autocomplete-item.selected {
+            background-color: #2F6DA3;
+            color: #F8F1E9;
+        }
+
+        .autocomplete-item.highlighted {
+            background-color: #6CC4A1;
+            color: #F8F1E9;
+        }
+
+        .autocomplete-no-results {
+            padding: 12px 15px;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+        }
     </style>
 
 
@@ -1471,7 +1548,7 @@ header("Pragma: no-cache");
                     } else {
                         $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
                         $user_role = $_SESSION['role'] ?? 'user';
-                        $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'profile-page.php';
+                        $redirect_url = ($user_role === 'admin') ? 'Admin%20panel/adIndex.php' : 'profile-page.php';
                         echo '<a href="' . $redirect_url . '" aria-label="User Profile"><i class="fas fa-user" aria-hidden="true"></i> Profile</a>';
                     }
                     ?>
@@ -1510,74 +1587,32 @@ header("Pragma: no-cache");
                 <div id="phone-error" class="validation-message"></div>
             </div>
             <div class="form-group">
-                <label for="pickup-location-select"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Pick-Up Location</label>
-                <select class="form-select" id="pickup-location-select" name="pickup_location" required aria-describedby="pickup-error">
-                    <option value="" disabled <?php echo empty($form_data['pickup_location']) ? 'selected' : ''; ?>>PICK-UP LOCATION</option>
-                    <option value="Colombo Airport" <?php echo ($form_data['pickup_location'] ?? '') === 'Colombo Airport' ? 'selected' : ''; ?>>Colombo Airport</option>
-                    <option value="Colombo City" <?php echo ($form_data['pickup_location'] ?? '') === 'Colombo City' ? 'selected' : ''; ?>>Colombo City</option>
-                    <option value="Mattala Airport" <?php echo ($form_data['pickup_location'] ?? '') === 'Mattala Airport' ? 'selected' : ''; ?>>Mattala Airport</option>
-                    <option value="Tissamaharama" <?php echo ($form_data['pickup_location'] ?? '') === 'Tissamaharama' ? 'selected' : ''; ?>>Tissamaharama</option>
-                    <option value="Yala" <?php echo ($form_data['pickup_location'] ?? '') === 'Yala' ? 'selected' : ''; ?>>Yala</option>
-                    <option value="Ranna" <?php echo ($form_data['pickup_location'] ?? '') === 'Ranna' ? 'selected' : ''; ?>>Ranna</option>
-                    <option value="Tangalle" <?php echo ($form_data['pickup_location'] ?? '') === 'Tangalle' ? 'selected' : ''; ?>>Tangalle</option>
-                    <option value="Matara" <?php echo ($form_data['pickup_location'] ?? '') === 'Matara' ? 'selected' : ''; ?>>Matara</option>
-                    <option value="Mirissa" <?php echo ($form_data['pickup_location'] ?? '') === 'Mirissa' ? 'selected' : ''; ?>>Mirissa</option>
-                    <option value="Weligama" <?php echo ($form_data['pickup_location'] ?? '') === 'Weligama' ? 'selected' : ''; ?>>Weligama</option>
-                    <option value="Galle" <?php echo ($form_data['pickup_location'] ?? '') === 'Galle' ? 'selected' : ''; ?>>Galle</option>
-                    <option value="Unawatuna" <?php echo ($form_data['pickup_location'] ?? '') === 'Unawatuna' ? 'selected' : ''; ?>>Unawatuna</option>
-                    <option value="Hikkaduwa" <?php echo ($form_data['pickup_location'] ?? '') === 'Hikkaduwa' ? 'selected' : ''; ?>>Hikkaduwa</option>
-                    <option value="Sigiriyaa" <?php echo ($form_data['pickup_location'] ?? '') === 'Sigiriyaa' ? 'selected' : ''; ?>>Sigiriyaa</option>
-                    <option value="Kalpitiya" <?php echo ($form_data['pickup_location'] ?? '') === 'Kalpitiya' ? 'selected' : ''; ?>>Kalpitiya</option>
-                    <option value="Bentota" <?php echo ($form_data['pickup_location'] ?? '') === 'Bentota' ? 'selected' : ''; ?>>Bentota</option>
-                    <option value="Arugam bay" <?php echo ($form_data['pickup_location'] ?? '') === 'Arugam bay' ? 'selected' : ''; ?>>Arugam bay</option>
-                    <option value="Ella" <?php echo ($form_data['pickup_location'] ?? '') === 'Ella' ? 'selected' : ''; ?>>Ella</option>
-                    <option value="Haputale" <?php echo ($form_data['pickup_location'] ?? '') === 'Haputale' ? 'selected' : ''; ?>>Haputale</option>
-                    <option value="Trincomalee" <?php echo ($form_data['pickup_location'] ?? '') === 'Trincomalee' ? 'selected' : ''; ?>>Trincomalee</option>
-                    <option value="Kandy" <?php echo ($form_data['pickup_location'] ?? '') === 'Kandy' ? 'selected' : ''; ?>>Kandy</option>
-                    <option value="Kataragama" <?php echo ($form_data['pickup_location'] ?? '') === 'Kataragama' ? 'selected' : ''; ?>>Kataragama</option>
-                    <option value="Pasikuda/Kalkuda" <?php echo ($form_data['pickup_location'] ?? '') === 'Pasikuda/Kalkuda' ? 'selected' : ''; ?>>Pasikuda/Kalkuda</option>
-                    <option value="Udawalawe" <?php echo ($form_data['pickup_location'] ?? '') === 'Udawalawe' ? 'selected' : ''; ?>>Udawalawe</option>
-                    <option value="Nuwara Eliya" <?php echo ($form_data['pickup_location'] ?? '') === 'Nuwara Eliya' ? 'selected' : ''; ?>>Nuwara Eliya</option>
-                    <option value="Negombo" <?php echo ($form_data['pickup_location'] ?? '') === 'Negombo' ? 'selected' : ''; ?>>Negombo</option>
-                    <option value="Other" <?php echo ($form_data['pickup_location'] ?? '') === 'Other' ? 'selected' : ''; ?>>Other</option>
-                </select>
+                <label for="pickup-location-input"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Pick-Up Location</label>
+                <div class="autocomplete-container">
+                    <input type="text" class="form-control autocomplete-input" id="pickup-location-input" 
+                           placeholder="Type to search pickup location..." 
+                           value="<?php echo htmlspecialchars($form_data['pickup_location'] ?? ''); ?>" 
+                           autocomplete="off" aria-describedby="pickup-error" required>
+                    <input type="hidden" name="pickup_location" id="pickup-location-hidden" 
+                           value="<?php echo htmlspecialchars($form_data['pickup_location'] ?? ''); ?>" required>
+                    <div class="autocomplete-dropdown" id="pickup-dropdown"></div>
+                </div>
                 <input type="text" class="form-control custom-location" id="custom-pickup-location" 
                        name="custom_pickup_location" placeholder="Custom Pick-Up Location" 
                        value="<?php echo htmlspecialchars($form_data['custom_pickup_location'] ?? ''); ?>" aria-describedby="pickup-error">
                 <div id="pickup-error" class="validation-message"></div>
             </div>
             <div class="form-group">
-                <label for="dropoff-location-select"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Drop-Off Location</label>
-                <select class="form-select" id="dropoff-location-select" name="dropoff_location" required aria-describedby="dropoff-error">
-                    <option value="" disabled <?php echo empty($form_data['dropoff_location']) ? 'selected' : ''; ?>>DROP-OFF LOCATION</option>
-                    <option value="Colombo Airport" <?php echo ($form_data['dropoff_location'] ?? '') === 'Colombo Airport' ? 'selected' : ''; ?>>Colombo Airport</option>
-                    <option value="Colombo City" <?php echo ($form_data['dropoff_location'] ?? '') === 'Colombo City' ? 'selected' : ''; ?>>Colombo City</option>
-                    <option value="Mattala Airport" <?php echo ($form_data['dropoff_location'] ?? '') === 'Mattala Airport' ? 'selected' : ''; ?>>Mattala Airport</option>
-                    <option value="Tissamaharama" <?php echo ($form_data['dropoff_location'] ?? '') === 'Tissamaharama' ? 'selected' : ''; ?>>Tissamaharama</option>
-                    <option value="Yala" <?php echo ($form_data['dropoff_location'] ?? '') === 'Yala' ? 'selected' : ''; ?>>Yala</option>
-                    <option value="Ranna" <?php echo ($form_data['dropoff_location'] ?? '') === 'Ranna' ? 'selected' : ''; ?>>Ranna</option>
-                    <option value="Tangalle" <?php echo ($form_data['dropoff_location'] ?? '') === 'Tangalle' ? 'selected' : ''; ?>>Tangalle</option>
-                    <option value="Matara" <?php echo ($form_data['dropoff_location'] ?? '') === 'Matara' ? 'selected' : ''; ?>>Matara</option>
-                    <option value="Mirissa" <?php echo ($form_data['dropoff_location'] ?? '') === 'Mirissa' ? 'selected' : ''; ?>>Mirissa</option>
-                    <option value="Weligama" <?php echo ($form_data['dropoff_location'] ?? '') === 'Weligama' ? 'selected' : ''; ?>>Weligama</option>
-                    <option value="Galle" <?php echo ($form_data['dropoff_location'] ?? '') === 'Galle' ? 'selected' : ''; ?>>Galle</option>
-                    <option value="Unawatuna" <?php echo ($form_data['dropoff_location'] ?? '') === 'Unawatuna' ? 'selected' : ''; ?>>Unawatuna</option>
-                    <option value="Hikkaduwa" <?php echo ($form_data['dropoff_location'] ?? '') === 'Hikkaduwa' ? 'selected' : ''; ?>>Hikkaduwa</option>
-                    <option value="Sigiriyaa" <?php echo ($form_data['dropoff_location'] ?? '') === 'Sigiriyaa' ? 'selected' : ''; ?>>Sigiriyaa</option>
-                    <option value="Kalpitiya" <?php echo ($form_data['dropoff_location'] ?? '') === 'Kalpitiya' ? 'selected' : ''; ?>>Kalpitiya</option>
-                    <option value="Bentota" <?php echo ($form_data['dropoff_location'] ?? '') === 'Bentota' ? 'selected' : ''; ?>>Bentota</option>
-                    <option value="Arugam bay" <?php echo ($form_data['dropoff_location'] ?? '') === 'Arugam bay' ? 'selected' : ''; ?>>Arugam bay</option>
-                    <option value="Ella" <?php echo ($form_data['dropoff_location'] ?? '') === 'Ella' ? 'selected' : ''; ?>>Ella</option>
-                    <option value="Haputale" <?php echo ($form_data['dropoff_location'] ?? '') === 'Haputale' ? 'selected' : ''; ?>>Haputale</option>
-                    <option value="Trincomalee" <?php echo ($form_data['dropoff_location'] ?? '') === 'Trincomalee' ? 'selected' : ''; ?>>Trincomalee</option>
-                    <option value="Kandy" <?php echo ($form_data['dropoff_location'] ?? '') === 'Kandy' ? 'selected' : ''; ?>>Kandy</option>
-                    <option value="Kataragama" <?php echo ($form_data['dropoff_location'] ?? '') === 'Kataragama' ? 'selected' : ''; ?>>Kataragama</option>
-                    <option value="Pasikuda/Kalkuda" <?php echo ($form_data['dropoff_location'] ?? '') === 'Pasikuda/Kalkuda' ? 'selected' : ''; ?>>Pasikuda/Kalkuda</option>
-                    <option value="Udawalawe" <?php echo ($form_data['dropoff_location'] ?? '') === 'Udawalawe' ? 'selected' : ''; ?>>Udawalawe</option>
-                    <option value="Nuwara Eliya" <?php echo ($form_data['dropoff_location'] ?? '') === 'Nuwara Eliya' ? 'selected' : ''; ?>>Nuwara Eliya</option>
-                    <option value="Negombo" <?php echo ($form_data['dropoff_location'] ?? '') === 'Negombo' ? 'selected' : ''; ?>>Negombo</option>
-                    <option value="Other" <?php echo ($form_data['dropoff_location'] ?? '') === 'Other' ? 'selected' : ''; ?>>Other</option>
-                </select>
+                <label for="dropoff-location-input"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Drop-Off Location</label>
+                <div class="autocomplete-container">
+                    <input type="text" class="form-control autocomplete-input" id="dropoff-location-input" 
+                           placeholder="Type to search dropoff location..." 
+                           value="<?php echo htmlspecialchars($form_data['dropoff_location'] ?? ''); ?>" 
+                           autocomplete="off" aria-describedby="dropoff-error" required>
+                    <input type="hidden" name="dropoff_location" id="dropoff-location-hidden" 
+                           value="<?php echo htmlspecialchars($form_data['dropoff_location'] ?? ''); ?>" required>
+                    <div class="autocomplete-dropdown" id="dropoff-dropdown"></div>
+                </div>
                 <input type="text" class="form-control custom-location" id="custom-dropoff-location" 
                        name="custom_dropoff_location" placeholder="Custom Drop-Off Location" 
                        value="<?php echo htmlspecialchars($form_data['custom_dropoff_location'] ?? ''); ?>" aria-describedby="dropoff-error">
@@ -1850,7 +1885,7 @@ phoneInput.addEventListener('blur', validatePhone);
 phoneInput.addEventListener('countrychange', validatePhone);
 
 function validatePhone() {
-    const validationMessage = document.getElementById('validation-message');
+    const validationMessage = document.getElementById('phone-error');
     if (iti.isValidNumber()) {
         validationMessage.textContent = 'Valid phone number';
         validationMessage.className = 'validation-message valid';
@@ -1874,8 +1909,10 @@ function showBookingModal(title, type, name) {
     const vehicleNameInput = document.getElementById('vehicle-name');
     const message = document.getElementById('booking-message');
     const form = document.getElementById('booking-form');
-    const pickupSelect = document.getElementById('pickup-location-select');
-    const dropoffSelect = document.getElementById('dropoff-location-select');
+    const pickupInput = document.getElementById('pickup-location-input');
+    const dropoffInput = document.getElementById('dropoff-location-input');
+    const pickupHidden = document.getElementById('pickup-location-hidden');
+    const dropoffHidden = document.getElementById('dropoff-location-hidden');
     const customPickup = document.getElementById('custom-pickup-location');
     const customDropoff = document.getElementById('custom-dropoff-location');
 
@@ -1894,8 +1931,10 @@ function showBookingModal(title, type, name) {
         
         // Reset form
         form.reset();
-        pickupSelect.value = '';
-        dropoffSelect.value = '';
+        pickupInput.value = '';
+        dropoffInput.value = '';
+        pickupHidden.value = '';
+        dropoffHidden.value = '';
         customPickup.style.display = 'none';
         customPickup.required = false;
         customPickup.value = '';
@@ -2176,30 +2215,8 @@ function showLoginMessage(text) {
     }, 6000);
 }
 
-// --- Custom location toggle ---
-document.getElementById('pickup-location-select')?.addEventListener('change', function () {
-    const custom = document.getElementById('custom-pickup-location');
-    if (this.value === 'Other') {
-        custom.style.display = 'block';
-        custom.required = true;
-    } else {
-        custom.style.display = 'none';
-        custom.required = false;
-        custom.value = '';
-    }
-});
-
-document.getElementById('dropoff-location-select')?.addEventListener('change', function () {
-    const custom = document.getElementById('custom-dropoff-location');
-    if (this.value === 'Other') {
-        custom.style.display = 'block';
-        custom.required = true;
-    } else {
-        custom.style.display = 'none';
-        custom.required = false;
-        custom.value = '';
-    }
-});
+// --- Custom location toggle --- 
+// Note: This is now handled by the autocomplete functionality
 
 // --- Date validation ---
 document.getElementById('pickup-date')?.addEventListener('change', function () {
@@ -2223,8 +2240,8 @@ document.getElementById('booking-form')?.addEventListener('submit', function (e)
 
     const name = document.getElementById('name').value.trim();
     const phone = iti.getNumber();
-    const pickup = document.getElementById('pickup-location-select').value;
-    const dropoff = document.getElementById('dropoff-location-select').value;
+    const pickup = document.getElementById('pickup-location-hidden').value;
+    const dropoff = document.getElementById('dropoff-location-hidden').value;
     const customPickup = document.getElementById('custom-pickup-location').value.trim();
     const customDropoff = document.getElementById('custom-dropoff-location').value.trim();
     const pickupDate = document.getElementById('pickup-date').value;
@@ -2391,7 +2408,182 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
     }
+
+    // Initialize autocomplete functionality
+    initializeAutocomplete();
 });
+
+// Autocomplete functionality
+function initializeAutocomplete() {
+    const locations = [
+        'Colombo Airport',
+        'Colombo City',
+        'Mattala Airport',
+        'Tissamaharama',
+        'Yala',
+        'Ranna',
+        'Tangalle',
+        'Matara',
+        'Mirissa',
+        'Weligama',
+        'Galle',
+        'Unawatuna',
+        'Hikkaduwa',
+        'Sigiriyaa',
+        'Kalpitiya',
+        'Bentota',
+        'Arugam bay',
+        'Ella',
+        'Haputale',
+        'Trincomalee',
+        'Kandy',
+        'Kataragama',
+        'Pasikuda/Kalkuda',
+        'Udawalawe',
+        'Nuwara Eliya',
+        'Negombo',
+        'Other'
+    ];
+
+    // Setup autocomplete for pickup location
+    setupAutocomplete('pickup-location-input', 'pickup-dropdown', 'pickup-location-hidden', 'custom-pickup-location', locations);
+    
+    // Setup autocomplete for dropoff location
+    setupAutocomplete('dropoff-location-input', 'dropoff-dropdown', 'dropoff-location-hidden', 'custom-dropoff-location', locations);
+}
+
+function setupAutocomplete(inputId, dropdownId, hiddenInputId, customLocationId, locations) {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const customLocation = document.getElementById(customLocationId);
+    
+    if (!input || !dropdown || !hiddenInput || !customLocation) return;
+
+    let selectedIndex = -1;
+    let filteredLocations = [];
+
+    input.addEventListener('input', function() {
+        const value = this.value.trim();
+        hiddenInput.value = '';
+        
+        if (value.length === 0) {
+            hideDropdown();
+            customLocation.style.display = 'none';
+            return;
+        }
+
+        // Filter locations based on input
+        filteredLocations = locations.filter(location => 
+            location.toLowerCase().includes(value.toLowerCase())
+        );
+
+        if (filteredLocations.length === 0) {
+            dropdown.innerHTML = '<div class="autocomplete-no-results">No locations found</div>';
+            dropdown.classList.add('show');
+        } else {
+            displaySuggestions(filteredLocations);
+        }
+        
+        selectedIndex = -1;
+    });
+
+    input.addEventListener('keydown', function(e) {
+        const items = dropdown.querySelectorAll('.autocomplete-item');
+        
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection(items);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection(items);
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                    selectLocation(items[selectedIndex].textContent);
+                }
+                break;
+            case 'Escape':
+                hideDropdown();
+                break;
+        }
+    });
+
+    input.addEventListener('blur', function() {
+        // Delay hiding to allow click on dropdown items
+        setTimeout(() => {
+            hideDropdown();
+        }, 200);
+    });
+
+    input.addEventListener('focus', function() {
+        if (this.value.trim().length > 0) {
+            const value = this.value.trim();
+            filteredLocations = locations.filter(location => 
+                location.toLowerCase().includes(value.toLowerCase())
+            );
+            if (filteredLocations.length > 0) {
+                displaySuggestions(filteredLocations);
+            }
+        }
+    });
+
+    function displaySuggestions(suggestions) {
+        dropdown.innerHTML = '';
+        suggestions.forEach((location, index) => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            item.textContent = location;
+            
+            item.addEventListener('click', function() {
+                selectLocation(location);
+            });
+            
+            dropdown.appendChild(item);
+        });
+        dropdown.classList.add('show');
+    }
+
+    function selectLocation(location) {
+        input.value = location;
+        hiddenInput.value = location;
+        hideDropdown();
+        
+        // Handle "Other" selection
+        if (location === 'Other') {
+            customLocation.style.display = 'block';
+            customLocation.focus();
+        } else {
+            customLocation.style.display = 'none';
+            customLocation.value = '';
+        }
+        
+        selectedIndex = -1;
+    }
+
+    function updateSelection(items) {
+        items.forEach((item, index) => {
+            item.classList.toggle('highlighted', index === selectedIndex);
+        });
+    }
+
+    function hideDropdown() {
+        dropdown.classList.remove('show');
+        selectedIndex = -1;
+    }
+
+    // Handle custom location input
+    customLocation.addEventListener('input', function() {
+        if (this.value.trim()) {
+            hiddenInput.value = 'Other';
+        }
+    });
+}
 
 </script>
 

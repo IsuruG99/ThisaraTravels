@@ -17,6 +17,7 @@ if (isset($_SESSION['username'])) {
 </head>
 
 
+
 <body>
      <!-- Home Page Loading -->
     <div class="loading-homepage">

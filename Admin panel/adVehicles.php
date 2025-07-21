@@ -30,7 +30,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="adBookings.php">
+                    <a href="adBooking.php">
                         <i class="fas fa-calendar-check"></i>
                         <span>Bookings</span>
                     </a>
@@ -61,27 +61,19 @@
     <div class="main-content">
         <div class="container">
             <?php
-            // Start session only if not already started
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
-            
+            require '../auth-config.php';
+
             // Handle delete action
-            if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-                $deleteIndex = (int)$_GET['delete'];
-                if (isset($_SESSION['vehicles'][$deleteIndex])) {
-                    // Delete the photo file if it exists
-                    $vehicle = $_SESSION['vehicles'][$deleteIndex];
-                    if (!empty($vehicle['photo']) && file_exists($vehicle['photo'])) {
-                        unlink($vehicle['photo']);
+            if (isset($_GET['delete'])) {
+                $deleteId = $_GET['delete'];
+                try {
+                    $deleteResult = getVehiclesCollection()->deleteOne(['_id' => new MongoDB\BSON\ObjectID($deleteId)]);
+                    if ($deleteResult->getDeletedCount() > 0) {
+                        header('Location: adVehicles.php?deleted=1');
+                        exit;
                     }
-                    
-                    // Remove vehicle from array
-                    array_splice($_SESSION['vehicles'], $deleteIndex, 1);
-                    
-                    // Redirect to refresh the page
-                    header('Location: adVehicles.php?deleted=1');
-                    exit;
+                } catch (Exception $e) {
+                    echo '<div class="alert alert-danger">Error deleting vehicle: ' . htmlspecialchars($e->getMessage()) . '</div>';
                 }
             }
             
@@ -124,43 +116,52 @@
                     </thead>
                     <tbody>
                         <?php
-                        $vehicles = $_SESSION['vehicles'] ?? [];
+                        $vehiclesCursor = getVehiclesCollection()->find();
+                        $vehicles = iterator_to_array($vehiclesCursor);
                         
                         if (empty($vehicles)) {
                             echo '<tr><td colspan="6" class="text-center">No vehicles found. <a href="adAddVehicle.php">Add your first vehicle</a></td></tr>';
                         } else {
-                            foreach ($vehicles as $index => $vehicle) {
+                            foreach ($vehicles as $vehicle) {
                                 echo '<tr>';
                                 echo '<td>';
-                                if (!empty($vehicle['photo'])) {
-                                    echo '<img src="' . htmlspecialchars($vehicle['photo']) . '" alt="Vehicle" class="img-thumbnail">';
+                                if (!empty($vehicle['vehiclePhoto'])) {
+                                    $photoPath = $vehicle['vehiclePhoto'];
+                                    // Try with and without '../' for compatibility
+                                    if (file_exists($photoPath)) {
+                                        $displayPath = $photoPath;
+                                    } elseif (file_exists('../' . $photoPath)) {
+                                        $displayPath = '../' . $photoPath;
+                                    } else {
+                                        $displayPath = $photoPath; // fallback
+                                    }
+                                    echo '<img src="' . htmlspecialchars($displayPath) . '" alt="Vehicle" class="img-thumbnail">';
                                 } else {
+                                    // fallback
                                     echo '<div style="width: 80px; height: 60px; background: #30363d; display: flex; align-items: center; justify-content: center; border-radius: 4px;">';
                                     echo '<i class="fas fa-car" style="color: #8b949e;"></i>';
                                     echo '</div>';
                                 }
                                 echo '</td>';
-                                echo '<td>' . htmlspecialchars($vehicle['name']) . '</td>';
-                                
-                                // Handle different possible seat field names
-                                $seats = $vehicle['seats'] ?? $vehicle['seat_count'] ?? 'N/A';
-                                echo '<td>' . htmlspecialchars($seats) . '</td>';
-                                
-                                // Handle different possible AC field names
-                                $ac = $vehicle['ac'] ?? $vehicle['ac_nac'] ?? false;
-                                if (is_bool($ac)) {
-                                    echo '<td>' . ($ac ? 'AC' : 'Non-AC') . '</td>';
-                                } else {
-                                    echo '<td>' . htmlspecialchars($ac) . '</td>';
+                                echo '<td>' . htmlspecialchars($vehicle['vehicle_name'] ?? '') . '</td>';
+                                echo '<td>' . htmlspecialchars($vehicle['seat_count'] ?? 'N/A') . '</td>';
+                                echo '<td>' . (($vehicle['ac_nac'] ?? '') === 'AC' ? 'AC' : 'Non-AC') . '</td>';
+                                $features = $vehicle['features'] ?? [];
+                                if ($features instanceof \MongoDB\Model\BSONArray) {
+                                    $features = iterator_to_array($features);
                                 }
-                                
-                                echo '<td>' . htmlspecialchars($vehicle['features'] ?? 'None') . '</td>';
+                                if (is_array($features)) {
+                                    $featuresStr = htmlspecialchars(implode(', ', $features));
+                                } else {
+                                    $featuresStr = htmlspecialchars($features);
+                                }
+                                echo '<td>' . $featuresStr . '</td>';
                                 echo '<td>';
                                 echo '<div class="table-actions">';
-                                echo '<a href="adEditVehicle.php?id=' . $index . '" class="btn btn-warning btn-sm">';
+                                echo '<a href="adEditVehicle.php?id=' . $vehicle['_id'] . '" class="btn btn-warning btn-sm">';
                                 echo '<i class="fas fa-edit"></i> Edit';
                                 echo '</a>';
-                                echo '<a href="?delete=' . $index . '" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure you want to delete this vehicle?\')">';
+                                echo '<a href="?delete=' . $vehicle['_id'] . '" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure you want to delete this vehicle?\')">';
                                 echo '<i class="fas fa-trash"></i> Delete';
                                 echo '</a>';
                                 echo '</div>';
