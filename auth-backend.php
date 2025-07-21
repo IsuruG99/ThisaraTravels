@@ -96,7 +96,13 @@ try {
                     $_SESSION['user_id'] = (string) $user['_id'];
                     $_SESSION['profile_image'] = $user['ProfilePhoto'] ?? 'img/default_profile.png';
                     $_SESSION['success_message'] = "Login successful!";
-                    header(header: "Location: index.php");
+                    // redirect to index page if user
+                    if ($_SESSION['role'] === 'admin') {
+                        header(header: "Location: Admin%20panel/adIndex.php");
+                    } else {
+                        $_SESSION['user_id'] = (string) $user['_id'];
+                        header(header: "Location: booking.php");
+                    }
                     exit;
                 }
             }

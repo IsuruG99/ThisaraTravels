@@ -9,7 +9,6 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 $userCollection = getUsersCollection();
 
-
 try {
     switch (true) {
         // Profile photo upload
@@ -132,6 +131,8 @@ function handleBookingCancellation(string $userId, string $bookingId): never
             filter: ['_id' => $objectId],
             update: ['$set' => ['status' => 'cancelled']]
         );
+        // call function to mail admin about cancellation
+        mailAdmin(bookingId: $bookingId, username: $username);
         if ($updateResult->getModifiedCount() === 0) {
             jsonResponse(data: ['success' => false, 'error' => 'No changes made']);
         }
@@ -170,26 +171,56 @@ function handlePasswordChange(string $userId, MongoDB\Collection $userCollection
 
 function handleReviewDeletion(string $userId, string $reviewId, MongoDB\Collection $reviewsCollection): never
 {
-
     $objectId = new MongoDB\BSON\ObjectId($reviewId);
-
     // Verify the review belongs to the current user before deletion
     $review = $reviewsCollection->findOne(filter: [
         '_id' => $objectId,
         'userId' => new MongoDB\BSON\ObjectId($userId)
     ]);
-
     if (!$review) {
         jsonResponse(data: ['success' => false, 'error' => 'Review not found or unauthorized'], statusCode: 404);
     }
-
     $deleteResult = $reviewsCollection->deleteOne(filter: ['_id' => $objectId]);
-
     if ($deleteResult->getDeletedCount() === 0) {
         jsonResponse(data: ['success' => false, 'error' => 'Failed to delete review'], statusCode: 500);
     }
-
     jsonResponse(data: ['success' => true, 'message' => 'Review deleted successfully']);
+}
+
+function mailAdmin(string $bookingId, string $username): void
+{
+    $mail = getMailer();
+    $bookingsCollection = getBookingsCollection();
+    try {
+        // Get booking details
+        $booking = $bookingsCollection->findOne(filter: ['_id' => new MongoDB\BSON\ObjectId($bookingId)]);
+        if (!$booking) {
+            throw new Exception(message: "Booking not found.");
+        }
+        $pickupDate = $booking['pickup_date'] ?? 'N/A';
+        $pickupTime = (isset($booking['pickup_time']) && strtotime(datetime: $booking['pickup_time']) !== false)
+            ? date(format: 'h:i A', timestamp: strtotime(datetime: $booking['pickup_time'])) : 'N/A';
+        $pickupLocation = $booking['pickup_location'] ?? 'N/A';
+        $dropoffLocation = $booking['dropoff_location'] ?? 'N/A';
+        $vehicle = $booking['vehicle_name'] ?? 'N/A';
+
+        // Send mail to admin
+        $mail->addAddress(address: $_ENV['SMTP_ADMIN']);
+        $mail->Subject = "Booking Cancelled by {$username}";
+        $mail->isHTML(isHtml: true);
+        $mail->Body = "
+            <h3 style='margin-bottom:10px;'>Booking Cancelled</h3>
+            <p><strong>User:</strong> {$username}</p>
+            <p><strong>Booking ID:</strong> {$bookingId}</p>
+            <p><strong>Vehicle:</strong> {$vehicle}</p>
+            <p><strong>Pickup:</strong> {$pickupDate} at {$pickupTime}</p>
+            <p><strong>Route:</strong> {$pickupLocation} → {$dropoffLocation}</p>
+            <p style='margin-top:10px;'>This booking was cancelled by the user.</p>
+        ";
+        $mail->send();
+    } catch (Exception $e) {
+        error_log(message: "mailAdmin error: " . $e->getMessage());
+    }
 }
 
 function fetchUserData(string $userId, MongoDB\Collection $userCollection): never
