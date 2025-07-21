@@ -14,19 +14,19 @@ if (isset($_SESSION['username'])) {
     <title>Thisara Travels & Tours | Best Travels & Tour Agent in Sri Lanka</title>
     <!-- Customized Bootstrap Stylesheet -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="ssheet.css">
 </head>
-<body>
 
+
+
+<body>
      <!-- Home Page Loading -->
     <div class="loading-homepage">
         <?php include 'home-page.php'; ?>
     </div>
-
-    <!-- Footer Start -->
-    <?php include 'components/footer.php'; ?>
-    <!-- Footer End -->
 </body>
+
+
+
 <script>
     // Get the current page URL path
     const currentPage = window.location.pathname.split('/').pop(); // Extracts the filename
@@ -36,20 +36,20 @@ if (isset($_SESSION['username'])) {
     navLinks.forEach(link => {
         // Check if the href of the link matches the current page
         if (link.getAttribute('href') === currentPage) {
-            link.classList.add('active-link'); // Add the active class
+            link.classList.add('active-link'); 
         } else {
-            link.classList.remove('active-link'); // Remove the active class from others
+            link.classList.remove('active-link');
         }
     });
     document.addEventListener("DOMContentLoaded", function () {
-        const hamburger = document.querySelector('.hamburger'); // Hamburger menu
-        const navLinks = document.querySelector('.nav-links'); // Navigation links
-        const header = document.querySelector('.custom-page-header'); // Page header
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links'); 
+        const header = document.querySelector('.custom-page-header'); 
         // Toggle menu function
         function toggleMenu() {
-            navLinks.classList.toggle('active'); // Toggle menu visibility
-            toggleIcon(); // Toggle hamburger/close icon
-            adjustHeaderMargin(); // Adjust header margin
+            navLinks.classList.toggle('active');
+            toggleIcon();
+            adjustHeaderMargin();
         }
         // Toggle hamburger/close icon
         function toggleIcon() {
@@ -65,7 +65,7 @@ if (isset($_SESSION['username'])) {
                 const navHeight = navLinks.scrollHeight; // Get dropdown height
                 header.style.marginTop = `${navHeight}px`; // Push header down
             } else {
-                header.style.marginTop = '0'; // Reset header position
+                header.style.marginTop = '0';
             }
         }
         // Close menu when clicking outside
@@ -81,10 +81,11 @@ if (isset($_SESSION['username'])) {
             if (window.innerWidth > 768) { // For larger screens
                 navLinks.classList.remove('active'); // Hide dropdown menu
                 hamburger.classList.remove('close-icon'); // Reset close icon
-                header.style.marginTop = '0'; // Reset header margin
+                header.style.marginTop = '0';
             } else {
-                header.style.marginTop = '0'; // Ensure header resets properly
+                header.style.marginTop = '0';
             }
         }
+    });
 </script>
 </html>

@@ -9,15 +9,19 @@
     <title>Sri Lanka Travel & Vehicle Rental</title>
     <link rel="stylesheet" href="css/home-page.css">
     <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 
 <body>
     <main>
         <!-- import header/navbar section -->
-        <?php include 'components/header.php'; ?>
+        <?php
+            $currentPage = 'home'; 
+            include 'components/header.php'; 
+        ?>
         
-        <!-- ------------------------- -->
+        <!-- Welcome Section with Background Image -->
          <section class="welcome-slideshow" id="welcome">
             <div class="welcome-content">
                 <h1>Welcome to Your Sri Lankan Adventure</h1>
@@ -25,14 +29,6 @@
             </div>
         </section>
         <!-- ------------------------- -->
-
-        <!-- Welcome Section with Background Image -->
-        <!-- <section class="welcome">
-            <div class="welcome-content">
-                <h1>Welcome to Your Sri Lankan Adventure</h1>
-                <p>Experience the beauty of Sri Lanka with our top-tier travel and vehicle rental services.</p>
-            </div>
-        </section> -->
 
         <!-- About Our Business -->
         <section class="about-business">
@@ -120,9 +116,20 @@
                 <button class="next">❯</button>
             </div>
         </section>
+
+        <!-- import footer section -->
+        <?php include 'components/footer.php'; ?>
     </main>
 
+
+
+
+
+
+    <!-- // Scripts (JS) Section Starting // -->
+
     <script>
+        // Welcome Section Background Images Slideshow
         const images = [
             'img/welcome-1.jpg',
             'img/welcome-2.jpg',
@@ -145,7 +152,7 @@
     
     
     <script>
-        // Slideshow functionality
+        // Memory/Gallery Slideshow functionality
         document.addEventListener('DOMContentLoaded', () => {
             const slides = document.querySelectorAll('.slide');
             const prevButton = document.querySelector('.prev');
@@ -182,6 +189,12 @@
                 });
             });
         });
+    </script>
+
+    <script>
+        window.onload = function() {
+            window.scrollTo(0, 0);
+        };
     </script>
 </body>
 
