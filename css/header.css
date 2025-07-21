@@ -21,16 +21,17 @@
     /* background-color:#123524; */
     background: linear-gradient(180deg, #1a4430, #123524);
     backdrop-filter: blur(5px);
-    padding: 15px 30px;
+    /* padding: 15px 30px; */
     top: 0;
     width: 100%;
-    height: auto;
+    height: 90px;
+    padding-left: 50px !important;
+    padding-right: 80px !important;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     transition: background-color 0.3s ease;
 }
 
-/* Logo Image Styling */
 .header-logo {
     display: flex !important;
     align-items: center !important;
@@ -49,6 +50,7 @@
     font-weight: 700 !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
+    text-decoration: none !important;
 }
 
 .header-logo-text1 {
@@ -59,6 +61,7 @@
     line-height: 1.2 !important;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3) !important;
     letter-spacing: 1px !important;
+    text-decoration: none !important;
 }
 .header-logo-text2 {
     padding-left: 5px !important;
@@ -71,6 +74,7 @@
     background-clip: text !important;
     color: transparent !important;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3) !important;
+    text-decoration: none !important;
 }
 
 .header-logo:hover .header-logo-img {
@@ -143,6 +147,7 @@
 
 /* Scroll Effect */
 .navbar.scrolled {
+    position: fixed;
     background-color: #123524;
 }
 

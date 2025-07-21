@@ -14,24 +14,22 @@ if (session_status() === PHP_SESSION_NONE) {
 <body>
     <nav class="navbar noselect">
         <div class="logo">
-            <a href="index.php"></a>
-            <div class="header-logo">
+            <a href="index.php" class="header-logo" style="text-decoration: none;">
                 <!-- Image logo -->
                 <img src="img/Logo.png" alt="Thisara Travels" class="header-logo-img">
                 <!-- Logo Text -->
-                <div class="footer-logo-text">
+                <div class="header-logo-text">
                     <span class="header-logo-text1">Thisara</span>
                     <span class="header-logo-text2">Travels & Tours</span>
                 </div>
-            </div>
+            </a>
         </div>
         <ul class="nav-links">
             <li><a href="index.php" class="<?= ($currentPage == 'home')? 'active': '' ?>">Home</a></li>
             <li><a href="about.php" class="<?= ($currentPage == 'aboutUs')? 'active': '' ?>">About</a></li>
-            <li><a href="services.php">Services</a></li>
-            <li><a href="contact.php" class="<?= ($currentPage == 'contact')? 'active': '' ?>">Contact</a></li>
             <li><a href="booking.php" class="<?= ($currentPage == 'booking')? 'active': '' ?>">Booking</a></li>
             <li><a href="testimonial.php" class="<?= ($currentPage == 'review')? 'active': '' ?>">Testimonials</a></li>
+            <li><a href="contact.php" class="<?= ($currentPage == 'contact')? 'active': '' ?>">Contact Us</a></li>
             <?php
                         if (!isset($_SESSION['username'])) {
                             echo '<a href="auth.php" class="navbar-login-button"><img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle" style="width:32px;height:32px;"></a>';
@@ -49,6 +47,9 @@ if (session_status() === PHP_SESSION_NONE) {
             <span></span>
         </div>
     </nav>
+
+
+
     <script>
         // Toggle mobile menu
         const hamburger = document.querySelector('.hamburger');
