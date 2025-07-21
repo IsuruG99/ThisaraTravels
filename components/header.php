@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/header.css !important">
 </head>
 <body>
     <nav class="navbar noselect">
@@ -26,13 +26,12 @@ if (session_status() === PHP_SESSION_NONE) {
             </div>
         </div>
         <ul class="nav-links">
-            <li><a href="index.php" class="active">Home</a></li>
-            <li><a href="about.php">About</a></li>
+            <li><a href="index.php" class="<?= ($currentPage == 'home')? 'active': '' ?>">Home</a></li>
+            <li><a href="about.php" class="<?= ($currentPage == 'aboutUs')? 'active': '' ?>">About</a></li>
             <li><a href="services.php">Services</a></li>
-            <!-- <li><a href="portfolio.php">Portfolio</a></li> -->
-            <li><a href="contact.php">Contact</a></li>
-            <li><a href="booking.php">Booking</a></li>
-            <li><a href="testimonial.php">Reviews</a></li>
+            <li><a href="contact.php" class="<?= ($currentPage == 'contact')? 'active': '' ?>">Contact</a></li>
+            <li><a href="booking.php" class="<?= ($currentPage == 'booking')? 'active': '' ?>">Booking</a></li>
+            <li><a href="testimonial.php" class="<?= ($currentPage == 'review')? 'active': '' ?>">Testimonials</a></li>
             <?php
                         if (!isset($_SESSION['username'])) {
                             echo '<a href="auth.php" class="navbar-login-button"><img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle" style="width:32px;height:32px;"></a>';

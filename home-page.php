@@ -16,9 +16,12 @@
 <body>
     <main>
         <!-- import header/navbar section -->
-        <?php include 'components/header.php'; ?>
+        <?php
+            $currentPage = 'home'; 
+            include 'components/header.php'; 
+        ?>
         
-        <!-- ------------------------- -->
+        <!-- Welcome Section with Background Image -->
          <section class="welcome-slideshow" id="welcome">
             <div class="welcome-content">
                 <h1>Welcome to Your Sri Lankan Adventure</h1>
