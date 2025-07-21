@@ -80,7 +80,7 @@ if (isset($_SESSION['username'])) {
                 } else {
                     $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
                     $user_role = $_SESSION['role'] ?? 'user';
-                    $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'profile-page.php';
+                    $redirect_url = ($user_role === 'admin') ? 'Admin%20panel/adIndex.php' : 'profile-page.php';
 
                     echo '<a href="' . $redirect_url . '" class="navbar-profile-button" title="Profile">
                     <img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle">
