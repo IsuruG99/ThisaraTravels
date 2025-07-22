@@ -112,8 +112,8 @@
                 <div class="slide">
                     <img src="img/slideshow/memory-3.jpg" alt="Client Memory 3">
                 </div>
-                <button class="prev">❮</button>
-                <button class="next">❯</button>
+                <button class="prev"> ❮ </button>
+                <button class="next"> ❯ </button>
             </div>
         </section>
 
