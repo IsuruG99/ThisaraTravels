@@ -148,7 +148,7 @@
         changeBackground();
         // Change background every 5 seconds
         setInterval(changeBackground, 5000);
-    </script>
+    </script>  
     
     
     <script>

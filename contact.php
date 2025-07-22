@@ -16,8 +16,6 @@ if (isset($_SESSION['username'])) {
 </head>
 
 <body>
-
-
     <!-- Contact Section -->
     <section class="contact-section">
         <div class="container">

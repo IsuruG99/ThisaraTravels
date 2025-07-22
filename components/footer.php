@@ -65,7 +65,7 @@
                     </div>
                     <div>
                         <p class="mb-0 small" style="color: #cccccc; text-align: left">Drop a Line</p>
-                        <a href="tel:+94777562425" class="text-white text-decoration-none">+94 71 512 3719</a>
+                        <a href="tel:+94715303131" class="text-white text-decoration-none">+94 71 530 3131</a>
                     </div>
                 </div>
 
@@ -78,7 +78,7 @@
                     </div>
                     <div>
                         <p class="mb-0 small" style="color: #cccccc; text-align: left">Email Address</p>
-                        <a href="mailto:bookings@thisaratravels.com" class="text-white text-decoration-none">bookings@thisaratravels.com</a>
+                        <a href="mailto:thisaramobile@gmail.com" class="text-white text-decoration-none">thisaramobile@gmail.com</a>
                     </div>
                 </div>
 
@@ -91,7 +91,7 @@
                     </div>
                     <div>
                         <p class="mb-0 small" style="color: #cccccc; text-align: left">Visit office</p>
-                        <p class="mb-0 text-white">Binkama, Angunakolapelessa</p>
+                        <p class="mb-0 text-white">Binkama, Angunakolapelessa, Sri Lanka</p>
                     </div>
                 </div>
             </div>
