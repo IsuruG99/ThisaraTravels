@@ -16,6 +16,14 @@ if (isset($_SESSION['username'])) {
 </head>
 
 <body>
+    <!-- import header/navbar section -->
+        <?php
+            $currentPage = 'contact'; 
+            include 'components/header.php'; 
+        ?>
+
+
+
     <!-- Contact Section -->
     <section class="contact-section">
         <div class="container">
@@ -61,6 +69,12 @@ if (isset($_SESSION['username'])) {
         </div>
     </section>
 
+    
+    <!-- Import Footer Section -->
+    <?php 
+        include 'components/footer.php'; 
+    ?>
+    
 </body>
 
 </html>
