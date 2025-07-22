@@ -6,11 +6,11 @@
     cursor: default; 
 }
 
-*{
+/* *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
+} */
 
 
 @font-face {
@@ -31,7 +31,7 @@
 
 /* body {
     min-height: 100vh;
-    padding-top: 90px;
+    padding-top: -90px;
 } */
 
 .navbar {
@@ -53,12 +53,12 @@
 
 /* Navbar Styles */
 .navbar-container {
+    /* position: fixed; */
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
     padding: 0 2rem;
-    max-width: 1200px;
     height: 90px;
 }
 
