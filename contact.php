@@ -11,195 +11,58 @@ if (isset($_SESSION['username'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Mode</title>
-    <style>
-        body {
-            text-align: center;
-            background: #f4f4f4;
-            font-family: Arial, sans-serif;
-            padding: 50px;
-            height: 100vh;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-
-        p {
-            color: #666;
-            text-align: center;
-        }
-
-        .maintenance-message {
-            margin: 0 auto;
-            padding: 20px;
-            height: 1080px;
-            max-height: 60vh;
-        }
-    </style>
-
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="ssheet.css">
+    <title>Contact Us - Thisara Travel & Tours</title>
+    <link rel="stylesheet" href="css/contact.css">
 </head>
 
-<!-- Content Start -->
 <body>
-    <nav class="navbar">
-        <a href="index.php" class="logo-link">
-            <div class="logo">
-                <!-- Image logo -->
-                <img src="img/Logo.png" alt="Logo" class="logo-img">
-                <!-- Logo Text -->
-                <div class="logo-text">
-                    <span class="logo-text1">Thisara</span>
-                    <span class="logo-text2">Travels & Tours</span>
-                </div>
-            </div>
-        </a>
-        <ul class="nav-links">
-            <li><a href="index.php" class="active-link" data-page="home">HOME</a></li>
-            <li><a href="about.php" data-page="about">ABOUT</a></li>
-            <li><a href="service.php" data-page="services">SERVICES</a></li>
-            <li class="dropdown">
-                <a data-page="pages">PAGES <i class="fas fa-chevron-down dropdown-icon"></i></a>
-                <ul class="dropdown-menu">
-                    <li><a href="booking.php" data-page="booking">BOOKING</a></li>
-                    <li><a href="testimonial.php" data-page="testimonial">TESTIMONIAL</a></li>
-                </ul>
-            </li>
-            <li><a href="contact.php" data-page="contact">CONTACT</a></li>
-            <li class="navbar-login-item">
-                <?php
-                if (!isset($_SESSION['username'])) {
-                    echo '<a href="auth.php" class="navbar-login-button" title="Login">
-                    <img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle">
-                  </a>';
-                } else {
-                    $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
-                    $user_role = $_SESSION['role'] ?? 'user';
-                    $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'profile-page.php';
 
-                    echo '<a href="' . $redirect_url . '" class="navbar-profile-button" title="Profile">
-                    <img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle">
-                  </a>';
-                }
-                ?>
-            </li>
-        </ul>
 
-        <div class="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </nav>
-    <div class="maintenance-message">
-        <h1>We’ll Be Right Back!</h1>
-        <p>Our website is undergoing maintenance. Please check back later.</p>
-    </div>
-</body>
-<!-- Content End -->
-
-<!-- Footer Start -->
-<div class="container-fluid bg-dark text-light footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
-    <div class="container">
-        <div class="copyright">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0 ">
-                    &copy; <a class="border-bottom " href="index.php">Thisara Travels & Tours</a>, All Right Reserved.
-                    Designed By <a class="border-bottom text-decoration-none" href="">WebWizards</a>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">Home</a>
-                        <a href="#" onclick="openCookieSettings()">Cookies</a>
-                        <a href="#">Help</a>
-                        <a href="#">FQAs</a>
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <!-- Message Form Section -->
+            <div class="message-form">
+                <h2>Leave a Message</h2>
+                <form action="mailto:your-email@example.com" method="POST" enctype="multipart/form-data" id="contact-form">
+                    <div class="input-group">
+                        <label for="first-name">First Name <span class="required">*</span></label>
+                        <input type="text" id="first-name" name="first-name" required>
                     </div>
+                    <div class="input-group">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" id="last-name" name="last-name">
+                    </div>
+                    <div class="input-group">
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="phone">Contact Number</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    <div class="input-group">
+                        <label for="subject">Subject <span class="required">*</span></label>
+                        <input type="text" id="subject" name="subject" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="message">Message <span class="required">*</span></label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+
+            <!-- Google Map Section -->
+            <div class="map-section">
+                <h2>Find Us on Google Maps</h2>
+                <div class="google-map-container">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14364.706530308164!2d80.53918361663818!3d5.942341588542237!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae1392985f6c5b5%3A0xe4b95b6411013edf!2sMatara%20Beach!5e1!3m2!1sen!2slk!4v1753112204630!5m2!1sen!2slk" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<!-- Footer End -->
+    </section>
 
-
-
-<script>
-    // Get the current page URL path
-    const currentPage = window.location.pathname.split('/').pop(); // Extracts the filename
-
-    // Select all navigation links
-    const navLinks = document.querySelectorAll('.nav-links a');
-
-    // Loop through links to find the matching page
-    navLinks.forEach(link => {
-        // Check if the href of the link matches the current page
-        if (link.getAttribute('href') === currentPage) {
-            link.classList.add('active-link'); // Add the active class
-        } else {
-            link.classList.remove('active-link'); // Remove the active class from others
-        }
-    });
-    document.addEventListener("DOMContentLoaded", function () {
-        const hamburger = document.querySelector('.hamburger'); // Hamburger menu
-        const navLinks = document.querySelector('.nav-links'); // Navigation links
-        const header = document.querySelector('.custom-page-header'); // Page header
-
-        // Toggle menu function
-        function toggleMenu() {
-            navLinks.classList.toggle('active'); // Toggle menu visibility
-            toggleIcon(); // Toggle hamburger/close icon
-            adjustHeaderMargin(); // Adjust header margin
-        }
-
-        // Toggle hamburger/close icon
-        function toggleIcon() {
-            if (navLinks.classList.contains('active')) {
-                hamburger.classList.add('close-icon'); // Show close icon
-            } else {
-                hamburger.classList.remove('close-icon'); // Show hamburger icon
-            }
-        }
-
-        // Adjust header margin based on menu state
-        function adjustHeaderMargin() {
-            if (navLinks.classList.contains('active')) {
-                const navHeight = navLinks.scrollHeight; // Get dropdown height
-                header.style.marginTop = `${navHeight}px`; // Push header down
-            } else {
-                header.style.marginTop = '0'; // Reset header position
-            }
-        }
-
-        // Close menu when clicking outside
-        function closeMenu(event) {
-            if (!navLinks.contains(event.target) && !hamburger.contains(event.target)) {
-                navLinks.classList.remove('active'); // Hide menu
-                hamburger.classList.remove('close-icon'); // Reset icon to hamburger
-                adjustHeaderMargin(); // Reset header margin
-            }
-        }
-
-        // Reset menu and header margin based on screen size
-        function handleResize() {
-            if (window.innerWidth > 768) { // For larger screens
-                navLinks.classList.remove('active'); // Hide dropdown menu
-                hamburger.classList.remove('close-icon'); // Reset close icon
-                header.style.marginTop = '0'; // Reset header margin
-            } else {
-                header.style.marginTop = '0'; // Ensure header resets properly
-            }
-        }
-
-        // Event listeners
-        hamburger.addEventListener('click', toggleMenu); // Toggle menu on click
-        document.addEventListener('click', closeMenu); // Close menu on outside click
-        window.addEventListener('resize', handleResize); // Reset on resize
-    });
-</script>
+</body>
 
 </html>

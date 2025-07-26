@@ -1,0 +1,182 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(to bottom, #0b3d3b, #064848);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.custom-navbar {
+    background-color: #0a3b3b !important;
+}
+
+.hero-section {
+    background: linear-gradient(90deg, #0d4f4b 0%, #128377 100%);
+    padding: 30px 0 !important;
+    color: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(16, 76, 72, 0.18);
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.18;
+    background-image: url('img/01 (1).jpg');
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+    border-radius: 18px;
+}
+
+.hero-section h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.hero-section p {
+    font-size: 1.15rem;
+    color: #e8f5f1;
+    opacity: 0.85;
+    margin-bottom: 0;
+}
+
+.container h1,
+.container h4,
+.container h5,
+.container p,
+.review-card h5,
+.review-card p {
+    color: #fff;
+}
+
+.filter-form label,
+.filter-form select,
+.filter-form button {
+    color: #fff;
+}
+
+.filter-form .form-select {
+    background-color: #e8f5f1;
+    border: none;
+    color: #333;
+}
+
+.filter-form button.btn-dark {
+    background-color: #08625c;
+    color: #fff;
+    border: none;
+}
+
+.filter-form button.btn-dark:hover {
+    background-color: #064f4a;
+}
+
+.review-card {
+    background: linear-gradient(to right, #0d4f4b, #128377);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 1px solid #1aa193;
+    height: 100%;
+}
+
+.review-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    border: 2px solid #fff;
+}
+
+.review-date {
+    font-size: 0.85rem;
+    color: #cde4df;
+    margin-bottom: 10px;
+}
+
+.review-comment {
+    font-style: italic;
+    margin: 15px 0;
+    color: #fff;
+}
+
+.star {
+    color: #ccc;
+    font-size: 18px;
+}
+
+.star.filled {
+    color: gold;
+}
+
+.star-rating {
+    font-size: 22px;
+    color: gold;
+    margin-bottom: 10px;
+}
+
+.btn-success {
+    background-color: #0a5d4a;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #064939;
+}
+
+.bg-light {
+    background-color: #e8f5f1 !important;
+    color: #000 !important;
+}
+
+form label {
+    color: #fff;
+}
+
+form .form-control,
+form .form-select {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+/* Optional: Restore header font size */
+.custom-page-title,
+.container h1 {
+    font-size: 2.5rem !important;
+    /* Or your previous value */
+}
+
+/* Restore hero-section padding if needed */
+.hero-section {
+    padding: 30px 0 !important;
+    /* Or your previous value */
+    min-height: unset !important;
+    color: #fff;
+}
+.container {
+    max-width: 1200px;
+}
+
+.btn-success {
+    background-color: #1c4b4b;
+    border-color: #1c4b4b;
+}

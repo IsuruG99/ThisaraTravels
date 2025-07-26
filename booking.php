@@ -227,7 +227,7 @@ header("Pragma: no-cache");
                     } else {
                         $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
                         $user_role = $_SESSION['role'] ?? 'user';
-                        $redirect_url = ($user_role === 'admin') ? 'admindashboard.php' : 'profile-page.php';
+                        $redirect_url = ($user_role === 'admin') ? 'Admin%20panel/adIndex.php' : 'profile-page.php';
                         echo '<a href="' . $redirect_url . '" aria-label="User Profile"><i class="fas fa-user" aria-hidden="true"></i> Profile</a>';
                     }
                     ?>
