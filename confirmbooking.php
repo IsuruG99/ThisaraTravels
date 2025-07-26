@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             
             if ($result->getInsertedCount() > 0) {
                 $_SESSION['booking_message'] = [
-                    'text' => 'Booking confirmed successfully! Redirecting...',
+                    'text' => 'Booking confirmed successfully!',
                     'type' => 'success'
                 ];
                 unset($_SESSION['pending_booking']);
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     unset($_SESSION['pending_booking']);
     $_SESSION['booking_message'] = [
-        'text' => 'Booking cancelled. Redirecting...',
+        'text' => 'Booking cancelled.',
         'type' => 'info'
     ];
 }
@@ -599,8 +599,8 @@ header("Pragma: no-cache");
                     <p><strong>Vehicle:</strong> <span><?php echo htmlspecialchars($bookingData['vehicle_name'] ?? ''); ?></span></p>
                     <p><strong>Name:</strong> <span><?php echo htmlspecialchars($bookingData['name'] ?? ''); ?></span></p>
                     <p><strong>WhatsApp Number:</strong> <span><?php echo htmlspecialchars($bookingData['phone'] ?? ''); ?></span></p>
-                    <p><strong>Pick-Up Location:</strong> <span><?php echo htmlspecialchars($bookingData['pickup_location'] . ($bookingData['custom_pickup_location'] ? ' (' . $bookingData['custom_pickup_location'] . ')' : '')); ?></span></p>
-                    <p><strong>Drop-Off Location:</strong> <span><?php echo htmlspecialchars($bookingData['dropoff_location'] . ($bookingData['custom_dropoff_location'] ? ' (' . $bookingData['custom_dropoff_location'] . ')' : '')); ?></span></p>
+                    <p><strong>Pick-Up Location:</strong> <span><?php echo htmlspecialchars($bookingData['pickup_location'] . ((!empty($bookingData['custom_pickup_location'])) ? ' (' . $bookingData['custom_pickup_location'] . ')' : '')); ?></span></p>
+                    <p><strong>Drop-Off Location:</strong> <span><?php echo htmlspecialchars($bookingData['dropoff_location'] . ((!empty($bookingData['custom_dropoff_location'])) ? ' (' . $bookingData['custom_dropoff_location'] . ')' : '')); ?></span></p>
                     <p><strong>Pickup Date:</strong> <span><?php echo htmlspecialchars($bookingData['pickup_date'] ?? ''); ?></span></p>
                     <p><strong>Drop-Off Date:</strong> <span><?php echo htmlspecialchars($bookingData['dropoff_date'] ?? ''); ?></span></p>
                     <p><strong>Pickup Time:</strong> <span><?php echo htmlspecialchars($bookingData['pickup_time'] ?? ''); ?></span></p>
