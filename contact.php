@@ -92,7 +92,7 @@ if (isset($_SESSION['username'])) {
                 <!-- Right side - Message Form -->
                 <div class="message-form">
                     <h2>Send Us a Message</h2>
-                    <form action="mailto:darkmask77777@gmail..com" method="POST" enctype="multipart/form-data" id="contact-form">
+                    <form action="mailto:thisaramobile@gmail..com" method="POST" enctype="multipart/form-data" id="contact-form">
                         <div class="form-row">
                             <div class="input-group">
                                 <label for="first-name">First Name <span class="required">*</span></label>
