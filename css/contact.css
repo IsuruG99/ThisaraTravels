@@ -8,159 +8,446 @@
 
 /* Body and general styling */
 body {
-    /* background-color: #f4f7fa; */
-    /* color: #333; */
     padding: 0px;
-    /* padding-top: 80px; */
+    line-height: 1.6;
 }
 
 .container {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Contact Cards Section */
+.contact-cards-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 60px 0;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 50px;
+    font-weight: 600;
+}
+
+.contact-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.contact-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.contact-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #123524, #11814b);
+}
+
+.contact-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #123524, #11814b);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    transition: transform 0.3s ease;
+}
+
+.contact-card:hover .card-icon {
+    transform: scale(1.1);
+}
+
+.card-icon i {
+    font-size: 2em;
+    color: white;
+}
+
+.contact-card h3 {
+    font-size: 1.4em;
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.contact-card p {
+    color: #666;
+    font-size: 1em;
+    line-height: 1.8;
 }
 
 /* Contact section */
 .contact-section {
-    /* background-color: #fff; */
-    padding: 30px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 80px 0;
+    background: white;
+    background-image: url('img\contact-page-img1.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    /* background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2)), 
+        url('img\contact-page-img1.jpg') center/cover no-repeat; */
+    position: relative;
 }
 
-/* Message Form Section */
-.message-form {
-    padding: 20px;
+.contact-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+}
+
+/* Left side - Contact Info */
+.contact-info {
+    padding-right: 20px;
+}
+
+.info-content h2 {
+    font-size: 2.2em;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.info-content p {
+    font-size: 1.1em;
+    color: #666;
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+.info-highlights {
     margin-bottom: 40px;
 }
 
+.highlight-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.highlight-item:hover {
+    background: #e9ecef;
+}
+
+.highlight-item i {
+    color: #1b794c;
+    font-size: 1.2em;
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+}
+
+.highlight-item span {
+    color: #333;
+    font-weight: 500;
+}
+
+
+/* Right side - Message Form */
+.message-form {
+    background: #f8f9fa;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
 .message-form h2 {
-    font-family:Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 2em;
-    margin-bottom: 20px;
-    color: black;
+    margin-bottom: 30px;
+    color: #333;
+    text-align: center;
+}
+
+/* Form rows for side-by-side inputs */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 10px;
 }
 
 /* Form input and text areas */
 .input-group {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .input-group label {
     display: block;
-    font-size: 1.1em;
-    margin-bottom: 5px;
-    color: #555;
+    font-size: 1em;
+    margin-bottom: 10px;
+    color: #333;
+    font-weight: 500;
 }
 
 .input-group input, .input-group textarea {
     width: 100%;
-    padding: 12px;
+    padding: 15px;
     font-size: 1em;
-    border: 1px solid #ddd;
-    background-color: #f3f3f3;
-    border-radius: 5px;
+    border: 2px solid #e9ecef;
+    background-color: white;
+    border-radius: 10px;
     outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .input-group input:focus, .input-group textarea:focus {
-    border-color: #007bff;
+    border-color: #FCB424;
+    box-shadow: 0 0 0 3px rgba(252, 180, 36, 0.1);
+}
+
+.input-group textarea {
+    height: 120px;
+    resize: vertical;
 }
 
 /* Required field indicator */
 .required {
-    color: red;
+    color: #e74c3c;
 }
 
 /* Button Styling */
 .submit-btn {
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 15px 30px;
-    background-color: #FCB424;
-    color: black;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-top: 20px;
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #FCB424, #ff6b6b);
+    color: white;
     border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    font-weight: 500;
-    box-shadow: rgba(0, 12, 32, 0.04) 0 0 1px 0, rgba(0, 12, 32, 0.08) 0 1px 2px, rgba(0, 12, 32, 0.16) 0 2px 4px, rgba(0, 12, 32, 0.24) 0 4px 8px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    border-radius: 50px;
+    font-size: 1.1em;
+    font-weight: 600;
+    box-shadow: 0 10px 20px rgba(252, 180, 36, 0.3);
+    transition: all 0.3s ease;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 250px;
 }
 
 .submit-btn:hover {
-    background-color: #FCB424;
-    font-weight: 600;
-    scale: 1.005;
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(252, 180, 36, 0.4);
 }
 
+.submit-btn i {
+    font-size: 1em;
+}
 
-
-
-/* Map Section */
+/* Enhanced Map Section */
 .map-section {
-    margin-left: auto;
-    margin-right: auto;
-    padding: 20px;
-    max-width: 900px;
-    margin-top: 40px;
+    padding: 80px 0;
+    background: #f8f9fa;
 }
 
 .map-section h2 {
-    font-family:Arial, Helvetica, sans-serif;
-    font-size: 2em;
-    margin-bottom: 20px;
-    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 2.2em;
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+    font-weight: 600;
+}
+
+.map-description {
+    text-align: center;
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 50px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .google-map-container {
     position: relative;
     overflow: hidden;
-    margin-top: 50px;
-    border-radius: 8px;
-    /* box-shadow: 2px 2px 2px 2px rgba(18, 47, 11, 0.808); */
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
 }
 
 .google-map-container iframe {
     border: 0;
-    border-radius: 8px;
+    border-radius: 20px;
+    filter: grayscale(0.2);
+    transition: filter 0.3s ease;
 }
 
-.map-section a {
-    color: black;
+.google-map-container:hover iframe {
+    filter: grayscale(0);
+}
+
+.map-overlay {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.map-info h4 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.map-info p {
+    color: #666;
+    margin-bottom: 15px;
+    font-size: 0.95em;
+}
+
+.directions-btn {
+    background: linear-gradient(135deg, #FCB424, #ff6b6b);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
     text-decoration: none;
-    font-size: 1em;
-    margin-top: 10px;
-    display: inline-block;
+    font-size: 0.9em;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
 }
 
-.map-section a:hover {
-    text-decoration: underline;
+.directions-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(252, 180, 36, 0.3);
+    text-decoration: none;
 }
 
 /* Responsive Design */
+@media (max-width: 968px) {
+    .contact-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .contact-info {
+        padding-right: 0;
+    }
+    
+    .contact-image {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+}
+
 @media (max-width: 768px) {
-    .map-section {
-        padding-left: 0px;
-        padding-right: 0px;
+    .container {
+        padding: 0 15px;
     }
-    .message-form, .map-section {
-        margin-bottom: 0;
+    
+    .contact-cards {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
-
+    
+    .contact-card {
+        padding: 30px 20px;
+    }
+    
+    .section-title {
+        font-size: 2em;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .message-form {
+        padding: 30px 20px;
+    }
+    
     .message-form h2, .map-section h2 {
-        font-size: 1.5em;
+        font-size: 1.8em;
     }
-
+    
+    .info-content h2 {
+        font-size: 1.8em;
+    }
+    
     .input-group input, .input-group textarea {
+        padding: 12px;
         font-size: 1em;
     }
-
+    
     .submit-btn {
         font-size: 1em;
-        padding: 12px 25px;
+        padding: 15px 30px;
     }
-
+    
     .google-map-container iframe {
-        height: 250px;
+        height: 300px;
+    }
+    
+    .map-overlay {
+        position: static;
+        margin-top: 20px;
+        border-radius: 15px;
+    }
+    
+    .contact-cards-section, .contact-section, .map-section {
+        padding: 40px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-card {
+        padding: 25px 15px;
+    }
+    
+    .card-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .card-icon i {
+        font-size: 1.5em;
+    }
+    
+    .message-form {
+        padding: 25px 15px;
+    }
+    
+    .highlight-item {
+        padding: 12px;
     }
 }

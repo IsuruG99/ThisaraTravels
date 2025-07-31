@@ -42,7 +42,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <li><a href="contact.php" class="<?= ($currentPage == 'contact') ? 'active' : '' ?>">Contact</a></li>
                 <?php
                 if (!isset($_SESSION['username'])) {
-                    echo '<a href="auth.php" class="navbar-login-button"><img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle" style="width:32px;height:32px;"></a>';
+                    echo '<a href="auth.php" class="navbar-login-button"><img src="img/user.png" class="navbar-login-icon rounded-circle" style="width:32px;height:32px;"></a>';
                 } else {
                     $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
                     $user_role = $_SESSION['role'] ?? 'user';
