@@ -73,7 +73,7 @@ $recentBookings = getRecentBookings(); // Use the function from adminBackend.php
                     </a>
                 </li>
                 <li>
-                    <a href="logout.php">
+                    <a href="adLogout.php">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
@@ -87,8 +87,15 @@ $recentBookings = getRecentBookings(); // Use the function from adminBackend.php
         <div class="container">
             <!-- Welcome Section -->
             <div class="welcome-section">
-                <h1 class="welcome-title">Welcome to Admin Dashboard</h1>
-                <p class="welcome-subtitle">Manage your vehicle hiring system efficiently</p>
+                <div>
+                    <h1 class="welcome-title">Welcome to Admin Dashboard</h1>
+                    <p class="welcome-subtitle">Manage your vehicle hiring system efficiently</p>
+                </div>
+                <div class="welcome-actions">
+                    <a href="adLogout.php" class="btn btn-danger" onclick="return confirm('Are you sure you want to logout?')">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
             </div>
 
             <!-- Statistics Cards -->

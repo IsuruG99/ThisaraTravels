@@ -64,12 +64,13 @@ try {
         throw new Exception('Drop-off date must be after pick-up date.');
     }
 
-    // Check vehicle availability
+    // Check vehicle availability (including pending bookings)
     $startDate = new UTCDateTime($pickupDateTime->getTimestamp() * 1000);
     $endDate = new UTCDateTime($dropoffDateTime->getTimestamp() * 1000);
 
     $existingBookings = $bookingsCollection->countDocuments([
         'vehicle_type' => $vehicleType,
+        'status' => ['$in' => ['pending', 'accepted']], // Check both pending and accepted bookings
         '$or' => [
             [
                 'pickup_date' => ['$lte' => $endDate],
@@ -79,7 +80,25 @@ try {
     ]);
 
     if ($existingBookings > 0) {
-        throw new Exception('Vehicle is not available for the selected dates.');
+        // Get conflicting booking details for better error message
+        $conflictingBookings = $bookingsCollection->find([
+            'vehicle_type' => $vehicleType,
+            'status' => ['$in' => ['pending', 'accepted']],
+            '$or' => [
+                [
+                    'pickup_date' => ['$lte' => $endDate],
+                    'dropoff_date' => ['$gte' => $startDate]
+                ]
+            ]
+        ], ['limit' => 3]);
+
+        $conflictDetails = [];
+        foreach ($conflictingBookings as $booking) {
+            $conflictDetails[] = $booking['name'] . ' (' . $booking['status'] . ')';
+        }
+        
+        $conflictMessage = 'Vehicle is not available for the selected dates. Conflicting bookings: ' . implode(', ', $conflictDetails);
+        throw new Exception($conflictMessage);
     }
 
     // Prepare booking data

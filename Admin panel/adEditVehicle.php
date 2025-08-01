@@ -54,7 +54,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="logout.php">
+                    <a href="adLogout.php">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
