@@ -41,6 +41,7 @@ $bookings = iterator_to_array(getBookingsCollection()->find([], ['sort' => ['_id
                 <li><a href="adVehicles.php"><i class="fas fa-car"></i><span>Vehicles</span></a></li>
                 <li><a href="adBooking.php" class="active"><i class="fas fa-calendar-check"></i><span>Bookings</span></a></li>
                 <li><a href="adUsers.php"><i class="fas fa-users"></i><span>User Management</span></a></li>
+                <li><a href="adReviews.php"><i class="fas fa-star"></i><span>Reviews</span></a></li>
                 <li><a href="adSettings.php"><i class="fas fa-cog"></i><span>Settings</span></a></li>
                 <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
             </ul>

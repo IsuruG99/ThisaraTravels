@@ -926,4 +926,88 @@ body {
 
 .modal-actions .btn {
     margin: 0 5px;
+}
+
+/* Review Management Styles */
+.search-container {
+    background: #0d1117;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    margin-bottom: 20px;
+    border: 1px solid #30363d;
+}
+
+.search-form {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: end;
+}
+
+.search-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #c9d1d9;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    font-size: 14px;
+    background: #0d1117;
+    color: #c9d1d9;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #238636;
+    box-shadow: 0 0 0 3px rgba(35, 134, 54, 0.1);
+    background: #161b22;
+}
+
+.customer-info {
+    font-weight: 500;
+    color: #c9d1d9;
+}
+
+.vehicle-info {
+    color: #8b949e;
+    font-size: 14px;
+}
+
+.review-date {
+    color: #8b949e;
+    font-size: 12px;
+}
+
+.star-rating {
+    display: flex;
+    gap: 2px;
+}
+
+.star {
+    color: #ffc107;
+    font-size: 16px;
+}
+
+.star.empty {
+    color: #30363d;
+}
+
+.review-comment {
+    margin-top: 10px;
+    padding: 15px;
+    background: #161b22;
+    border-radius: 4px;
+    border-left: 4px solid #238636;
+    color: #c9d1d9;
 } 
