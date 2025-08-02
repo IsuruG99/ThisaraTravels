@@ -7,6 +7,7 @@ $usersCollection = getUsersCollection();
 $settingsCollection = getMongoDB()->selectCollection(collectionName: 'settings');
 $bookingsCollection = getBookingsCollection();
 $vehiclesCollection = getVehiclesCollection();
+$reviewsCollection = getMongoDB()->selectCollection(collectionName: 'reviews'); // Added for ratings
 
 // Debugging: Log session username
 if (isset($_SESSION['username'])) {
@@ -133,6 +134,28 @@ $form_data = $_SESSION['form_data'] ?? [];
 unset($_SESSION['booking_message']);
 unset($_SESSION['form_data']);
 
+// Calculate average ratings for vehicles
+// --- Improved: Calculate average ratings for vehicles (case-insensitive, robust) ---
+$vehicleRatings = [];
+$allReviews = $reviewsCollection->find()->toArray();
+foreach ($allReviews as $review) {
+    $vehicleName = isset($review['vehicleName']) ? trim((string)$review['vehicleName']) : '';
+    $starCount = isset($review['starCount']) && is_numeric($review['starCount']) ? (float)$review['starCount'] : null;
+    if ($vehicleName !== '' && $starCount !== null && $starCount >= 1 && $starCount <= 5) {
+        $key = mb_strtolower($vehicleName);
+        if (!isset($vehicleRatings[$key])) {
+            $vehicleRatings[$key] = ['total' => 0, 'count' => 0, 'display' => $vehicleName];
+        }
+        $vehicleRatings[$key]['total'] += $starCount;
+        $vehicleRatings[$key]['count']++;
+        // Always use the latest display name (for case)
+        $vehicleRatings[$key]['display'] = $vehicleName;
+    }
+}
+foreach ($vehicleRatings as $key => &$data) {
+    $data['avg'] = $data['count'] > 0 ? round($data['total'] / $data['count'], 1) : 0;
+}
+
 // Prevent caching
 header(header: "Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header(header: "Cache-Control: post-check=0, pre-check=0", replace: false);
@@ -149,6 +172,20 @@ header(header: "Pragma: no-cache");
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css" rel="stylesheet">
     <link rel="stylesheet" href="bookingstyle.css">
+    <style>
+        .star-rating {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .star {
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+        .star.filled {
+            color: #f39c12;
+        }
+    </style>
 </head>
 <body>
 
@@ -316,7 +353,6 @@ header(header: "Pragma: no-cache");
         sort($seatCounts);
 
         // Build capacity ranges for dropdown
-        // Only show specific Passenger Capacity ranges
         $capacityRanges = ["1-5", "5-9", "5-12"];
         $selectedType = $_GET['vehicleType'] ?? '';
         $selectedCapacity = $_GET['capacity'] ?? '';
@@ -395,6 +431,9 @@ header(header: "Pragma: no-cache");
                 foreach ($vehicles as $vehicle):
                     $vehicleCount++;
                     $photo = !empty($vehicle['vehiclePhoto']) ? htmlspecialchars($vehicle['vehiclePhoto']) : 'img/default-vehicle.png';
+                    $vehicleName = $vehicle['vehicle_name'] ?? '';
+                    $avgRating = $vehicleRatings[$vehicleName]['avg'] ?? 0;
+                    $reviewCount = $vehicleRatings[$vehicleName]['count'] ?? 0;
                 ?>
                     <div class="vehicle-card" 
                          data-type="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? ''); ?>" 
@@ -409,6 +448,12 @@ header(header: "Pragma: no-cache");
                         <div class="vehicle-info">
                             <span class="vehicle-type">Type: <?php echo ucfirst(htmlspecialchars($vehicle['vehicle_name'] ?? '')); ?></span>
                             <div class="vehicle-name">Name: <?php echo ucfirst(htmlspecialchars($vehicle['vehicle_name'] ?? '')); ?></div>
+                            <div class="star-rating">
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <span class="star<?php echo $i <= round($avgRating) ? ' filled' : ''; ?>">&#9733;</span>
+                                <?php endfor; ?>
+                                <span class="ms-2">(<?php echo $avgRating; ?> out of 5 from <?php echo $reviewCount; ?> reviews)</span>
+                            </div>
                             <div class="vehicle-features">
                                 <span class="feature"><i class="fas fa-users"></i> <?php echo htmlspecialchars($vehicle['seat_count'] ?? ''); ?> Seats</span>
                                 <span class="feature"><i class="fas fa-snowflake"></i> <?php echo htmlspecialchars($vehicle['ac_nac'] ?? ''); ?></span>
