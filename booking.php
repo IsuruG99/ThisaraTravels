@@ -35,19 +35,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 'type' => 'error'
             ];
             $_SESSION['form_data'] = $_POST;
-            redirectWithError(location: $_SERVER['PHP_SELF']);
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
         }
     }
 
     // --- Duplicate booking prevention ---
     $username = $_SESSION['username'] ?? 'Guest';
-    $vehicle_type = filter_var(value: $_POST['vehicle_type'] ?? '', filter: FILTER_SANITIZE_STRING);
-    $vehicle_name = filter_var(value: $_POST['vehicle_name'] ?? '', filter: FILTER_SANITIZE_STRING);
-    $pickup_location = filter_var(value: $_POST['pickup_location'] ?? '', filter: FILTER_SANITIZE_STRING);
-    $dropoff_location = filter_var(value: $_POST['dropoff_location'] ?? '', filter: FILTER_SANITIZE_STRING);
-    $pickup_date = filter_var(value: $_POST['pickup_date'] ?? '', filter: FILTER_SANITIZE_STRING);
-    $dropoff_date = filter_var(value: $_POST['dropoff_date'] ?? '', filter: FILTER_SANITIZE_STRING);
-    $pickup_time = filter_var(value: $_POST['pickup_time'] ?? '', filter: FILTER_SANITIZE_STRING);
+    $vehicle_type = filter_var($_POST['vehicle_type'] ?? '', FILTER_SANITIZE_STRING);
+    $vehicle_name = filter_var($_POST['vehicle_name'] ?? '', FILTER_SANITIZE_STRING);
+    $pickup_location = filter_var($_POST['pickup_location'] ?? '', FILTER_SANITIZE_STRING);
+    $dropoff_location = filter_var($_POST['dropoff_location'] ?? '', FILTER_SANITIZE_STRING);
+    $pickup_date = filter_var($_POST['pickup_date'] ?? '', FILTER_SANITIZE_STRING);
+    $dropoff_date = filter_var($_POST['dropoff_date'] ?? '', FILTER_SANITIZE_STRING);
+    $pickup_time = filter_var($_POST['pickup_time'] ?? '', FILTER_SANITIZE_STRING);
 
     $duplicateQuery = [
         'username' => $username,
@@ -59,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         'dropoff_date' => $dropoff_date,
         'pickup_time' => $pickup_time
     ];
-    $existingBooking = $bookingsCollection->findOne(filter: $duplicateQuery);
+    $existingBooking = $bookingsCollection->findOne($duplicateQuery);
     if ($existingBooking) {
         $_SESSION['booking_message'] = [
             'text' => 'You have already made a booking with the same details for these dates.',
@@ -73,18 +74,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     validateCsrfToken();
 
     $bookingData = [
-        'vehicle_type' => $vehicle_type,
-        'vehicle_name' => $vehicle_name,
+        'vehicle_type' => filter_var(value: $_POST['vehicle_type'] ?? '', filter: FILTER_SANITIZE_STRING),
+        'vehicle_name' => filter_var(value: $_POST['vehicle_name'] ?? '', filter: FILTER_SANITIZE_STRING),
         'name' => filter_var(value: $_POST['name'] ?? '', filter: FILTER_SANITIZE_STRING),
         'phone' => filter_var(value: $_POST['phone'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'pickup_location' => $pickup_location,
-        'dropoff_location' => $dropoff_location,
+        'pickup_location' => filter_var(value: $_POST['pickup_location'] ?? '', filter: FILTER_SANITIZE_STRING),
+        'dropoff_location' => filter_var(value: $_POST['dropoff_location'] ?? '', filter: FILTER_SANITIZE_STRING),
         'custom_pickup_location' => filter_var(value: $_POST['custom_pickup_location'] ?? '', filter: FILTER_SANITIZE_STRING),
         'custom_dropoff_location' => filter_var(value: $_POST['custom_dropoff_location'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'pickup_date' => $pickup_date,
-        'dropoff_date' => $dropoff_date,
-        'pickup_time' => $pickup_time,
-        'Special_Request' => filter_var($_POST['Special_Request'] ?? '', filter: FILTER_SANITIZE_STRING),
+        'pickup_date' => filter_var(value: $_POST['pickup_date'] ?? '', filter: FILTER_SANITIZE_STRING),
+        'dropoff_date' => filter_var(value: $_POST['dropoff_date'] ?? '', filter: FILTER_SANITIZE_STRING),
+        'pickup_time' => filter_var(value: $_POST['pickup_time'] ?? '', filter: FILTER_SANITIZE_STRING),
+        'Special_Request' => filter_var(value: $_POST['Special_Request'] ?? '', filter: FILTER_SANITIZE_STRING),
         'status' => 'pending',
         'created_at' => new MongoDB\BSON\UTCDateTime(),
         'username' => $_SESSION['username'] ?? 'Guest',
@@ -97,43 +98,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $errors = [];
     foreach ($required_fields as $field) {
         if (empty($bookingData[$field])) {
-            $errors[] = ucfirst(string: str_replace(search: '_', replace: ' ', subject: $field)) . ' is required.';
+            $errors[] = "Missing required field: $field";
         }
     }
     if ($bookingData['pickup_location'] === 'Other' && empty($bookingData['custom_pickup_location'])) {
-        $errors[] = "Custom pickup location is required when 'Other' is selected.";
+        $errors[] = "Custom pickup location is required when 'Other' is selected";
     }
     if ($bookingData['dropoff_location'] === 'Other' && empty($bookingData['custom_dropoff_location'])) {
-        $errors[] = "Custom dropoff location is required when 'Other' is selected.";
+        $errors[] = "Custom dropoff location is required when 'Other' is selected";
     }
-    if (strlen(string: $bookingData['name']) < 2) {
-        $errors[] = "Name must be at least 2 characters long.";
+    if (strlen($bookingData['name']) < 2) {
+        $errors[] = "Name must be at least 2 characters long";
     }
-    if (!preg_match(pattern: '/^\+?\d{9,15}$/', subject: $bookingData['phone'])) {
-        $errors[] = "Invalid phone number format. Please enter a valid WhatsApp number.";
+    if (!preg_match('/^\+?\d{9,15}$/', $bookingData['phone'])) {
+        $errors[] = "Invalid phone number format";
     }
-    if (strtotime(datetime: $bookingData['pickup_date']) > strtotime(datetime: $bookingData['dropoff_date'])) {
-        $errors[] = "Drop-off date cannot be before pick-up date.";
+    if (strtotime($bookingData['pickup_date']) > strtotime($bookingData['dropoff_date'])) {
+        $errors[] = "Drop-off date cannot be before pick-up date";
     }
 
     if (empty($errors)) {
         try {
-            // Save last booking time for rate limiting
-            $_SESSION['last_booking_time'] = time();
+            $_SESSION['pending_booking'] = $bookingData;
+            header('Location: confirmbooking.php');
             exit;
         } catch (Exception $e) {
-            $_SESSION['booking_message'] = [
-                'text' => 'An error occurred while processing your booking. Please try again later.',
-                'type' => 'error'
-            ];
-            $_SESSION['form_data'] = $bookingData;
-            redirectWithError(location: $_SERVER['PHP_SELF']);
+            error_log("Error processing booking: " . $e->getMessage());
+            $_SESSION['booking_message'] = ['text' => 'Error processing booking: ' . $e->getMessage(), 'type' => 'error'];
         }
     } else {
-        $_SESSION['booking_message'] = ['text' => implode(separator: '<br>', array: $errors), 'type' => 'error'];
+        $_SESSION['booking_message'] = ['text' => implode(separator: ', ', array: $errors), 'type' => 'error'];
         $_SESSION['form_data'] = $bookingData;
         redirectWithError(location: $_SERVER['PHP_SELF']);
-    }}
+    }
 // Handle booking confirmation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'confirm_booking') {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -367,8 +364,6 @@ header(header: "Pragma: no-cache");
         $capacityRanges = ["1-5", "5-9", "5-12"];
         $selectedType = $_GET['vehicleType'] ?? '';
         $selectedCapacity = $_GET['capacity'] ?? '';
-        $selectedStartDate = $_GET['startDate'] ?? '';
-        $selectedEndDate = $_GET['endDate'] ?? '';
         $query = [];
         $filterApplied = false;
         if ($selectedType) {
@@ -380,33 +375,6 @@ header(header: "Pragma: no-cache");
                 $min = (int)$matches[1];
                 $max = (int)$matches[2];
                 $query['seat_count'] = ['$gte' => $min, '$lte' => $max];
-                $filterApplied = true;
-            }
-        }
-
-        // --- Exclude vehicles booked for selected date range ---
-        $bookedVehicleNames = [];
-        if ($selectedStartDate && $selectedEndDate) {
-            $bookingQuery = [
-                // Overlapping bookings: pickup_date <= selectedEndDate AND dropoff_date >= selectedStartDate
-                '$and' => [
-                    ['pickup_date' => ['$lte' => $selectedEndDate]],
-                    ['dropoff_date' => ['$gte' => $selectedStartDate]]
-                ]
-            ];
-            $bookedBookings = $bookingsCollection->find($bookingQuery);
-            foreach ($bookedBookings as $booking) {
-                if (!empty($booking['vehicle_name'])) {
-                    $bookedVehicleNames[] = $booking['vehicle_name'];
-                }
-            }
-            if (!empty($bookedVehicleNames)) {
-                if (isset($query['vehicle_name']) && is_string(value: $query['vehicle_name'])) {
-                    // If already filtering by vehicle_name, convert to $nin array
-                    $query['vehicle_name'] = ['$nin' => $bookedVehicleNames, '$eq' => $query['vehicle_name']];
-                } else {
-                    $query['vehicle_name'] = ['$nin' => $bookedVehicleNames];
-                }
                 $filterApplied = true;
             }
         }
