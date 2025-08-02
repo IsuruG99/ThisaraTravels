@@ -184,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
+}
 // Handle booking confirmation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'confirm_booking') {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -1296,6 +1297,7 @@ header("Pragma: no-cache");
             }
         });
     }
-    </script>
+// End of setupAutocomplete
+</script>
 </body>
 </html>
