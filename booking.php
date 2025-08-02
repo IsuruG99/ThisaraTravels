@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         'dropoff_date' => $dropoff_date,
         'pickup_time' => $pickup_time
     ];
-    $existingBooking = $bookingsCollection->findOne($duplicateQuery);
+    $existingBooking = $bookingsCollection->findOne(filter: $duplicateQuery);
     if ($existingBooking) {
         $_SESSION['booking_message'] = [
             'text' => 'You have already made a booking with the same details for these dates.',
@@ -107,23 +107,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if ($bookingData['dropoff_location'] === 'Other' && empty($bookingData['custom_dropoff_location'])) {
         $errors[] = "Custom dropoff location is required when 'Other' is selected";
     }
-    if (strlen($bookingData['name']) < 2) {
+    if (strlen(string: $bookingData['name']) < 2) {
         $errors[] = "Name must be at least 2 characters long";
     }
-    if (!preg_match('/^\+?\d{9,15}$/', $bookingData['phone'])) {
+    if (!preg_match(pattern: '/^\+?\d{9,15}$/', subject: $bookingData['phone'])) {
         $errors[] = "Invalid phone number format";
     }
-    if (strtotime($bookingData['pickup_date']) > strtotime($bookingData['dropoff_date'])) {
+    if (strtotime(datetime: $bookingData['pickup_date']) > strtotime(datetime: $bookingData['dropoff_date'])) {
         $errors[] = "Drop-off date cannot be before pick-up date";
     }
 
     if (empty($errors)) {
         try {
             $_SESSION['pending_booking'] = $bookingData;
-            header('Location: confirmbooking.php');
+            header(header: 'Location: confirmbooking.php');
             exit;
         } catch (Exception $e) {
-            error_log("Error processing booking: " . $e->getMessage());
+            error_log(message: "Error processing booking: " . $e->getMessage());
             $_SESSION['booking_message'] = ['text' => 'Error processing booking: ' . $e->getMessage(), 'type' => 'error'];
         }
     } else {
@@ -131,6 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $_SESSION['form_data'] = $bookingData;
         redirectWithError(location: $_SERVER['PHP_SELF']);
     }
+}
 // Handle booking confirmation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'confirm_booking') {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
