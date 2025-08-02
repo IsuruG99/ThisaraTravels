@@ -5,6 +5,7 @@ require 'adminBackend.php';
 $totalVehicles = getVehiclesCollection()->countDocuments();
 $totalBookings = getBookingsCollection()->countDocuments();
 $totalUsers = getUsersCollection()->countDocuments();
+$totalReviews = getReviewsCollection()->countDocuments();
 
 // Fetch recent vehicles (last 3 added)
 $recentVehiclesCursor = getVehiclesCollection()->find([], [
@@ -60,13 +61,19 @@ $recentBookings = getRecentBookings(); // Use the function from adminBackend.php
                     </a>
                 </li>
                 <li>
+                    <a href="adReviews.php">
+                        <i class="fas fa-star"></i>
+                        <span>Reviews</span>
+                    </a>
+                </li>
+                <li>
                     <a href="adSettings.php">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
                 </li>
                 <li>
-                    <a href="logout.php">
+                    <a href="adLogout.php">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
@@ -80,8 +87,15 @@ $recentBookings = getRecentBookings(); // Use the function from adminBackend.php
         <div class="container">
             <!-- Welcome Section -->
             <div class="welcome-section">
-                <h1 class="welcome-title">Welcome to Admin Dashboard</h1>
-                <p class="welcome-subtitle">Manage your vehicle hiring system efficiently</p>
+                <div>
+                    <h1 class="welcome-title">Welcome to Admin Dashboard</h1>
+                    <p class="welcome-subtitle">Manage your vehicle hiring system efficiently</p>
+                </div>
+                <div class="welcome-actions">
+                    <a href="adLogout.php" class="btn btn-danger" onclick="return confirm('Are you sure you want to logout?')">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
             </div>
 
             <!-- Statistics Cards -->
@@ -108,6 +122,14 @@ $recentBookings = getRecentBookings(); // Use the function from adminBackend.php
                     </div>
                     <div class="stat-number"><?php echo $totalUsers; ?></div>
                     <div class="stat-label">Total Users</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-star" style="color: #ffc107;"></i>
+                    </div>
+                    <div class="stat-number"><?php echo $totalReviews; ?></div>
+                    <div class="stat-label">Total Reviews</div>
                 </div>
             </div>
 
@@ -143,6 +165,14 @@ $recentBookings = getRecentBookings(); // Use the function from adminBackend.php
                     </div>
                     <div class="action-title">User Management</div>
                     <div class="action-desc">View and manage user accounts</div>
+                </a>
+                
+                <a href="adReviews.php" class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="action-title">View Reviews</div>
+                    <div class="action-desc">Manage customer reviews and ratings</div>
                 </a>
             </div>
 

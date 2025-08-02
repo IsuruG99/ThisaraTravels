@@ -42,13 +42,19 @@
                     </a>
                 </li>
                 <li>
+                    <a href="adReviews.php">
+                        <i class="fas fa-star"></i>
+                        <span>Reviews</span>
+                    </a>
+                </li>
+                <li>
                     <a href="adSettings.php">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
                 </li>
                 <li>
-                    <a href="logout.php">
+                    <a href="adLogout.php">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
