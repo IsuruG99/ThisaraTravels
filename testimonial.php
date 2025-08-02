@@ -292,7 +292,7 @@ try {
                     <div class="mb-3">
                         <i class="fas fa-user-lock fa-2x" style="color:#e8f5f1;"></i>
                     </div>
-                    <h5 class="card-title mb-2">Login Required</h5>
+                    <h5 class="card-title mb-2">Post a Review</h5>
                     <p class="card-text mb-3">Please <a href="auth.php"
                             style="color:#ffe082; text-decoration:underline;">login</a> to leave a review.</p>
                 </div>
