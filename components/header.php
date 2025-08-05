@@ -41,7 +41,6 @@ if (session_status() === PHP_SESSION_NONE) {
                 <li><a href="testimonial.php" class="<?= ($currentPage == 'review') ? 'active' : '' ?>">Testimonials</a></li>
                 <li><a href="contact.php" class="<?= ($currentPage == 'contact') ? 'active' : '' ?>">Contact</a></li>
                 <?php
-                
                     if (!isset($_SESSION['username'])) {
                     // User not logged in
                         echo '<a href="auth.php" class="navbar-login-button">
@@ -56,17 +55,6 @@ if (session_status() === PHP_SESSION_NONE) {
                             <img src="' . htmlspecialchars($profile_image) . '" class="navbar-profile-icon rounded-circle" style="width:32px;height:32px;" alt="Profile">
                         </a>';
                     }
-
-
-
-                // if (!isset($_SESSION['username'])) {
-                //     echo '<a href="auth.php" class="navbar-login-button"><img src="img/user.png" class="navbar-login-icon rounded-circle" style="width:32px;height:32px;"></a>';
-                // } else {
-                //     $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
-                //     $user_role = $_SESSION['role'] ?? 'user';
-                //     $redirect_url = ($user_role === 'admin') ? 'Admin%20panel/adIndex.php' : 'profile-page.php';
-                //     echo '<a href="' . $redirect_url . '" class="navbar-profile-button"><img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle" style="width:32px;height:32px;"></a>';
-                // }
                 ?>
             </ul>
         </div>

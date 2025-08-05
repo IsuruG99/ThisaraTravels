@@ -49,7 +49,6 @@
                 <p><a href="about.php">About Us</a></p>
                 <p><a href="contact.php">Contact Us</a></p>
                 <p><a href="testimonial.php">Testimonials</a></p>
-                <p><a href="gallery.php">Gallery</a></p>
             </div>    
         </div>
 
