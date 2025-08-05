@@ -165,6 +165,7 @@ try {
         </div>
     <?php endif; ?>
 
+    <!-- Testimonials Section -->
     <!-- Testimonials -->
     <div class="container">
         <div class="row justify-content-center">
@@ -201,7 +202,7 @@ try {
             <?php endforeach; ?>
         </div>
     </div>
-
+<!-- End of Testimonials Section -->
     <!-- Post Review -->
     <?php if (isset($_SESSION['username'])): ?>
         <div class="container my-5">
@@ -248,7 +249,7 @@ try {
                             ?>
                         </select>
                     </div>
-
+<!-- Vehicle Type (hidden) -->
                     <!-- Vehicle Display (readonly) -->
                     <div class="mb-3">
                         <label for="vehicleDisplay" class="form-label">Vehicle</label>
