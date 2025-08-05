@@ -11,195 +11,267 @@ if (isset($_SESSION['username'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Mode</title>
-    <style>
-        body {
-            text-align: center;
-            background: #f4f4f4;
-            font-family: Arial, sans-serif;
-            padding: 50px;
-            height: 100vh;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-
-        p {
-            color: #666;
-            text-align: center;
-        }
-
-        .maintenance-message {
-            margin: 0 auto;
-            padding: 20px;
-            height: 1080px;
-            max-height: 60vh;
-        }
-    </style>
-
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="ssheet.css">
+    <title>About Us - Thisara Travel & Tours</title>
+    <link rel="stylesheet" href="css/about.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<!-- Content Start -->
 <body>
-    <nav class="navbar">
-        <a href="index.php" class="logo-link">
-            <div class="logo">
-                <!-- Image logo -->
-                <img src="img/Logo.png" alt="Logo" class="logo-img">
-                <!-- Logo Text -->
-                <div class="logo-text">
-                    <span class="logo-text1">Thisara</span>
-                    <span class="logo-text2">Travels & Tours</span>
-                </div>
-            </div>
-        </a>
-        <ul class="nav-links">
-            <li><a href="index.php" data-page="home">HOME</a></li>
-            <li><a href="about.php" class="active-link" data-page="about">ABOUT</a></li>
-            <li><a href="service.php" data-page="services">SERVICES</a></li>
-            <li class="dropdown">
-                <a data-page="pages">PAGES <i class="fas fa-chevron-down dropdown-icon"></i></a>
-                <ul class="dropdown-menu">
-                    <li><a href="booking.php" data-page="booking">BOOKING</a></li>
-                    <li><a href="testimonial.php" data-page="testimonial">TESTIMONIAL</a></li>
-                </ul>
-            </li>
-            <li><a href="contact.php" data-page="contact">CONTACT</a></li>
-            <li class="navbar-login-item">
-                <?php
-                if (!isset($_SESSION['username'])) {
-                    echo '<a href="auth.php" class="navbar-login-button" title="Login">
-                    <img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle">
-                  </a>';
-                } else {
-                    $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
-                    $user_role = $_SESSION['role'] ?? 'user';
-                    $redirect_url = ($user_role === 'admin') ? 'Admin%20panel/adIndex.php' : 'profile-page.php';
+    <!-- import header/navbar section -->
+        <?php
+            $currentPage = 'aboutUs'; 
+            include 'components/header.php'; 
+        ?>
 
-                    echo '<a href="' . $redirect_url . '" class="navbar-profile-button" title="Profile">
-                    <img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle">
-                  </a>';
-                }
-                ?>
-            </li>
-        </ul>
-
-        <div class="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>About Thisara Travel & Tours</h1>
+            <p>Your trusted partner for unforgettable Sri Lankan adventures since 2010</p>
         </div>
-    </nav>
-    <div class="maintenance-message">
-        <h1>We’ll Be Right Back!</h1>
-        <p>Our website is undergoing maintenance. Please check back later.</p>
-    </div>
-</body>
-<!-- Content End -->
+        <div class="hero-overlay"></div>
+    </section>
 
-<!-- Footer Start -->
-<div class="container-fluid bg-dark text-light footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
-    <div class="container">
-        <div class="copyright">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0 ">
-                    &copy; <a class="border-bottom " href="index.php">Thisara Travels & Tours</a>, All Right Reserved.
-                    Designed By <a class="border-bottom text-decoration-none" href="">WebWizards</a>
+    <!-- Who We Are Section -->
+    <section class="who-we-are">
+        <div class="container">
+            <div class="section-header">
+                <h2>Who We Are</h2>
+                <div class="section-line"></div>
+            </div>
+            
+            <div class="content-grid">
+                <div class="content-text">
+                    <p class="intro-text">
+                        For over a decade, Thisara Travel & Tours has been Sri Lanka's premier travel companion, 
+                        specializing in creating extraordinary experiences that showcase the natural beauty, 
+                        rich culture, and warm hospitality of our island nation.
+                    </p>
+                    
+                    <p>
+                        Founded in 2010 with a simple mission - to share the wonders of Sri Lanka with the world - 
+                        we have grown from a small local operation to one of the most trusted travel agencies 
+                        in the Southern Province. Our team of experienced professionals brings together decades 
+                        of local knowledge, passion for travel, and commitment to exceptional service.
+                    </p>
+                    
+                    <p>
+                        Whether you're seeking adventure in our national parks, relaxation on pristine beaches, 
+                        cultural immersion in ancient cities, or comfortable transportation for your journey, 
+                        we provide personalized solutions that exceed expectations.
+                    </p>
+                    
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <h3>1000+</h3>
+                            <p>Happy Customers</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>50+</h3>
+                            <p>Tour Packages</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>15+</h3>
+                            <p>Years Experience</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <div class="footer-menu">
-                        <a href="index.php">Home</a>
-                        <a href="#" onclick="openCookieSettings()">Cookies</a>
-                        <a href="#">Help</a>
-                        <a href="#">FQAs</a>
+                
+                <div class="content-image">
+                    <img src="img/about-us-image.jpg" alt="Thisara Travel Team">
+                    <div class="image-overlay">
+                        <h4>Exploring Sri Lanka Since 2010</h4>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<!-- Footer End -->
+    </section>
 
+    <!-- Vision & Mission Section -->
+    <section class="vision-mission">
+        <div class="container">
+            <div class="vm-grid">
+                <div class="vision-card">
+                    <div class="card-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>
+                        To be Sri Lanka's most trusted and innovative travel partner, 
+                        creating transformative experiences that connect travelers with 
+                        the authentic beauty, culture, and spirit of our island paradise.
+                    </p>
+                </div>
+                
+                <div class="mission-card">
+                    <div class="card-icon">
+                        <i class="fas fa-compass"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>
+                        We are committed to providing exceptional travel experiences through 
+                        personalized service, local expertise, and sustainable tourism practices. 
+                        Our mission is to showcase Sri Lanka's hidden gems while ensuring 
+                        every journey is safe, comfortable, and unforgettable.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <!-- Why Choose Us Section -->
+    <section class="why-choose-us">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why Choose Thisara Travel & Tours</h2>
+                <div class="section-line"></div>
+                <p class="section-subtitle">Discover what makes us different</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h4>Local Expertise</h4>
+                    <p>15+ years of deep local knowledge and insider access to Sri Lanka's hidden treasures.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4>Personalized Service</h4>
+                    <p>Customized itineraries tailored to your interests, budget, and travel style.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h4>Premium Fleet</h4>
+                    <p>Well-maintained, comfortable vehicles with experienced drivers for safe travels.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h4>24/7 Support</h4>
+                    <p>Round-the-clock customer support to ensure your peace of mind throughout your journey.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h4>Eco-Friendly</h4>
+                    <p>Committed to sustainable tourism practices that preserve Sri Lanka's natural beauty.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h4>Fully Licensed</h4>
+                    <p>Registered with Sri Lanka Tourism Board and fully insured for your protection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<script>
-    // Get the current page URL path
-    const currentPage = window.location.pathname.split('/').pop(); // Extracts the filename
+    <!-- Owner/Team Section -->
+    <section class="owner-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Meet Our Founder</h2>
+                <div class="section-line"></div>
+            </div>
+            
+            <div class="owner-content">
+                <div class="owner-image">
+                    <img src="img/owner-photo.jpg" alt="Thisara - Founder & CEO">
+                    <div class="image-border"></div>
+                </div>
+                
+                <div class="owner-info">
+                    <div class="owner-details">
+                        <h3>Mr. Thisara Perera</h3>
+                        <p class="owner-title">Founder & CEO</p>
+                        
+                        <div class="owner-description">
+                            <p>
+                                With over 15 years of experience in Sri Lanka's tourism industry, 
+                                Thisara founded this company with a vision to share the authentic 
+                                beauty of Sri Lanka with travelers from around the world.
+                            </p>
+                            
+                            <p>
+                                Born and raised in the Southern Province, Thisara's deep understanding 
+                                of local culture, hidden gems, and traveler needs has been instrumental 
+                                in building our reputation as a trusted travel partner.
+                            </p>
+                            
+                            <p>
+                                His commitment to excellence and personal attention to every guest 
+                                has earned recognition from international travel platforms and 
+                                countless satisfied customers who return year after year.
+                            </p>
+                        </div>
+                        
+                        <div class="owner-credentials">
+                            <div class="credential">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Tourism Management Graduate</span>
+                            </div>
+                            <div class="credential">
+                                <i class="fas fa-certificate"></i>
+                                <span>Licensed Tour Guide</span>
+                            </div>
+                            <div class="credential">
+                                <i class="fas fa-award"></i>
+                                <span>Excellence in Tourism Award 2022</span>
+                            </div>
+                        </div>
+                        
+                        <div class="owner-quote">
+                            <blockquote>
+                                "Every journey should be a story worth telling. Our goal is to create 
+                                memories that last a lifetime while showcasing the true spirit of Sri Lanka."
+                            </blockquote>
+                            <cite>- Thisara Perera</cite>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    // Select all navigation links
-    const navLinks = document.querySelectorAll('.nav-links a');
-
-    // Loop through links to find the matching page
-    navLinks.forEach(link => {
-        // Check if the href of the link matches the current page
-        if (link.getAttribute('href') === currentPage) {
-            link.classList.add('active-link'); // Add the active class
-        } else {
-            link.classList.remove('active-link'); // Remove the active class from others
-        }
-    });
-    document.addEventListener("DOMContentLoaded", function () {
-        const hamburger = document.querySelector('.hamburger'); // Hamburger menu
-        const navLinks = document.querySelector('.nav-links'); // Navigation links
-        const header = document.querySelector('.custom-page-header'); // Page header
-
-        // Toggle menu function
-        function toggleMenu() {
-            navLinks.classList.toggle('active'); // Toggle menu visibility
-            toggleIcon(); // Toggle hamburger/close icon
-            adjustHeaderMargin(); // Adjust header margin
-        }
-
-        // Toggle hamburger/close icon
-        function toggleIcon() {
-            if (navLinks.classList.contains('active')) {
-                hamburger.classList.add('close-icon'); // Show close icon
-            } else {
-                hamburger.classList.remove('close-icon'); // Show hamburger icon
-            }
-        }
-
-        // Adjust header margin based on menu state
-        function adjustHeaderMargin() {
-            if (navLinks.classList.contains('active')) {
-                const navHeight = navLinks.scrollHeight; // Get dropdown height
-                header.style.marginTop = `${navHeight}px`; // Push header down
-            } else {
-                header.style.marginTop = '0'; // Reset header position
-            }
-        }
-
-        // Close menu when clicking outside
-        function closeMenu(event) {
-            if (!navLinks.contains(event.target) && !hamburger.contains(event.target)) {
-                navLinks.classList.remove('active'); // Hide menu
-                hamburger.classList.remove('close-icon'); // Reset icon to hamburger
-                adjustHeaderMargin(); // Reset header margin
-            }
-        }
-
-        // Reset menu and header margin based on screen size
-        function handleResize() {
-            if (window.innerWidth > 768) { // For larger screens
-                navLinks.classList.remove('active'); // Hide dropdown menu
-                hamburger.classList.remove('close-icon'); // Reset close icon
-                header.style.marginTop = '0'; // Reset header margin
-            } else {
-                header.style.marginTop = '0'; // Ensure header resets properly
-            }
-        }
-
-        // Event listeners
-        hamburger.addEventListener('click', toggleMenu); // Toggle menu on click
-        document.addEventListener('click', closeMenu); // Close menu on outside click
-        window.addEventListener('resize', handleResize); // Reset on resize
-    });
-</script>
+    <!-- Call to Action Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Start Your Sri Lankan Adventure?</h2>
+                <p>Let us help you create unforgettable memories in the pearl of the Indian Ocean</p>
+                <div class="cta-buttons">
+                    <a href="contact.php" class="btn-primary">
+                        <i class="fas fa-envelope"></i>
+                        Contact Us Today
+                    </a>
+                    <a href="tours.php" class="btn-secondary">
+                        <i class="fas fa-route"></i>
+                        View Tour Packages
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Import Footer Section -->
+    <?php 
+        include 'components/footer.php'; 
+    ?>
+    
+</body>
 
 </html>
