@@ -30,7 +30,7 @@ try {
             'Verified' => true,
             'role' => 'user',
             'date' => date(format: "Y-m-d"),
-            'ProfilePhoto' => $googleUser->picture ?? 'img/default_profile.png',
+            'ProfilePhoto' => $googleUser->picture ?? 'img/profile-icon.png',
         ];
         $insertResult = $collection->insertOne(document: $newUser);
         if ($insertResult->getInsertedCount() !== 1) {
@@ -41,7 +41,7 @@ try {
     $_SESSION['username'] = $user['UserName'];
     $_SESSION['role'] = $user['role'];
     $_SESSION['user_id'] = (string) $user['_id'];
-    $_SESSION['profile_image'] = $user['ProfilePhoto'] ?? 'img/default_profile.png';
+    $_SESSION['profile_image'] = $user['ProfilePhoto'] ?? 'img/profile-icon.png';
     // redirect to index page if user
     if ($user['role'] === 'admin') {
         header(header: "Location: Admin%20panel/adIndex.php");

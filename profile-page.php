@@ -17,7 +17,7 @@ if (isset($_SESSION['user_id'])) {
             $userArray = $user instanceof MongoDB\Model\BSONDocument ? $user->getArrayCopy() : (array) $user;
             $_SESSION['username'] = $userArray['UserName'];
             $_SESSION['role'] = $userArray['role'] ?? 'user';
-            $_SESSION['profile_image'] = $userArray['ProfilePhoto'] ?? 'img/default_profile.png';
+            $_SESSION['profile_image'] = $userArray['ProfilePhoto'] ?? 'img/profile-icon.png';
             $_SESSION['has_password'] = !empty($userArray['Password']);
         } else {
             // User not found

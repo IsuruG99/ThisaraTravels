@@ -28,7 +28,7 @@ try {
                 $user = $usersCollection->findOne(filter: ['_id' => $doc['userId']]);
                 $userData[$userId] = [
                     'userName' => $user['UserName'] ?? 'Unknown User',
-                    'profileImage' => $user['profile_image'] ?? 'img/default_profile.png'
+                    'profileImage' => $user['profile_image'] ?? 'img/profile-icon.png'
                 ];
             }
         }
@@ -171,7 +171,7 @@ try {
             <?php foreach ($documents as $doc):
                 $userId = isset($doc['userId']) ? (string) $doc['userId'] : null;
                 $userName = $userId ? ($userData[$userId]['userName'] ?? 'Unknown User') : 'Unknown User';
-                $userImage = $userId ? ($userData[$userId]['profileImage'] ?? 'img/default_profile.png') : 'img/default_profile.png';
+                $userImage = $userId ? ($userData[$userId]['profileImage'] ?? 'img/profile-icon.png') : 'img/profile-icon.png';
                 ?>
                 <div class="col-md-4 mb-4">
                     <div class="review-card">
