@@ -34,12 +34,15 @@ body {
 }
 .welcome-content h1 {
     color: #fff;
-    font-size: 2.5rem;
+    font-size: 3em;
+    font-weight: 700;
+    text-shadow: #333;
     margin-bottom: 1rem;
 }
 .welcome-content p {
     color:aliceblue;
-    font-size: 1.1rem;
+    font-size: 1em;
+    font-weight: 500;
     max-width: 700px;
 }
 

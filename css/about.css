@@ -18,7 +18,61 @@ body {
 }
 
 /* Hero Section */
+
 .hero-section {
+    height: 50vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: linear-gradient(135deg, #289AA9, rgb(226, 158, 48), #123524);
+    background-size: 400% 400%;
+    animation: gradientMove 10s ease infinite;
+    transform: skewY(0deg);  /* for design alignment */
+    opacity: 0.8;
+}
+
+.hero-section::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    /* background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)); */
+    background: transparent;
+}
+
+.hero-section > * {
+    position: relative;
+    z-index: 3;
+}
+
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* .hero-section {
     height: 60vh;
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), 
                 url('img/about-hero-bg.jpg') center/cover no-repeat;
@@ -28,10 +82,10 @@ body {
     position: relative;
     color: white;
     text-align: center;
-}
+} */
 
 .hero-content h1 {
-    font-size: 3.5em;
+    font-size: 3em;
     font-weight: 700;
     margin-bottom: 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -40,14 +94,14 @@ body {
 .hero-content p {
     font-size: 1.3em;
     font-weight: 300;
-    max-width: 600px;
+    max-width: 700px;
     margin: 0 auto;
 }
 
 /* Section Headers */
 .section-header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 40px;
 }
 
 .section-header h2 {
@@ -60,7 +114,7 @@ body {
 .section-line {
     width: 80px;
     height: 4px;
-    background: linear-gradient(90deg, #FCB424, #ff6b6b);
+    background: linear-gradient(90deg, #123524, #11814b);
     margin: 0 auto 20px;
     border-radius: 2px;
 }
@@ -74,7 +128,7 @@ body {
 
 /* Who We Are Section */
 .who-we-are {
-    padding: 100px 0;
+    padding: 60px 0;
     background: white;
 }
 
@@ -86,18 +140,20 @@ body {
 }
 
 .content-text .intro-text {
-    font-size: 1.2em;
-    color: #FCB424;
+    font-size: 1em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: black;
     font-weight: 600;
-    margin-bottom: 25px;
-    line-height: 1.8;
+    margin-bottom: 20px;
+    line-height: 1.5;
 }
 
 .content-text p {
     font-size: 1em;
-    color: #666;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: black;
     margin-bottom: 20px;
-    line-height: 1.8;
+    line-height: 1.5;
     text-align: justify;
 }
 
@@ -170,7 +226,7 @@ body {
 
 /* Vision & Mission Section */
 .vision-mission {
-    padding: 100px 0;
+    padding: 60px 0;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
@@ -198,7 +254,7 @@ body {
     left: 0;
     right: 0;
     height: 5px;
-    background: linear-gradient(90deg, #FCB424, #ff6b6b);
+    background: linear-gradient(90deg, #123524, #11814b);
 }
 
 .vision-card:hover, .mission-card:hover {
@@ -208,7 +264,7 @@ body {
 .card-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #FCB424, #ff6b6b);
+    background: linear-gradient(135deg, #123524, #11814b);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -241,7 +297,7 @@ body {
 
 /* Why Choose Us Section */
 .why-choose-us {
-    padding: 100px 0;
+    padding: 60px 0;
     background: white;
 }
 
@@ -263,14 +319,14 @@ body {
 .feature-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    border-color: #FCB424;
+    border-color: #123524;
     background: white;
 }
 
 .feature-icon {
     width: 70px;
     height: 70px;
-    background: linear-gradient(135deg, #FCB424, #ff6b6b);
+    background: linear-gradient(135deg, #123524, #11814b);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -302,8 +358,9 @@ body {
 
 /* Owner Section */
 .owner-section {
-    padding: 100px 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 80px 0;
+    background: linear-gradient(135deg, #123524 0%, #11814b 100%);
+    /* background: linear-gradient(135deg, #ecbd5f 0%, #6ba2eb 100%); */
     color: white;
 }
 
@@ -356,7 +413,7 @@ body {
 
 .owner-details h3 {
     font-size: 2.2em;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     font-weight: 600;
 }
 
@@ -381,7 +438,7 @@ body {
 .credential {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
     padding: 12px 0;
 }
 
@@ -408,8 +465,8 @@ body {
 .owner-quote blockquote {
     font-size: 1.1em;
     font-style: italic;
-    margin-bottom: 15px;
-    line-height: 1.7;
+    margin-bottom: 12px;
+    line-height: 1.5;
 }
 
 .owner-quote cite {
@@ -466,7 +523,7 @@ body {
 .btn-primary:hover {
     transform: translateY(-3px);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-    color: #FCB424;
+    color: black;
 }
 
 .btn-secondary {

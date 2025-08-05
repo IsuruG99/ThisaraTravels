@@ -73,19 +73,19 @@
                     <img src="img/vehicles/vehicle-1.png" alt="KDH Van">
                     <h3>Vehicle 1</h3>
                     <p>Ideal for city tours and solo travelers.</p>
-                    <button class="book-now">Book Now</button>
+                    <button onclick="window.location.href='booking.php'" class="book-now">Book Now</button>
                 </div>
                 <div class="vehicle-card">
                     <img src="img/vehicles/vehicle-2.png" alt="Van High Roof">
                     <h3>Vehicle 2</h3>
                     <p>Spacious for group adventures.</p>
-                    <button class="book-now">Book Now</button>
+                    <button onclick="window.location.href='booking.php'" class="book-now">Book Now</button>
                 </div>
                 <div class="vehicle-card">
                     <img src="img/vehicles/vehicle-3.png" alt="Wagon Car">
                     <h3>Vehicle 3</h3>
                     <p>Fun and authentic for local exploration.</p>
-                    <button class="book-now">Book Now</button>
+                    <button onclick="window.location.href='booking.php'" class="book-now">Book Now</button>
                 </div>
             </div>
         </section>

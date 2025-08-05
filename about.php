@@ -26,8 +26,8 @@ if (isset($_SESSION['username'])) {
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="hero-content">
-            <h1>About Thisara Travel & Tours</h1>
-            <p>Your trusted partner for unforgettable Sri Lankan adventures since 2010</p>
+            <h1>About Thisara Travels & Tours</h1>
+            <p>Your trusted partner for unforgettable Sri Lankan adventures since 2015</p>
         </div>
         <div class="hero-overlay"></div>
     </section>
@@ -43,13 +43,13 @@ if (isset($_SESSION['username'])) {
             <div class="content-grid">
                 <div class="content-text">
                     <p class="intro-text">
-                        For over a decade, Thisara Travel & Tours has been Sri Lanka's premier travel companion, 
+                        For over a decade, Thisara Travels & Tours has been Sri Lanka's premier travel companion, 
                         specializing in creating extraordinary experiences that showcase the natural beauty, 
                         rich culture, and warm hospitality of our island nation.
                     </p>
                     
                     <p>
-                        Founded in 2010 with a simple mission - to share the wonders of Sri Lanka with the world - 
+                        Founded in 2015 with a simple mission - to share the wonders of Sri Lanka with the world - 
                         we have grown from a small local operation to one of the most trusted travel agencies 
                         in the Southern Province. Our team of experienced professionals brings together decades 
                         of local knowledge, passion for travel, and commitment to exceptional service.
@@ -67,11 +67,11 @@ if (isset($_SESSION['username'])) {
                             <p>Happy Customers</p>
                         </div>
                         <div class="stat-item">
-                            <h3>50+</h3>
-                            <p>Tour Packages</p>
+                            <h3>230+</h3>
+                            <p>Completed Tours</p>
                         </div>
                         <div class="stat-item">
-                            <h3>15+</h3>
+                            <h3>10+</h3>
                             <p>Years Experience</p>
                         </div>
                     </div>
@@ -80,7 +80,7 @@ if (isset($_SESSION['username'])) {
                 <div class="content-image">
                     <img src="img/about-us-image.jpg" alt="Thisara Travel Team">
                     <div class="image-overlay">
-                        <h4>Exploring Sri Lanka Since 2010</h4>
+                        <h4>Exploring Sri Lanka Since 2015</h4>
                     </div>
                 </div>
             </div>
@@ -123,7 +123,7 @@ if (isset($_SESSION['username'])) {
     <section class="why-choose-us">
         <div class="container">
             <div class="section-header">
-                <h2>Why Choose Thisara Travel & Tours</h2>
+                <h2>Why Choose Us</h2>
                 <div class="section-line"></div>
                 <p class="section-subtitle">Discover what makes us different</p>
             </div>
@@ -134,7 +134,7 @@ if (isset($_SESSION['username'])) {
                         <i class="fas fa-map-marked-alt"></i>
                     </div>
                     <h4>Local Expertise</h4>
-                    <p>15+ years of deep local knowledge and insider access to Sri Lanka's hidden treasures.</p>
+                    <p>10+ years of deep local knowledge and insider access to Sri Lanka's hidden treasures.</p>
                 </div>
                 
                 <div class="feature-card">
@@ -196,12 +196,12 @@ if (isset($_SESSION['username'])) {
                 
                 <div class="owner-info">
                     <div class="owner-details">
-                        <h3>Mr. Thisara Perera</h3>
+                        <h3>Mr. Thisara Nuwan</h3>
                         <p class="owner-title">Founder & CEO</p>
                         
                         <div class="owner-description">
                             <p>
-                                With over 15 years of experience in Sri Lanka's tourism industry, 
+                                With over 10 years of experience in Sri Lanka's tourism industry, 
                                 Thisara founded this company with a vision to share the authentic 
                                 beauty of Sri Lanka with travelers from around the world.
                             </p>
@@ -239,7 +239,7 @@ if (isset($_SESSION['username'])) {
                                 "Every journey should be a story worth telling. Our goal is to create 
                                 memories that last a lifetime while showcasing the true spirit of Sri Lanka."
                             </blockquote>
-                            <cite>- Thisara Perera</cite>
+                            <cite>- Thisara Nuwan</cite>
                         </div>
                     </div>
                 </div>
@@ -258,9 +258,9 @@ if (isset($_SESSION['username'])) {
                         <i class="fas fa-envelope"></i>
                         Contact Us Today
                     </a>
-                    <a href="tours.php" class="btn-secondary">
-                        <i class="fas fa-route"></i>
-                        View Tour Packages
+                    <a href="booking.php" class="btn-secondary">
+                        <i class="fas fa-car"></i>
+                        View Vehicles
                     </a>
                 </div>
             </div>

@@ -31,7 +31,7 @@
 
 /* body {
     min-height: 100vh;
-    padding-top: -90px;
+    padding-top: -90px !important;
 } */
 
 .navbar {
@@ -46,10 +46,17 @@
     margin: 0;
     padding-top: 0 !important; 
     padding-bottom: 0 !important;
-    background: linear-gradient(180deg, #1a4430, #123524);
+    background: linear-gradient(150deg, #142c20 0%, #1a4430 90%);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
     z-index: 1000;
 }
+
+/* Scroll Effect */
+/* .navbar-container .scrolled {
+    position: fixed;
+    background: linear-gradient(150deg, #142c20 0%, #1a4430 90%);
+} */
+
 
 /* Navbar Styles */
 .navbar-container {
@@ -103,7 +110,7 @@
     font-size: 25px;
     font-weight: 400;
     letter-spacing: 0;
-    color: #FCB424;
+    color: #289AA9;
     /* background: linear-gradient(45deg, #289AA9, #FCB424);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -143,6 +150,7 @@
 .navbar-container .navbar-menu li a {
     text-decoration: none;
     color: #fff;
+    letter-spacing: 0.6px;
     font-size: 1rem;
     font-weight: 500;
     padding: 3px 5px;
@@ -192,11 +200,6 @@
     transition: all 0.3s ease-in-out;
 }
 
-/* Scroll Effect */
-.navbar-container.scrolled {
-    position: fixed;
-    background-color: #123524;
-}
 
 
 
