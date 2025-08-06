@@ -93,8 +93,9 @@ body {
 }
 
 .about-text h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
 }
 
 .about-image img {
@@ -106,16 +107,18 @@ body {
 
 /* Services Section */
 .services {
-    padding: 3rem 1rem;
-    background-color: #f4f4f4;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, #123524 0%, #11814b 100%);
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 20px auto 25px;
 }
 
 .services h2 {
+    color: #fff;
     text-align: center;
-    font-size: 2rem;
-    margin-bottom: 2rem;
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 2.2rem;
 }
 
 .services-grid {
@@ -151,8 +154,9 @@ body {
 
 .vehicles h2 {
     text-align: center;
-    font-size: 2rem;
-    margin-bottom: 2rem;
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 2.2rem;
 }
 
 .vehicle-grid {
@@ -162,15 +166,17 @@ body {
 }
 
 .vehicle-card {
-    background: #fff;
+    background: #f4f4f4;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid transparent;
     transition: transform 0.3s;
 }
 
 .vehicle-card:hover {
-    transform: translateY(-5px);
+    border-color: #11814b;
+    transform: translateY(-8px);
 }
 
 .vehicle-card img {
@@ -180,50 +186,51 @@ body {
 }
 
 .vehicle-card h3 {
-    padding: 1rem;
-    font-size: 1.5rem;
-}
-
-.vehicle-card p {
-    padding: 0 1rem;
-    color: #666;
+    text-align: center;
+    padding-top: 1rem;
+    margin-bottom: 0;
+    font-size: 1.3rem;
+    font-weight:bold;
 }
 
 .vehicle-card .book-now {
     display: block;
-    margin: 1rem;
-    padding: 0.8rem;
-    background-color: #0066cc;
+    margin: 1.2rem auto;
+    padding: 0.6rem 2rem;
+    background-color: #074ca5;
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 20px;
     text-align: center;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 .vehicle-card .book-now:hover {
-    background-color: #004d99;
+    font-weight: 500;
+    background-color: #11814b;
 }
 
 /* Who We Are Section */
 .who-we-are {
     padding: 3rem 1rem;
-    background-color: #f4f4f4;
+    background: linear-gradient(135deg, #123524 0%, #11814b 100%);
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 2rem auto;
     text-align: center;
 }
 
 .who-we-are h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    font-size: 2.2rem;
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 2rem;
 }
 
 .who-we-are p {
     max-width: 800px;
     margin: 0 auto;
-    color: #666;
+    color: #f4f4f4;
 }
 
 /* Slideshow Gallery */
@@ -235,7 +242,8 @@ body {
 
 .gallery h2 {
     text-align: center;
-    font-size: 2rem;
+    font-size: 2.2rem;
+    font-weight: 600;
     margin-bottom: 2rem;
 }
 

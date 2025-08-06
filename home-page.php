@@ -40,7 +40,7 @@
                         provide reliable vehicles and tailored travel experiences to suit your needs.</p>
                 </div>
                 <div class="about-image">
-                    <img src="img/welcome-1.jpg" alt="Sri Lankan Culture">
+                    <img src="img/our-business-homepage.jpg" alt="Sri Lankan Culture">
                 </div>
             </div>
         </section>
@@ -70,21 +70,18 @@
             <h2>Our Vehicles</h2>
             <div class="vehicle-grid">
                 <div class="vehicle-card">
-                    <img src="img/vehicles/vehicle-1.png" alt="KDH Van">
-                    <h3>Vehicle 1</h3>
-                    <p>Ideal for city tours and solo travelers.</p>
+                    <img src="img/vehicles/vehicle1-KDH.png" alt="KDH Van">
+                    <h3>KDH Van</h3>
                     <button onclick="window.location.href='booking.php'" class="book-now">Book Now</button>
                 </div>
                 <div class="vehicle-card">
-                    <img src="img/vehicles/vehicle-2.png" alt="Van High Roof">
-                    <h3>Vehicle 2</h3>
-                    <p>Spacious for group adventures.</p>
+                    <img src="img/vehicles/vehicle2-WagonR.png" alt="Van High Roof">
+                    <h3>Wagon R Car</h3>
                     <button onclick="window.location.href='booking.php'" class="book-now">Book Now</button>
                 </div>
                 <div class="vehicle-card">
-                    <img src="img/vehicles/vehicle-3.png" alt="Wagon Car">
-                    <h3>Vehicle 3</h3>
-                    <p>Fun and authentic for local exploration.</p>
+                    <img src="img/vehicles/vehicle3-Prius.png" alt="Wagon Car">
+                    <h3>Prius Car</h3>
                     <button onclick="window.location.href='booking.php'" class="book-now">Book Now</button>
                 </div>
             </div>
