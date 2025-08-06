@@ -1,5 +1,8 @@
 <?php
 require 'auth-config.php';
+// Load PHPMailer
+use  PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 try {
     $db = getMongoDB();
@@ -38,24 +41,49 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
-// NEW: Handle report submission
+// NEW: Handle report submission using PHPMailer (only changed section)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
-    // Replace this email with your actual email address
-    $to = "isuru9917@gmail.com"; 
-    $subject = "Review Report - " . htmlspecialchars($_POST['report_review_id']);
-    $message = "A review has been reported:\n\n";
-    $message .= "Review ID: " . htmlspecialchars($_POST['report_review_id']) . "\n";
-    $message .= "Reason: " . htmlspecialchars($_POST['report_reason']) . "\n";
-    $message .= "Reported by: " . (isset($_SESSION['username']) ? $_SESSION['username'] : 'Anonymous') . "\n";
-    $headers = "From: noreply@test.com\r\n"; 
-    $headers .= "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-
-    // Send email 
-    mail($to, $subject, $message, $headers);
     
-    // Show success message
-    $_SESSION['report_success'] = true;
+
+    require 'vendor/autoload.php';
+
+    $reviewId = htmlspecialchars($_POST['report_review_id']);
+    $reason = htmlspecialchars($_POST['report_reason']);
+    $reporter = isset($_SESSION['username']) ? $_SESSION['username'] : 'Anonymous';
+
+    $mail = new PHPMailer(true);
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'isuru9917@gmail.com';
+        $mail->Password = $_ENV['SMTP_PASS'];
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+
+        // Recipients
+        $mail->setFrom('isuru9917@gmail.com', 'Thisara Travels & Tours');
+        $mail->addAddress('isuru9917@gmail.com');
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = "Review Report - " . $reviewId;
+        $mail->Body = "
+            <h3 style='color: #08625c; margin-bottom: 15px;'>New Review Report</h3>
+            <p><strong>Review ID:</strong> {$reviewId}</p>
+            <p><strong>Reason:</strong> {$reason}</p>
+            <p><strong>Reported by:</strong> {$reporter}</p>
+            <p style='margin-top: 20px; color: #666;'>
+                Please investigate this reported review as soon as possible.
+            </p>
+        ";
+
+        $mail->send();
+        $_SESSION['report_success'] = true;
+    } catch (Exception $e) {
+        $_SESSION['report_error'] = "Report could not be sent. Error: {$mail->ErrorInfo}";
+    }
     header("Location: testimonial.php");
     exit();
 }
@@ -95,6 +123,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
             </div>
         </div>
         <?php unset($_SESSION['report_success']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['report_error'])): ?>
+        <div class="container mt-3">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= $_SESSION['report_error'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <?php unset($_SESSION['report_error']); ?>
     <?php endif; ?>
 
     <div class="hero-section text-center">
@@ -149,7 +187,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                     <span class="star<?= $i <= round(num: $avgRating) ? ' filled' : '' ?>">&#9733;</span>
                 <?php endfor; ?>
                 <span class="ms-2">(<?= $avgRating ?> out of 5 from <?= $starCount ?> reviews)</span>
-
             </div>
         </div>
     <?php endif; ?>
@@ -185,8 +222,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         </div>
                         <p class="review-comment">"<?= htmlspecialchars(string: $doc['comment']) ?>"</p>
                         
-                        <!-- NEW: Report Button -->
-                        <button type="button" class="btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" 
+                        <!-- Report Button -->
+                        <button type="button" class="btn btn-sm btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" 
                             data-review-id="<?= (string) $doc['_id'] ?>">
                             <i class="fas fa-flag"></i> Report
                         </button>
@@ -196,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
         </div>
     </div>
 
-    <!-- NEW: Report Modal -->
+    <!-- Report Modal -->
     <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -239,11 +276,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                 <form action="submit_review.php" method="POST" class="p-4">
                     <input type="hidden" name="userId" value="<?= $_SESSION['user_id'] ?>">
 
-                    <!-- Hidden fields for actual submission -->
                     <input type="hidden" name="vehicleType" id="vehicleType">
                     <input type="hidden" name="vehicleName" id="vehicleName">
 
-                    <!-- Booking Selection -->
                     <div class="mb-3">
                         <label for="orderId" class="form-label">Booking</label>
                         <select name="orderId" id="orderId" class="form-select" required
@@ -278,19 +313,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         </select>
                     </div>
 
-                    <!-- Vehicle Display (readonly) -->
                     <div class="mb-3">
                         <label for="vehicleDisplay" class="form-label">Vehicle</label>
                         <input type="text" id="vehicleDisplay" class="form-control" readonly>
                     </div>
 
-                    <!-- Date Range (autofilled from booking) -->
                     <div class="mb-3">
                         <label class="form-label">Booking Dates</label>
                         <input type="text" id="dateRange" class="form-control" readonly>
                     </div>
 
-                    <!-- Rating -->
                     <div class="mb-3 text-center">
                         <label class="form-label d-block">Rating</label>
                         <div class="rating">
@@ -301,7 +333,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         </div>
                     </div>
 
-                    <!-- Comment -->
                     <div class="mb-3">
                         <label for="comment" class="form-label">Comment</label>
                         <textarea name="comment" id="comment" rows="4" class="form-control" required></textarea>
@@ -328,12 +359,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
             </div>
         </div>
     <?php endif; ?>
+
     <?php include 'components/footer.php'; ?>
+
     <script>
         function fillVehicleDetails(select) {
             const selectedOption = select.options[select.selectedIndex];
             if (selectedOption && selectedOption.dataset.vehicle) {
-                // Split the vehicle data into type and name
                 const vehicleParts = selectedOption.dataset.vehicle.split(' - ');
                 document.getElementById('vehicleType').value = vehicleParts[0] || '';
                 document.getElementById('vehicleName').value = vehicleParts[1] || '';
@@ -342,7 +374,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
             }
         }
 
-        // NEW: Initialize report modal with review ID
         document.addEventListener('DOMContentLoaded', function() {
             var reportModal = document.getElementById('reportModal');
             if (reportModal) {
