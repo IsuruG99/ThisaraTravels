@@ -40,7 +40,7 @@
                         provide reliable vehicles and tailored travel experiences to suit your needs.</p>
                 </div>
                 <div class="about-image">
-                    <img src="img/welcome-1.jpg" alt="Sri Lankan Culture">
+                    <img src="img/our-business-homepage.jpg" alt="Sri Lankan Culture">
                 </div>
             </div>
         </section>
@@ -70,21 +70,18 @@
             <h2>Our Vehicles</h2>
             <div class="vehicle-grid">
                 <div class="vehicle-card">
-                    <img src="img/vehicles/vehicle-1.png" alt="KDH Van">
-                    <h3>Vehicle 1</h3>
-                    <p>Ideal for city tours and solo travelers.</p>
+                    <img src="img/vehicles/vehicle1-KDH.png" alt="KDH Van">
+                    <h3>KDH Van</h3>
                     <button onclick="window.location.href='booking.php'" class="book-now">Book Now</button>
                 </div>
                 <div class="vehicle-card">
-                    <img src="img/vehicles/vehicle-2.png" alt="Van High Roof">
-                    <h3>Vehicle 2</h3>
-                    <p>Spacious for group adventures.</p>
+                    <img src="img/vehicles/vehicle2-WagonR.png" alt="Van High Roof">
+                    <h3>Wagon R Car</h3>
                     <button onclick="window.location.href='booking.php'" class="book-now">Book Now</button>
                 </div>
                 <div class="vehicle-card">
-                    <img src="img/vehicles/vehicle-3.png" alt="Wagon Car">
-                    <h3>Vehicle 3</h3>
-                    <p>Fun and authentic for local exploration.</p>
+                    <img src="img/vehicles/vehicle3-Prius.png" alt="Wagon Car">
+                    <h3>Prius Car</h3>
                     <button onclick="window.location.href='booking.php'" class="book-now">Book Now</button>
                 </div>
             </div>
@@ -99,23 +96,29 @@
                 clients.</p>
         </section>
 
+
         <!-- Slideshow Gallery -->
+        
         <section class="gallery">
             <h2>Our Memories</h2>
             <div class="slideshow-container">
-                <div class="slide active">
+                <div class="carousel-track">
                     <img src="img/slideshow/memory-1.jpg" alt="Client Memory 1">
-                </div>
-                <div class="slide">
                     <img src="img/slideshow/memory-2.jpg" alt="Client Memory 2">
-                </div>
-                <div class="slide">
                     <img src="img/slideshow/memory-3.jpg" alt="Client Memory 3">
+                    <img src="img/slideshow/memory-4.jpg" alt="Client Memory 4">
+                    <img src="img/slideshow/memory-5.jpg" alt="Client Memory 5">
+                    <img src="img/slideshow/memory-6.jpg" alt="Client Memory 6">
+                    <img src="img/slideshow/memory-7.jpg" alt="Client Memory 7">
+                    <img src="img/slideshow/memory-8.jpg" alt="Client Memory 8">
+                    <img src="img/slideshow/memory-9.jpg" alt="Client Memory 9">
                 </div>
+            
                 <button class="prev"> ❮ </button>
                 <button class="next"> ❯ </button>
             </div>
         </section>
+
 
         <!-- import footer section -->
         <?php include 'components/footer.php'; ?>
@@ -152,44 +155,96 @@
     
     
     <script>
-        // Memory/Gallery Slideshow functionality
+        // Smooth Carousel Gallery functionality for memories
         document.addEventListener('DOMContentLoaded', () => {
-            const slides = document.querySelectorAll('.slide');
-            const prevButton = document.querySelector('.prev');
-            const nextButton = document.querySelector('.next');
-            let currentSlide = 0;
-
-            function showSlide(index) {
-                slides.forEach((slide, i) => {
-                    slide.classList.toggle('active', i === index);
+            const carouselTrack = document.querySelector('.carousel-track');
+            const images = document.querySelectorAll('.carousel-track img');
+            const prevButton = document.querySelector('.gallery .prev');
+            const nextButton = document.querySelector('.gallery .next');
+    
+            let currentIndex = 0;
+            let imagesPerView = 3;
+            let imageWidth = 0;
+    
+            // Function to update images per view based on screen size
+            function updateImagesPerView() {
+                if (window.innerWidth <= 768) {
+                    imagesPerView = 1;
+                } else {
+                    imagesPerView = 3;
+                }
+            updateCarousel();
+        }
+    
+        // Function to calculate and update carousel position
+        function updateCarousel() {
+            if (images.length > 0) {
+                const containerWidth = carouselTrack.parentElement.offsetWidth - 60; // Minus padding for buttons
+                const gap = 16; // 1rem gap
+                imageWidth = (containerWidth - (gap * (imagesPerView - 1))) / imagesPerView;
+            
+                // Update image widths
+                images.forEach(img => {
+                    img.style.width = imageWidth + 'px';
                 });
+            
+                // Calculate translation
+                const translateX = currentIndex * (imageWidth + gap);
+                carouselTrack.style.transform = `translateX(-${translateX}px)`;
             }
-
-            prevButton.addEventListener('click', () => {
-                currentSlide = (currentSlide === 0) ? slides.length - 1 : currentSlide - 1;
-                showSlide(currentSlide);
-            });
-
-            nextButton.addEventListener('click', () => {
-                currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
-                showSlide(currentSlide);
-            });
-
-            // Auto-slide every 5 seconds
-            setInterval(() => {
-                currentSlide = (currentSlide === slides.length - 1) ? 0 : currentSlide + 1;
-                showSlide(currentSlide);
-            }, 5000);
-
-            // Smooth scroll for book now buttons
-            const buttons = document.querySelectorAll('.book-now');
-            buttons.forEach(button => {
-                button.addEventListener('click', () => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Adjust to link to booking form if added
-                });
-            });
-        });
+        }
+    
+        // Next image function
+        function nextImage() {
+            const maxIndex = images.length - imagesPerView;
+            if (currentIndex < maxIndex) {
+                currentIndex++;
+            } else {
+                currentIndex = 0; // Loop back to start
+            }
+            updateCarousel();
+        }
+    
+        // Previous image function
+        function prevImage() {
+            const maxIndex = images.length - imagesPerView;
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else {
+                currentIndex = maxIndex; // Loop to end
+            }
+            updateCarousel();
+        }
+    
+        // Event listeners
+        if (nextButton) {
+            nextButton.addEventListener('click', nextImage);
+        }
+    
+        if (prevButton) {
+            prevButton.addEventListener('click', prevImage);
+        }
+    
+        // Auto-slide every 3 seconds
+        setInterval(nextImage, 4000);
+    
+        // Handle window resize
+        window.addEventListener('resize', updateImagesPerView);
+    
+        // Initialize
+        updateImagesPerView();
+    
+        // Smooth scroll for book now buttons
+        // const buttons = document.querySelectorAll('.book-now');
+        // buttons.forEach(button => {
+        //     button.addEventListener('click', () => {
+        //         window.scrollTo({ top: 0, behavior: 'smooth' });
+        //     });
+        // });
+    });
     </script>
+
+
 
     <script>
         window.onload = function() {
