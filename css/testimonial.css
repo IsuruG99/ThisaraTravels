@@ -188,15 +188,17 @@ form .form-select {
     background-color: transparent;
     color: #ec0d0d;
     border: 1px solid #ec0d0d;
-    border-radius: 20px;
-    padding: 3px 12px;
-    font-size: 0.8rem;
+    border-radius: 50px;
+    padding: 5px 12px;
+    font-size: 0.85rem;
     margin-top: 10px;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .btn-report:hover {
-    background-color: rgba(255, 107, 107, 0.1);
+    background-color: rgba(236, 13, 13, 0.1);
     color: #ff5252;
 }
 
