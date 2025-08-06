@@ -47,10 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     $message .= "Review ID: " . htmlspecialchars($_POST['report_review_id']) . "\n";
     $message .= "Reason: " . htmlspecialchars($_POST['report_reason']) . "\n";
     $message .= "Reported by: " . (isset($_SESSION['username']) ? $_SESSION['username'] : 'Anonymous') . "\n";
-    $headers = "From: noreply@yourdomain.com"; // REPLACE WITH YOUR DOMAIN
+    $headers = "From: noreply@localhost"; // REPLACE WITH YOUR DOMAIN
     
     // Send email (commented out for safety - uncomment when email is configured)
-    // mail($to, $subject, $message, $headers);
+    mail($to, $subject, $message, $headers);
     
     // Show success message
     $_SESSION['report_success'] = true;
