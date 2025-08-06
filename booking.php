@@ -21,6 +21,77 @@ if (!isset($_SESSION['csrf_token'])) {
 
 // Handle booking form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'submit_booking') {
+    // --- Prevent duplicate booking for same user, vehicle, pickup, dropoff, date, and time ---
+    $duplicateQuery = [
+        'username' => $bookingData['username'],
+        'vehicle_type' => $bookingData['vehicle_type'],
+        'vehicle_name' => $bookingData['vehicle_name'],
+        'pickup_location' => $bookingData['pickup_location'],
+        'dropoff_location' => $bookingData['dropoff_location'],
+        'pickup_date' => $bookingData['pickup_date'],
+        'dropoff_date' => $bookingData['dropoff_date'],
+        'pickup_time' => $bookingData['pickup_time'],
+    ];
+    $existingBooking = $bookingsCollection->findOne($duplicateQuery);
+    if ($existingBooking) {
+        $_SESSION['booking_message'] = ['text' => 'You have already submitted a booking for this vehicle, location, date, and time.', 'type' => 'error'];
+        $_SESSION['form_data'] = $bookingData;
+        redirectWithError(location: $_SERVER['PHP_SELF']);
+    }
+    // --- Rate Limiting and Anti-Spam Protections ---
+    // 1. Per-session rate limiting (1 booking per 60 seconds)
+    $rate_limit_seconds = 60;
+    $now = time();
+    if (!isset($_SESSION['booking_rate_limit'])) {
+        $_SESSION['booking_rate_limit'] = [];
+    }
+    $userKey = $_SESSION['username'] ?? $_SERVER['REMOTE_ADDR'];
+    if (isset($_SESSION['booking_rate_limit'][$userKey]) && ($now - $_SESSION['booking_rate_limit'][$userKey]) < $rate_limit_seconds) {
+        $_SESSION['booking_message'] = ['text' => 'You are submitting bookings too quickly. Please wait a minute before trying again.', 'type' => 'error'];
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+
+    // 2. Per-IP rate limiting (max 10 bookings per hour)
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $ip_limit_file = sys_get_temp_dir() . '/booking_ip_limit_' . md5($ip) . '.json';
+    $ip_limit_data = ['count' => 0, 'start' => $now];
+    if (file_exists($ip_limit_file)) {
+        $ip_limit_data = json_decode(file_get_contents($ip_limit_file), true) ?: $ip_limit_data;
+        if (($now - $ip_limit_data['start']) > 3600) {
+            $ip_limit_data = ['count' => 0, 'start' => $now];
+        }
+    }
+    $ip_limit_data['count']++;
+    file_put_contents($ip_limit_file, json_encode($ip_limit_data));
+    if ($ip_limit_data['count'] > 10) {
+        $_SESSION['booking_message'] = ['text' => 'Too many booking attempts from your IP address. Please try again later.', 'type' => 'error'];
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+
+    // 3. CAPTCHA verification (Google reCAPTCHA v2) - only on booking form submit
+    if (isset($_POST['g-recaptcha-response'])) {
+        $recaptcha_secret = '6Lf6LZorAAAAAO1xgJwqyB-MZpY9P-tJ7z1qtzGV'; // <-- Replace with your actual secret key
+        $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
+        $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
+        $recaptcha = file_get_contents($recaptcha_url . '?secret=' . urlencode($recaptcha_secret) . '&response=' . urlencode($recaptcha_response) . '&remoteip=' . urlencode($ip));
+        $recaptcha = json_decode($recaptcha, true);
+        if (empty($recaptcha['success'])) {
+            $_SESSION['booking_message'] = ['text' => 'CAPTCHA verification failed. Please try again.', 'type' => 'error'];
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    }
+
+    // After all checks, update session rate limit timestamp
+    $_SESSION['booking_rate_limit'][$userKey] = $now;
+
+    // --- Load Testing Instructions ---
+    // To conduct load testing, use tools like Apache JMeter, Locust, or Artillery to simulate high booking request volumes.
+    // Ensure the above protections (rate limiting, CAPTCHA, IP block) are triggered under attack scenarios.
+    // Monitor server CPU, memory, and response times during the test.
+
     // Validate CSRF token
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $_SESSION['booking_message'] = ['text' => 'Invalid CSRF token.', 'type' => 'error'];
@@ -235,6 +306,7 @@ header(header: "Pragma: no-cache");
             <?php echo isset($booking_message) ? htmlspecialchars($booking_message['text']) : ''; ?>
         </div>
         <form id="booking-form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+            
             <input type="hidden" name="action" value="submit_booking">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <input type="hidden" name="vehicle_type" id="vehicle-type" value="<?php echo htmlspecialchars($form_data['vehicle_type'] ?? ''); ?>">
@@ -505,6 +577,104 @@ header(header: "Pragma: no-cache");
                 </a>
             </div>
         </section>
+    </div>
+
+<footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Address Section -->
+                <div class="footer-section">
+                    <h3>Address</h3>
+                    <div class="address-info">
+                        <div class="address-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Angunukolapelessa, Sri Lanka</span>
+                        </div>
+                        <div class="address-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+94 71 530 3131</span>
+                        </div>
+                        <div class="address-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>thisaramobile@gmail.com</span>
+                        </div>
+                    </div>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Opening Hours Section -->
+                <div class="footer-section">
+                    <h3>Opening Hours</h3>
+                    <div class="hours-info">
+                        <div class="hours-block">
+                            <h4>Monday - Friday:</h4>
+                            <p>06:00 AM - 12:00 PM</p>
+                        </div>
+                        <div class="hours-block">
+                            <h4>Saturday - Sunday:</h4>
+                            <p>06:00 AM - 11:00 PM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services Section -->
+                <div class="footer-section">
+                    <h3>Services</h3>
+                    <ul class="services-list">
+                        <li>Wide Vehicle Range</li>
+                        <li>Online Booking</li>
+                        <li>Flexible Pickup/Drop-Off Locations</li>
+                        <li>Transparent Pricing</li>
+                        <li>Bar Tours</li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter Section -->
+                <div class="footer-section">
+                    <h3>Newsletter</h3>
+                    <div class="newsletter-section">
+                        <p style="color: #ccc; margin-bottom: 15px;">Subscribe to get updates on special offers and new services!</p>
+                        <form class="newsletter-form" onsubmit="handleNewsletterSubmit(event)">
+                            <input type="email" class="newsletter-input" placeholder="Your email" required>
+                            <button type="submit" class="newsletter-btn">Sign Up</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <p>&copy; <a href="#">Thisara Travels & Tours</a>, All Rights Reserved. Designed By <a href="#">WebWizards</a></p>
+                <div class="footer-links">
+                    <a href="#">Home</a>
+                    <a href="#">Cookies</a>
+                    <a href="#">Help</a>
+                    <a href="#">FAQs</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Action Buttons -->
+    <a href="https://wa.me/94715303131" class="whatsapp-float" target="_blank" title="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <div class="scroll-top" onclick="scrollToTop()" title="Scroll to Top">
+        <i class="fas fa-arrow-up"></i>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -1211,6 +1381,34 @@ header(header: "Pragma: no-cache");
             }
         });
     }
+
+function handleNewsletterSubmit(event) {
+            event.preventDefault();
+            const email = event.target.querySelector('input[type="email"]').value;
+            alert(`Thank you for subscribing with email: ${email}`);
+            event.target.reset();
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 300) {
+                scrollTop.style.display = 'flex';
+            } else {
+                scrollTop.style.display = 'none';
+            }
+        });
+
+        // Hide scroll button initially
+        document.querySelector('.scroll-top').style.display = 'none';
+
     </script>
 </body>
 </html>
