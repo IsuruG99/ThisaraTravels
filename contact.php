@@ -51,8 +51,8 @@ if (isset($_SESSION['username'])) {
                         <i class="fab fa-whatsapp"></i>
                     </div>
                     <h3>WhatsApp</h3>
-                    <p>+94 71 530 3131<br>
-                    24/7 Customer Support</p>
+                    <a href="https://wa.me/+94702180024" target="_blank">+94 70 218 0024</a>
+                    <p>24/7 Customer Support</p>
                 </div>
             </div>
         </div>
@@ -142,7 +142,7 @@ if (isset($_SESSION['username'])) {
             <p class="map-description">Our office is easily accessible and we're always ready to welcome you for personalized travel planning.</p>
             
             <div class="google-map-container">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14364.706530308164!2d80.53918361663818!3d5.942341588542237!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae1392985f6c5b5%3A0xe4b95b6411013edf!2sMatara%20Beach!5e1!3m2!1sen!2slk!4v1753112204630!5m2!1sen!2slk" 
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15866.142449529694!2d80.89038725283719!3d6.1928311183944125!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae6add6b8dfacdf%3A0xba45b0c26d01fbc4!2sBinkama!5e0!3m2!1sen!2slk!4v1754490525572!5m2!1sen!2slk" 
                         width="100%" 
                         height="450" 
                         style="border:0;" 
