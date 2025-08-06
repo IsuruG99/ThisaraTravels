@@ -1,5 +1,8 @@
 <?php
 require 'auth-config.php';
+// Load PHPMailer
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 try {
     $db = getMongoDB();
@@ -37,6 +40,50 @@ try {
 } catch (Exception $e) {
     die("Database connection failed: " . $e->getMessage());
 }
+
+// NEW: Handle report submission using PHPMailer (only changed section)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
+   
+    $reviewId = htmlspecialchars($_POST['report_review_id']);
+    $reason = htmlspecialchars($_POST['report_reason']);
+    $reporter = isset($_SESSION['username']) ? $_SESSION['username'] : 'Anonymous';
+
+    $mail = new PHPMailer(true);
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = $_ENV['SMTP_USER'];
+        $mail->Password = $_ENV['SMTP_PASS'];
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+
+        // Recipients
+        $mail->setFrom($_ENV['SMTP_USER'], 'Thisara Travels & Tours');
+        $mail->addAddress($_ENV['SMTP_ADMIN']);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = "Review Report - " . $reviewId;
+        $mail->Body = "
+            <h3 style='color: #08625c; margin-bottom: 15px;'>New Review Report</h3>
+            <p><strong>Review ID:</strong> {$reviewId}</p>
+            <p><strong>Reason:</strong> {$reason}</p>
+            <p><strong>Reported by:</strong> {$reporter}</p>
+            <p style='margin-top: 20px; color: #666;'>
+                Please investigate this reported review as soon as possible.
+            </p>
+        ";
+
+        $mail->send();
+        $_SESSION['report_success'] = true;
+    } catch (Exception $e) {
+        $_SESSION['report_error'] = "Report could not be sent. Error: {$mail->ErrorInfo}";
+    }
+    header("Location: testimonial.php");
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -57,49 +104,6 @@ try {
 </head>
 
 <body>
-    <!-- Navbar -->
-    <!-- <header>
-        <nav class="navbar navbar-expand-lg navbar-dark custom-navbar py-2">
-            <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center" href="index.php">
-                    <img src="img/Logo.png" alt="Logo" class="logo-img me-2" style="height:32px;">
-                    <span class="fw-bold">Thisara Travels & Tours</span>
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
-                        <li class="nav-item"><a class="nav-link" href="service.php">Services</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle active" href="#" id="pagesDropdown" role="button"
-                                data-bs-toggle="dropdown">Pages</a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="booking.php">Booking</a></li>
-                                <li><a class="dropdown-item active" href="testimonial.php">Testimonial</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
-                        <li class="navbar-login-item ms-2">
-                            <?php
-                            if (!isset($_SESSION['username'])) {
-                                echo '<a href="auth.php" class="navbar-login-button"><img src="img/user.png" alt="Login" class="navbar-login-icon rounded-circle" style="width:32px;height:32px;"></a>';
-                            } else {
-                                $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
-                                $user_role = $_SESSION['role'] ?? 'user';
-                                $redirect_url = ($user_role === 'admin') ? 'Admin%20panel/adIndex.php' : 'profile-page.php';
-                                echo '<a href="' . $redirect_url . '" class="navbar-profile-button"><img src="' . $profile_image . '" alt="Profile" class="navbar-profile-icon rounded-circle" style="width:32px;height:32px;"></a>';
-                            }
-                            ?>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header> -->
-
     <!-- Header Start -->
     <?php
         $currentPage = 'review'; 
@@ -107,6 +111,26 @@ try {
     ?>
     <!-- Header End -->
 
+    <!-- NEW: Report Success Alert -->
+    <?php if (isset($_SESSION['report_success'])): ?>
+        <div class="container mt-3">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                Thank you for reporting this review. We'll investigate it shortly.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <?php unset($_SESSION['report_success']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['report_error'])): ?>
+        <div class="container mt-3">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= $_SESSION['report_error'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <?php unset($_SESSION['report_error']); ?>
+    <?php endif; ?>
 
     <div class="hero-section text-center">
         <div class="container">
@@ -160,12 +184,11 @@ try {
                     <span class="star<?= $i <= round(num: $avgRating) ? ' filled' : '' ?>">&#9733;</span>
                 <?php endfor; ?>
                 <span class="ms-2">(<?= $avgRating ?> out of 5 from <?= $starCount ?> reviews)</span>
-
             </div>
         </div>
     <?php endif; ?>
 
-    <!-- Testimonials -->
+    <!-- Testimonials Section -->
     <div class="container">
         <div class="row justify-content-center">
             <?php foreach ($documents as $doc):
@@ -195,10 +218,50 @@ try {
                                 echo '<span class="star filled">&#9733;</span>'; ?>
                         </div>
                         <p class="review-comment">"<?= htmlspecialchars(string: $doc['comment']) ?>"</p>
-
+                        
+                        <!-- Report Button -->
+                        <button type="button" class=" btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" 
+                            data-review-id="<?= (string) $doc['_id'] ?>">
+                            <i class="fas fa-flag"></i> Report
+                        </button>
                     </div>
                 </div>
             <?php endforeach; ?>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">Report Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="">
+                    <div class="modal-body">
+                        <input type="hidden" name="report_review_id" id="report_review_id">
+                        <div class="mb-3">
+                            <label for="report_reason" class="form-label">Reason for reporting</label>
+                            <select class="form-select" name="report_reason" id="report_reason" required>
+                                <option value="" selected disabled>Select a reason</option>
+                                <option value="Inappropriate content">Inappropriate content</option>
+                                <option value="False information">False information</option>
+                                <option value="Spam or advertising">Spam or advertising</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="report_details" class="form-label">Additional details (optional)</label>
+                            <textarea class="form-control" name="report_details" id="report_details" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="report_review" class="btn btn-danger">Submit Report</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -210,11 +273,9 @@ try {
                 <form action="submit_review.php" method="POST" class="p-4">
                     <input type="hidden" name="userId" value="<?= $_SESSION['user_id'] ?>">
 
-                    <!-- Hidden fields for actual submission -->
                     <input type="hidden" name="vehicleType" id="vehicleType">
                     <input type="hidden" name="vehicleName" id="vehicleName">
 
-                    <!-- Booking Selection -->
                     <div class="mb-3">
                         <label for="orderId" class="form-label">Booking</label>
                         <select name="orderId" id="orderId" class="form-select" required
@@ -249,19 +310,16 @@ try {
                         </select>
                     </div>
 
-                    <!-- Vehicle Display (readonly) -->
                     <div class="mb-3">
                         <label for="vehicleDisplay" class="form-label">Vehicle</label>
                         <input type="text" id="vehicleDisplay" class="form-control" readonly>
                     </div>
 
-                    <!-- Date Range (autofilled from booking) -->
                     <div class="mb-3">
                         <label class="form-label">Booking Dates</label>
                         <input type="text" id="dateRange" class="form-control" readonly>
                     </div>
 
-                    <!-- Rating -->
                     <div class="mb-3 text-center">
                         <label class="form-label d-block">Rating</label>
                         <div class="rating">
@@ -272,7 +330,6 @@ try {
                         </div>
                     </div>
 
-                    <!-- Comment -->
                     <div class="mb-3">
                         <label for="comment" class="form-label">Comment</label>
                         <textarea name="comment" id="comment" rows="4" class="form-control" required></textarea>
@@ -299,21 +356,33 @@ try {
             </div>
         </div>
     <?php endif; ?>
-    <?php include 'components/footer.php'; ?>
-    <script>
-                    function fillVehicleDetails(select) {
-                        const selectedOption = select.options[select.selectedIndex];
-                        if (selectedOption && selectedOption.dataset.vehicle) {
-                            // Split the vehicle data into type and name
-                            const vehicleParts = selectedOption.dataset.vehicle.split(' - ');
-                            document.getElementById('vehicleType').value = vehicleParts[0] || '';
-                            document.getElementById('vehicleName').value = vehicleParts[1] || '';
-                            document.getElementById('vehicleDisplay').value = selectedOption.dataset.vehicle;
-                            document.getElementById('dateRange').value = selectedOption.dataset.dates;
-                        }
-                    }
-                </script>
 
+    <?php include 'components/footer.php'; ?>
+
+    <script>
+        function fillVehicleDetails(select) {
+            const selectedOption = select.options[select.selectedIndex];
+            if (selectedOption && selectedOption.dataset.vehicle) {
+                const vehicleParts = selectedOption.dataset.vehicle.split(' - ');
+                document.getElementById('vehicleType').value = vehicleParts[0] || '';
+                document.getElementById('vehicleName').value = vehicleParts[1] || '';
+                document.getElementById('vehicleDisplay').value = selectedOption.dataset.vehicle;
+                document.getElementById('dateRange').value = selectedOption.dataset.dates;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var reportModal = document.getElementById('reportModal');
+            if (reportModal) {
+                reportModal.addEventListener('show.bs.modal', function(event) {
+                    var button = event.relatedTarget;
+                    var reviewId = button.getAttribute('data-review-id');
+                    var modalInput = reportModal.querySelector('#report_review_id');
+                    modalInput.value = reviewId;
+                });
+            }
+        });
+    </script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
