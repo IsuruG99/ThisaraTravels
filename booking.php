@@ -260,42 +260,12 @@ header(header: "Pragma: no-cache");
 </head>
 <body>
 
-    <!-- Header (Nav Bar) -->
-    <header class="header" role="banner">
-        <nav class="nav-container" aria-label="Main navigation">
-            <a href="index.php" class="logo" aria-label="Thisara Travels Home">
-                <i class="fas fa-car" aria-hidden="true"></i> Thisara Travels
-            </a>
-            <ul class="nav-links">
-                <li><a href="index.php" aria-label="Home"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
-                <li><a href="about.php" aria-label="About"><i class="fas fa-info-circle" aria-hidden="true"></i> About</a></li>
-                <li><a href="service.php" aria-label="Services"><i class="fas fa-concierge-bell" aria-hidden="true"></i> Services</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-file-alt" aria-hidden="true"></i> Page
-                        <i class="fas fa-chevron-down dropdown-icon" aria-hidden="true"></i>
-                    </a>
-                    <ul class="dropdown-menu" aria-label="Page submenu">
-                        <li><a href="testimonial.php" aria-label="Reviews"><i class="fas fa-star" aria-hidden="true"></i> Reviews</a></li>
-                        <li><a href="booking.php" aria-label="Bookings"><i class="fas fa-calendar-check" aria-hidden="true"></i> Bookings</a></li>
-                    </ul>
-                </li>
-                <li><a href="contact.php" aria-label="Contact"><i class="fas fa-envelope" aria-hidden="true"></i> Contact</a></li>
-                <li>
-                    <?php
-                    if (!isset($_SESSION['username'])) {
-                        echo '<a href="auth.php" aria-label="Login"><i class="fas fa-user" aria-hidden="true"></i> Login</a>';
-                    } else {
-                        $profile_image = $_SESSION['profile_image'] ?? 'img/default-profile.png';
-                        $user_role = $_SESSION['role'] ?? 'user';
-                        $redirect_url = ($user_role === 'admin') ? 'Admin%20panel/adIndex.php' : 'profile-page.php';
-                        echo '<a href="' . $redirect_url . '" aria-label="User Profile"><i class="fas fa-user" aria-hidden="true"></i> Profile</a>';
-                    }
-                    ?>
-                </li>
-            </ul>
-        </nav>
-    </header>
+        <!-- import header/navbar section -->
+        <?php
+            $currentPage = 'booking'; 
+            include 'components/header.php'; 
+        ?>
+        
 
     <!-- Booking Modal -->
     <div id="booking-modal-overlay" class="booking-modal-overlay" role="presentation"></div>
@@ -578,11 +548,18 @@ header(header: "Pragma: no-cache");
             </div>
         </section>
     </div>
+    
 
-<footer class="footer">
+    <!-- Import the footer section -->
+    <?php 
+        include 'components/footer.php'; 
+    ?>
+
+
+    <!-- <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <!-- Address Section -->
+                
                 <div class="footer-section">
                     <h3>Address</h3>
                     <div class="address-info">
@@ -615,7 +592,7 @@ header(header: "Pragma: no-cache");
                     </div>
                 </div>
 
-                <!-- Opening Hours Section -->
+                
                 <div class="footer-section">
                     <h3>Opening Hours</h3>
                     <div class="hours-info">
@@ -630,7 +607,7 @@ header(header: "Pragma: no-cache");
                     </div>
                 </div>
 
-                <!-- Services Section -->
+                
                 <div class="footer-section">
                     <h3>Services</h3>
                     <ul class="services-list">
@@ -642,7 +619,7 @@ header(header: "Pragma: no-cache");
                     </ul>
                 </div>
 
-                <!-- Newsletter Section -->
+                
                 <div class="footer-section">
                     <h3>Newsletter</h3>
                     <div class="newsletter-section">
@@ -655,7 +632,7 @@ header(header: "Pragma: no-cache");
                 </div>
             </div>
 
-            <!-- Footer Bottom -->
+            
             <div class="footer-bottom">
                 <p>&copy; <a href="#">Thisara Travels & Tours</a>, All Rights Reserved. Designed By <a href="#">WebWizards</a></p>
                 <div class="footer-links">
@@ -666,7 +643,7 @@ header(header: "Pragma: no-cache");
                 </div>
             </div>
         </div>
-    </footer>
+    </footer> -->
 
     <!-- Floating Action Buttons -->
     <a href="https://wa.me/94715303131" class="whatsapp-float" target="_blank" title="Chat on WhatsApp">
