@@ -198,8 +198,8 @@ form .form-select {
 }
 
 .btn-report:hover {
-    background-color: rgba(236, 13, 13, 0.15);
-    color: #ff5252;
+    background-color:  #ec0d0d;
+    color: #fff;
     box-shadow: 0 3px 6px rgba(0,0,0,0.15);
 }
 
