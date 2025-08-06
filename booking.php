@@ -242,7 +242,7 @@ header(header: "Pragma: no-cache");
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css" rel="stylesheet">
-    <link rel="stylesheet" href="bookingstyle.css">
+    <link rel="stylesheet" href="css/bookingstyle.css">
     <style>
         .star-rating {
             display: flex;
