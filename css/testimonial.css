@@ -96,6 +96,7 @@ body {
     text-align: center;
     border: 1px solid #1aa193;
     height: 100%;
+    position: relative; /* NEW: Added for report button positioning */
 }
 
 .review-avatar {
@@ -180,4 +181,49 @@ form .form-select {
 .btn-success {
     background-color: #1c4b4b;
     border-color: #1c4b4b;
+}
+
+/* NEW: Report button styles */
+.btn-report {
+    background-color: transparent;
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.8rem;
+    margin-top: 10px;
+    transition: all 0.3s;
+}
+
+.btn-report:hover {
+    background-color: rgba(255, 107, 107, 0.1);
+    color: #ff5252;
+}
+
+.btn-report i {
+    margin-right: 5px;
+}
+
+/* NEW: Report modal styles */
+.modal-content {
+    background: linear-gradient(to bottom, #0d4f4b, #128377);
+    border: 1px solid #1aa193;
+    color: #fff;
+}
+
+.modal-header {
+    border-bottom: 1px solid #1aa193;
+}
+
+.modal-footer {
+    border-top: 1px solid #1aa193;
+}
+
+.btn-danger {
+    background-color: #d63031;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
 }
