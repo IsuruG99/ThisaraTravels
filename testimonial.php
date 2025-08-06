@@ -41,7 +41,7 @@ try {
 // NEW: Handle report submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     // Replace this email with your actual email address
-    $to = "chillehasindu123@gmail.com"; 
+    $to = "isuru9917@gmail.com"; 
     $subject = "Review Report - " . htmlspecialchars($_POST['report_review_id']);
     $message = "A review has been reported:\n\n";
     $message .= "Review ID: " . htmlspecialchars($_POST['report_review_id']) . "\n";
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     $headers .= "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 
-    // Send email (commented out for safety - uncomment when email is configured)
+    // Send email 
     mail($to, $subject, $message, $headers);
     
     // Show success message
