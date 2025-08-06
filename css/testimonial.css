@@ -185,7 +185,7 @@ form .form-select {
 
 /* NEW: Report button styles */
 .btn-report {
-    background-color: transparent;
+    background-color: rgba(236, 13, 13, 0.1);
     color: #ec0d0d;
     border: 1px solid #ec0d0d;
     border-radius: 50px;
