@@ -185,7 +185,7 @@ form .form-select {
 
 /* NEW: Report button styles */
 .btn-report {
-    background-color: rgba(236, 13, 13, 0.1);
+    background-color: rgba(139, 14, 14, 0.1);
     color: #ec0d0d;
     border: 1px solid #ec0d0d;
     border-radius: 50px;
@@ -194,13 +194,13 @@ form .form-select {
     margin-top: 10px;
     transition: all 0.3s ease;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    
 }
 
 .btn-report:hover {
     background-color:  #ec0d0d;
     color: #fff;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+   
 }
 
 .btn-report i {

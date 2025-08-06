@@ -1,7 +1,7 @@
 <?php
 require 'auth-config.php';
 // Load PHPMailer
-use  PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 try {
@@ -43,10 +43,7 @@ try {
 
 // NEW: Handle report submission using PHPMailer (only changed section)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
-    
-
-    require 'vendor/autoload.php';
-
+   
     $reviewId = htmlspecialchars($_POST['report_review_id']);
     $reason = htmlspecialchars($_POST['report_reason']);
     $reporter = isset($_SESSION['username']) ? $_SESSION['username'] : 'Anonymous';
@@ -57,14 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'isuru9917@gmail.com';
+        $mail->Username = $_ENV['SMTP_USER'];
         $mail->Password = $_ENV['SMTP_PASS'];
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
         // Recipients
-        $mail->setFrom('isuru9917@gmail.com', 'Thisara Travels & Tours');
-        $mail->addAddress('isuru9917@gmail.com');
+        $mail->setFrom($_ENV['SMTP_USER'], 'Thisara Travels & Tours');
+        $mail->addAddress($_ENV['SMTP_ADMIN']);
 
         // Content
         $mail->isHTML(true);
@@ -223,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         <p class="review-comment">"<?= htmlspecialchars(string: $doc['comment']) ?>"</p>
                         
                         <!-- Report Button -->
-                        <button type="button" class="btn btn-sm btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" 
+                        <button type="button" class=" btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" 
                             data-review-id="<?= (string) $doc['_id'] ?>">
                             <i class="fas fa-flag"></i> Report
                         </button>
