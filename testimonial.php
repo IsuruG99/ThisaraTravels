@@ -184,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         <p class="review-comment">"<?= htmlspecialchars(string: $doc['comment']) ?>"</p>
                         
                         <!-- NEW: Report Button -->
-                        <button type="button" class="btn btn-sm btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" 
+                        <button type="button" class="btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" 
                             data-review-id="<?= (string) $doc['_id'] ?>">
                             <i class="fas fa-flag"></i> Report
                         </button>
