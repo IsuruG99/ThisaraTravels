@@ -438,8 +438,8 @@ body {
         padding: 15px;
     }
 }
+/*floating animation part is here*/
 
-/* Floating Animation for Visual Interest */
 @keyframes floating {
     0% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
