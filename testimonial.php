@@ -41,7 +41,7 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
-// NEW: Handle report submission using PHPMailer (only changed section)
+// Handle report submission using PHPMailer
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
    
     $reviewId = htmlspecialchars($_POST['report_review_id']);
@@ -111,9 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     ?>
     <!-- Header End -->
 
-    <!-- NEW: Report Success Alert -->
+    <!-- Report Success Alert -->
     <?php if (isset($_SESSION['report_success'])): ?>
-        <div class="container mt-3">
+        <div class="container mt-3 floating-element">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 Thank you for reporting this review. We'll investigate it shortly.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     <?php endif; ?>
 
     <?php if (isset($_SESSION['report_error'])): ?>
-        <div class="container mt-3">
+        <div class="container mt-3 floating-element">
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <?= $_SESSION['report_error'] ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
         <?php unset($_SESSION['report_error']); ?>
     <?php endif; ?>
 
-    <div class="hero-section text-center">
+    <div class="hero-section text-center floating-element-wide">
         <div class="container">
             <h1>Testimonials</h1>
             <p>What our clients say about us</p>
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     </div>
 
     <!-- Vehicle Filter -->
-    <div class="container my-4">
+    <div class="container my-4 floating-element-slow">
         <div class="filter-form">
             <form method="GET" class="text-center">
                 <label for="vehicle">Filter by Vehicle Type:</label>
@@ -167,9 +167,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                     </option>
                 </select>
 
-                <button type="submit" class="btn btn-dark">Apply</button>
+                <button type="submit" class="btn btn-dark floating-element-fast">Apply</button>
                 <?php if (!empty($_GET['vehicle']) || !empty($_GET['stars'])): ?>
-                    <a href="testimonial.php" class="btn btn-outline-secondary ms-2">Clear Filters</a>
+                    <a href="testimonial.php" class="btn btn-outline-secondary ms-2 floating-element-fast">Clear Filters</a>
                 <?php endif; ?>
             </form>
         </div>
@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
 
     <!-- Average Rating Display -->
     <?php if ($starCount > 0): ?>
-        <div class="text-center mb-4">
+        <div class="text-center mb-4 floating-element">
             <h5 class="text-secondary">Average Rating:</h5>
             <div class="star-rating">
                 <?php for ($i = 1; $i <= 5; $i++): ?>
@@ -197,8 +197,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                 $userImage = $userId ? ($userData[$userId]['profileImage'] ?? 'img/profile-icon.png') : 'img/profile-icon.png';
             ?>
                 <div class="col-md-4 mb-4">
-                    <div class="review-card">
-                        <img src="<?= htmlspecialchars($userImage) ?>" alt="User" class="review-avatar">
+                    <div class="review-card floating-element">
+                        <img src="<?= htmlspecialchars($userImage) ?>" alt="User" class="review-avatar floating-element-slow">
                         <h5><?= htmlspecialchars($userName) ?></h5>
                         <p class="review-date">
                             <?php
@@ -215,12 +215,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         </p>
                         <div class="rating">
                             <?php for ($i = 0; $i < (int)$doc['starCount']; $i++)
-                                echo '<span class="star filled">&#9733;</span>'; ?>
+                                echo '<span class="star filled floating-element-fast">&#9733;</span>'; ?>
                         </div>
                         <p class="review-comment">"<?= htmlspecialchars($doc['comment']) ?>"</p>
                         
                         <!-- Report Button -->
-                        <button type="button" class="btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" 
+                        <button type="button" class="btn-report floating-element-fast" data-bs-toggle="modal" data-bs-target="#reportModal" 
                             data-review-id="<?= (string) $doc['_id'] ?>">
                             <i class="fas fa-flag"></i> Report
                         </button>
@@ -233,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     <!-- Report Modal -->
     <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content floating-element-slow">
                 <div class="modal-header">
                     <h5 class="modal-title" id="reportModalLabel">Report Review</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -243,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         <input type="hidden" name="report_review_id" id="report_review_id">
                         <div class="mb-3">
                             <label for="report_reason" class="form-label">Reason for reporting</label>
-                            <select class="form-select" name="report_reason" id="report_reason" required>
+                            <select class="form-select floating-element-fast" name="report_reason" id="report_reason" required>
                                 <option value="" selected disabled>Select a reason</option>
                                 <option value="Inappropriate content">Inappropriate content</option>
                                 <option value="False information">False information</option>
@@ -253,12 +253,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         </div>
                         <div class="mb-3">
                             <label for="report_details" class="form-label">Additional details (optional)</label>
-                            <textarea class="form-control" name="report_details" id="report_details" rows="3"></textarea>
+                            <textarea class="form-control floating-element-fast" name="report_details" id="report_details" rows="3"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" name="report_review" class="btn btn-danger">Submit Report</button>
+                        <button type="button" class="btn btn-secondary floating-element-fast" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="report_review" class="btn btn-danger floating-element-fast">Submit Report</button>
                     </div>
                 </form>
             </div>
@@ -267,7 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
 
     <!-- Post Review -->
     <?php if (isset($_SESSION['username'])): ?>
-        <div class="container my-5">
+        <div class="container my-5 floating-element">
             <div class="review-form-container">
                 <h4>Leave a Review</h4>
                 <form action="submit_review.php" method="POST" class="p-4">
@@ -278,7 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
 
                     <div class="mb-3">
                         <label for="orderId" class="form-label">Booking</label>
-                        <select name="orderId" id="orderId" class="form-select" required
+                        <select name="orderId" id="orderId" class="form-select floating-element-fast" required
                             onchange="fillVehicleDetails(this)">
                             <?php
                             try {
@@ -312,12 +312,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
 
                     <div class="mb-3">
                         <label for="vehicleDisplay" class="form-label">Vehicle</label>
-                        <input type="text" id="vehicleDisplay" class="form-control" readonly>
+                        <input type="text" id="vehicleDisplay" class="form-control floating-element-fast" readonly>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Booking Dates</label>
-                        <input type="text" id="dateRange" class="form-control" readonly>
+                        <input type="text" id="dateRange" class="form-control floating-element-fast" readonly>
                     </div>
 
                     <div class="mb-3 text-center">
@@ -325,39 +325,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         <div class="rating">
                             <?php for ($i = 5; $i >= 1; $i--): ?>
                                 <input type="radio" name="rating" id="star<?= $i ?>" value="<?= $i ?>" required>
-                                <label for="star<?= $i ?>">★</label>
+                                <label for="star<?= $i ?>" class="floating-element-fast">★</label>
                             <?php endfor; ?>
                         </div>
                     </div>
 
-                    <!--  Added MIC button -->
                     <div class="mb-3">
                         <label for="comment" class="form-label">Comment</label>
                         <div class="position-relative">
-                            <textarea name="comment" id="comment" rows="4" class="form-control" required 
+                            <textarea name="comment" id="comment" rows="4" class="form-control floating-element-fast" required 
                                       placeholder="Speak or type your review..."></textarea>
-                            <button type="button" onclick="startVoiceInput()" class="btn btn-sm position-absolute" 
+                            <button type="button" onclick="startVoiceInput()" class="btn btn-sm position-absolute floating-element-fast" 
                                     style="right: 5px; bottom: 5px; background: transparent; border: none; font-size: 1.2rem;">
                                 🎤
                             </button>
                         </div>
                         <p id="voiceStatus" class="small text-muted mt-1"></p>
                     </div>
-                    <!-- end of the MIC button -->
 
                     <div class="text-center">
-                        <button type="submit" class="btn btn-success px-4" <?= empty($userBookings) ? 'disabled' : '' ?>>Submit Review</button>
+                        <button type="submit" class="btn btn-success px-4 floating-element-fast" <?= empty($userBookings) ? 'disabled' : '' ?>>Submit Review</button>
                     </div>
                 </form>
             </div>
         </div>
     <?php else: ?>
-        <div class="container d-flex justify-content-center my-5">
-            <div class="card shadow-lg border-0"
+        <div class="container d-flex justify-content-center my-5 floating-element">
+            <div class="card shadow-lg border-0 floating-element-wide"
                 style="background: linear-gradient(90deg, #0d4f4b 0%, #128377 100%); color: #fff; border-radius: 18px; max-width: 400px;">
                 <div class="card-body text-center">
                     <div class="mb-3">
-                        <i class="fas fa-user-lock fa-2x" style="color:#e8f5f1;"></i>
+                        <i class="fas fa-user-lock fa-2x floating-element-slow" style="color:#e8f5f1;"></i>
                     </div>
                     <h5 class="card-title mb-2">Post a Review</h5>
                     <p class="card-text mb-3">Please <a href="auth.php"
@@ -405,7 +403,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
             };
         }
     </script>
-    <!-- end of VOICE-TO-TEXT functionalityy -->
 
     <script>
         function fillVehicleDetails(select) {
@@ -436,7 +433,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
-
-
