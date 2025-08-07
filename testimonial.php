@@ -330,7 +330,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         </div>
                     </div>
 
-                    <!-- START OF MODIFIED COMMENT TEXTAREA - Added voice input button -->
+                    <!--  Added MIC button -->
                     <div class="mb-3">
                         <label for="comment" class="form-label">Comment</label>
                         <div class="position-relative">
@@ -343,7 +343,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         </div>
                         <p id="voiceStatus" class="small text-muted mt-1"></p>
                     </div>
-                    <!-- END OF MODIFIED COMMENT TEXTAREA -->
+                    <!-- end of the MIC button -->
 
                     <div class="text-center">
                         <button type="submit" class="btn btn-success px-4" <?= empty($userBookings) ? 'disabled' : '' ?>>Submit Review</button>
@@ -369,12 +369,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
 
     <?php include 'components/footer.php'; ?>
 
-    <!-- START OF ADDED VOICE-TO-TEXT FUNCTIONALITY -->
+    <!-- VOICE-TO-TEXT functionality-->
     <script>
         // Voice-to-text function for review input
         function startVoiceInput() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
+            if (!SpeechRecognition) {()
                 document.getElementById("voiceStatus").innerText = "Voice input not supported in your browser";
                 return;
             }
@@ -405,7 +405,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
             };
         }
     </script>
-    <!-- END OF ADDED VOICE-TO-TEXT FUNCTIONALITY -->
+    <!-- end of VOICE-TO-TEXT functionalityy -->
 
     <script>
         function fillVehicleDetails(select) {
@@ -436,3 +436,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
+
+    <!-- end of VOICE-TO-TEXT functionalityy -->
