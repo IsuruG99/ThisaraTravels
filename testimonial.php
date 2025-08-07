@@ -191,42 +191,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     <!-- Testimonials Section -->
     <div class="container">
         <div class="row justify-content-center">
-            <?php foreach ($documents as $doc):
+            <?php foreach ($documents as $doc) {
                 $userId = isset($doc['userId']) ? (string) $doc['userId'] : null;
                 $userName = $userId ? ($userData[$userId]['userName'] ?? 'Unknown User') : 'Unknown User';
                 $userImage = $userId ? ($userData[$userId]['profileImage'] ?? 'img/profile-icon.png') : 'img/profile-icon.png';
-                ?>
+            ?>
                 <div class="col-md-4 mb-4">
                     <div class="review-card">
-                        <img src="<?= htmlspecialchars(string: $userImage) ?>" alt="User" class="review-avatar">
-                        <h5><?= htmlspecialchars(string: $userName) ?></h5>
+                        <img src="<?= htmlspecialchars($userImage) ?>" alt="User" class="review-avatar">
+                        <h5><?= htmlspecialchars($userName) ?></h5>
                         <p class="review-date">
                             <?php
                             if ($doc['date'] instanceof MongoDB\BSON\UTCDateTime) {
-                                echo htmlspecialchars(string: $doc['date']->toDateTime()->format('Y-m-d h:i A'));
+                                echo htmlspecialchars($doc['date']->toDateTime()->format('Y-m-d h:i A'));
                             } else {
-                                echo htmlspecialchars(string: $doc['date']);
+                                echo htmlspecialchars($doc['date']);
                             }
                             ?>
                         </p>
                         <p class="vehicle-info">
-                            <strong><?= htmlspecialchars(string: $doc['vehicleName'] ?? 'N/A') ?></strong>
-                            (<?= htmlspecialchars(string: $doc['vehicleType'] ?? 'N/A') ?>)
+                            <strong><?= htmlspecialchars($doc['vehicleName'] ?? 'N/A') ?></strong>
+                            (<?= htmlspecialchars($doc['vehicleType'] ?? 'N/A') ?>)
                         </p>
                         <div class="rating">
-                            <?php for ($i = 0; $i < $doc['starCount']; $i++)
+                            <?php for ($i = 0; $i < (int)$doc['starCount']; $i++)
                                 echo '<span class="star filled">&#9733;</span>'; ?>
                         </div>
-                        <p class="review-comment">"<?= htmlspecialchars(string: $doc['comment']) ?>"</p>
+                        <p class="review-comment">"<?= htmlspecialchars($doc['comment']) ?>"</p>
                         
                         <!-- Report Button -->
-                        <button type="button" class=" btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" 
+                        <button type="button" class="btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" 
                             data-review-id="<?= (string) $doc['_id'] ?>">
                             <i class="fas fa-flag"></i> Report
                         </button>
                     </div>
                 </div>
-            <?php endforeach; ?>
+            <?php } ?>
         </div>
     </div>
 
@@ -330,10 +330,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         </div>
                     </div>
 
+                    <!-- START OF MODIFIED COMMENT TEXTAREA - Added voice input button -->
                     <div class="mb-3">
                         <label for="comment" class="form-label">Comment</label>
-                        <textarea name="comment" id="comment" rows="4" class="form-control" required></textarea>
+                        <div class="position-relative">
+                            <textarea name="comment" id="comment" rows="4" class="form-control" required 
+                                      placeholder="Speak or type your review..."></textarea>
+                            <button type="button" onclick="startVoiceInput()" class="btn btn-sm position-absolute" 
+                                    style="right: 5px; bottom: 5px; background: transparent; border: none; font-size: 1.2rem;">
+                                🎤
+                            </button>
+                        </div>
+                        <p id="voiceStatus" class="small text-muted mt-1"></p>
                     </div>
+                    <!-- END OF MODIFIED COMMENT TEXTAREA -->
 
                     <div class="text-center">
                         <button type="submit" class="btn btn-success px-4" <?= empty($userBookings) ? 'disabled' : '' ?>>Submit Review</button>
@@ -358,6 +368,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     <?php endif; ?>
 
     <?php include 'components/footer.php'; ?>
+
+    <!-- START OF ADDED VOICE-TO-TEXT FUNCTIONALITY -->
+    <script>
+        // Voice-to-text function for review input
+        function startVoiceInput() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                document.getElementById("voiceStatus").innerText = "Voice input not supported in your browser";
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            document.getElementById("voiceStatus").innerText = "Listening... Speak now";
+
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById("comment").value = transcript;
+                document.getElementById("voiceStatus").innerText = "Voice captured";
+            };
+
+            recognition.onerror = function(event) {
+                document.getElementById("voiceStatus").innerText = "Error: " + event.error;
+            };
+
+            recognition.onend = function() {
+                if (!document.getElementById("comment").value) {
+                    document.getElementById("voiceStatus").innerText = "Try speaking again";
+                }
+            };
+        }
+    </script>
+    <!-- END OF ADDED VOICE-TO-TEXT FUNCTIONALITY -->
 
     <script>
         function fillVehicleDetails(select) {
