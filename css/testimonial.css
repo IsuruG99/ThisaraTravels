@@ -1,110 +1,141 @@
+/* Animated Background */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 body {
     font-family: 'Roboto', sans-serif;
-    background: linear-gradient(to bottom, #0b3d3b, #064848);
+    background: linear-gradient(-45deg, #0b3d3b, #064848, #0a5d4a, #128377);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
     color: #fff;
     margin: 0;
     padding: 0;
+    min-height: 100vh;
 }
 
-.custom-navbar {
-    background-color: #0a3b3b !important;
+/* Entrance Animations */
+@keyframes slideDown {
+    from { transform: translateY(-100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
 
 .hero-section {
-    background: linear-gradient(90deg, #0d4f4b 0%, #128377 100%);
+    animation: slideDown 0.8s ease-out forwards;
+}
+
+.review-card:nth-child(odd) {
+    animation: slideInLeft 0.8s ease-out forwards;
+    animation-delay: 0.3s;
+}
+
+.review-card:nth-child(even) {
+    animation: slideInRight 0.8s ease-out forwards;
+    animation-delay: 0.3s;
+}
+
+/* Updated Component Styles */
+.custom-navbar {
+    background-color: rgba(10, 59, 59, 0.85) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-section {
+    background: rgba(13, 79, 75, 0.7);
+    backdrop-filter: blur(8px);
     padding: 30px 0 !important;
     color: #fff;
     border-radius: 18px;
     box-shadow: 0 4px 24px rgba(16, 76, 72, 0.18);
-    margin-bottom: 32px;
+    margin: 32px auto;
     position: relative;
     overflow: hidden;
-}
-
-.hero-section .container {
-    position: relative;
-    z-index: 2;
-}
-
-.hero-section::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.18;
-    background-image: url('img/01 (1).jpg');
-    background-size: cover;
-    background-position: center;
-    z-index: 1;
-    border-radius: 18px;
+    border: 1px solid rgba(26, 161, 147, 0.3);
+    max-width: 95%;
 }
 
 .hero-section h1 {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     font-weight: 700;
     letter-spacing: 1px;
     margin-bottom: 0.5rem;
     color: #fff;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.hero-section p {
-    font-size: 1.15rem;
-    color: #e8f5f1;
-    opacity: 0.85;
-    margin-bottom: 0;
+.filter-form {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px auto;
+    max-width: 800px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.container h1,
-.container h4,
-.container h5,
-.container p,
-.review-card h5,
-.review-card p {
-    color: #fff;
-}
-
-.filter-form label,
-.filter-form select,
-.filter-form button {
-    color: #fff;
+.filter-form label {
+    font-weight: 500;
+    color: #e8f5f1 !important;
 }
 
 .filter-form .form-select {
-    background-color: #e8f5f1;
+    background-color: rgba(232, 245, 241, 0.9);
     border: none;
     color: #333;
+    margin: 0 10px;
 }
 
 .filter-form button.btn-dark {
-    background-color: #08625c;
+    background-color: #1aa193;
     color: #fff;
     border: none;
+    transition: all 0.3s ease;
 }
 
 .filter-form button.btn-dark:hover {
-    background-color: #064f4a;
+    background-color: #128377;
+    transform: translateY(-2px);
 }
 
 .review-card {
-    background: linear-gradient(to right, #0d4f4b, #128377);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
     border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     text-align: center;
-    border: 1px solid #1aa193;
+    border: 1px solid rgba(26, 161, 147, 0.3);
     height: 100%;
-    position: relative; /* NEW: Added for report button positioning */
+    transition: all 0.3s ease;
+    opacity: 0; /* Initial state for animation */
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(26, 161, 147, 0.6);
 }
 
 .review-avatar {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
-    margin-bottom: 10px;
-    border: 2px solid #fff;
+    margin-bottom: 15px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
 }
 
 .review-date {
@@ -115,119 +146,101 @@ body {
 
 .review-comment {
     font-style: italic;
-    margin: 15px 0;
+    margin: 20px 0;
     color: #fff;
+    line-height: 1.6;
+}
+
+.star-rating {
+    font-size: 24px;
+    color: gold;
+    margin-bottom: 15px;
 }
 
 .star {
-    color: #ccc;
-    font-size: 18px;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 20px;
+    transition: all 0.3s ease;
 }
 
 .star.filled {
     color: gold;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
 }
 
-.star-rating {
-    font-size: 22px;
-    color: gold;
-    margin-bottom: 10px;
-}
-
-.btn-success {
-    background-color: #0a5d4a;
-    border: none;
-}
-
-.btn-success:hover {
-    background-color: #064939;
-}
-
-.bg-light {
-    background-color: #e8f5f1 !important;
-    color: #000 !important;
-}
-
-form label {
-    color: #fff;
-}
-
-form .form-control,
-form .form-select {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 8px;
-}
-
-/* Optional: Restore header font size */
-.custom-page-title,/*title*/
-.container h1 {
-    font-size: 2.5rem !important;
-    /* Or your previous value */
-}
-/*check*/
-/* Restore hero-section padding if needed */
-
-.hero-section {
-    padding: 30px 0 !important;
-    /* Or your previous value */
-    min-height: unset !important;
-    color: #fff;
-}
-.container {
-    max-width: 1200px;
-}
-
-.btn-success {
-    background-color: #1c4b4b;
-    border-color: #1c4b4b;
-}
-
-/* NEW: Report button styles */
+/* Report Button Styles */
 .btn-report {
-    background-color: rgba(139, 14, 14, 0.1);
-    color: #ec0d0d;
-    border: 1px solid #ec0d0d;
+    background-color: rgba(236, 13, 13, 0.1);
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
     border-radius: 50px;
-    padding: 5px 12px;
+    padding: 6px 15px;
     font-size: 0.85rem;
-    margin-top: 10px;
+    margin-top: 15px;
     transition: all 0.3s ease;
-    cursor: pointer;
-    
 }
 
 .btn-report:hover {
-    background-color:  #ec0d0d;
+    background-color: rgba(236, 13, 13, 0.3);
     color: #fff;
-   
+    transform: translateY(-2px);
 }
 
-.btn-report i {
-    margin-right: 6px;
-    color: inherit;
-}
-
-/* NEW: Report modal styles */
+/* Modal Styles */
 .modal-content {
-    background: linear-gradient(to bottom, #0d4f4b, #128377);
-    border: 1px solid #1aa193;
+    background: rgba(13, 79, 75, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(26, 161, 147, 0.5);
     color: #fff;
 }
 
 .modal-header {
-    border-bottom: 1px solid #1aa193;
+    border-bottom: 1px solid rgba(26, 161, 147, 0.3);
 }
 
 .modal-footer {
-    border-top: 1px solid #1aa193;
+    border-top: 1px solid rgba(26, 161, 147, 0.3);
 }
 
-.btn-danger {
-    background-color: #d63031;
+/* Form Styles */
+.review-form-container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border-radius: 15px;
+    padding: 30px;
+    border: 1px solid rgba(26, 161, 147, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.2rem;
+    }
+    
+    .filter-form {
+        padding: 15px;
+    }
+    
+    .review-card {
+        padding: 20px;
+    }
+}
+
+/* Voice Input Button */
+.btn-voice {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    background: transparent;
     border: none;
+    font-size: 1.3rem;
+    color: #1aa193;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.btn-danger:hover {
-    background-color: #c0392b;
+.btn-voice:hover {
+    color: #fff;
+    transform: scale(1.1);
 }
