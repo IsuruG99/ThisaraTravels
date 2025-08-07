@@ -374,7 +374,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
         // Voice-to-text function for review input
         function startVoiceInput() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {()
+            if (!SpeechRecognition) {
                 document.getElementById("voiceStatus").innerText = "Voice input not supported in your browser";
                 return;
             }
@@ -439,78 +439,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
 
 
 
-    <!-- end of VOICE-TO-TEXT functionalityy -->
 
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
-
-    <!-- end of VOICE-TO-TEXT functionalityy -->
