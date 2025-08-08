@@ -2,7 +2,8 @@
 require '../auth-config.php';
 
 // Function to check for booking conflicts
-function checkBookingConflicts($vehicleType, $pickupDate, $dropoffDate, $excludeBookingId = null) {
+function checkBookingConflicts($vehicleType, $pickupDate, $dropoffDate, $excludeBookingId = null): array
+{
     $conflicts = [];
     $query = [
         'vehicle_type' => $vehicleType,
@@ -14,28 +15,29 @@ function checkBookingConflicts($vehicleType, $pickupDate, $dropoffDate, $exclude
             ]
         ]
     ];
-    
+
     // Exclude current booking if updating
     if ($excludeBookingId) {
         $query['_id'] = ['$ne' => new MongoDB\BSON\ObjectId($excludeBookingId)];
     }
-    
-    $conflictingBookings = getBookingsCollection()->find($query);
+
+    $conflictingBookings = getBookingsCollection()->find(filter: $query);
     foreach ($conflictingBookings as $booking) {
         $conflicts[] = [
-            'id' => (string)$booking['_id'],
+            'id' => (string) $booking['_id'],
             'name' => $booking['name'] ?? 'Unknown',
             'pickup_date' => $booking['pickup_date'],
             'dropoff_date' => $booking['dropoff_date'],
             'status' => $booking['status'] ?? 'pending'
         ];
     }
-    
+
     return $conflicts;
 }
 
 // Function to auto-deny conflicting bookings
-function autoDenyConflictingBookings($vehicleType, $pickupDate, $dropoffDate, $acceptedBookingId) {
+function autoDenyConflictingBookings($vehicleType, $pickupDate, $dropoffDate, $acceptedBookingId): int|null
+{
     $query = [
         'vehicle_type' => $vehicleType,
         'status' => 'pending', // Only auto-deny pending bookings
@@ -47,12 +49,12 @@ function autoDenyConflictingBookings($vehicleType, $pickupDate, $dropoffDate, $a
             ]
         ]
     ];
-    
+
     $result = getBookingsCollection()->updateMany(
-        $query,
-        ['$set' => ['status' => 'denied', 'denied_reason' => 'Auto-denied due to conflicting accepted booking']]
+        filter: $query,
+        update: ['$set' => ['status' => 'denied', 'denied_reason' => 'Auto-denied due to conflicting accepted booking']]
     );
-    
+
     return $result->getModifiedCount();
 }
 
@@ -61,27 +63,27 @@ if (isset($_GET['action'], $_GET['id'])) {
     $action = $_GET['action'];
     $bookingId = $_GET['id'];
     $newStatus = ($action === 'accept') ? 'accepted' : (($action === 'deny') ? 'denied' : (($action === 'pending') ? 'pending' : null));
-    
+
     if ($newStatus) {
         // If accepting a booking, check for conflicts and auto-deny them
         if ($newStatus === 'accepted') {
-            $booking = getBookingsCollection()->findOne(['_id' => new MongoDB\BSON\ObjectId($bookingId)]);
+            $booking = getBookingsCollection()->findOne(filter: ['_id' => new MongoDB\BSON\ObjectId($bookingId)]);
             if ($booking) {
                 $conflicts = checkBookingConflicts(
-                    $booking['vehicle_type'],
-                    $booking['pickup_date'],
-                    $booking['dropoff_date'],
-                    $bookingId
+                    vehicleType: $booking['vehicle_type'],
+                    pickupDate: $booking['pickup_date'],
+                    dropoffDate: $booking['dropoff_date'],
+                    excludeBookingId: $bookingId
                 );
-                
+
                 if (!empty($conflicts)) {
                     $autoDeniedCount = autoDenyConflictingBookings(
-                        $booking['vehicle_type'],
-                        $booking['pickup_date'],
-                        $booking['dropoff_date'],
-                        $bookingId
+                        vehicleType: $booking['vehicle_type'],
+                        pickupDate: $booking['pickup_date'],
+                        dropoffDate: $booking['dropoff_date'],
+                        acceptedBookingId: $bookingId
                     );
-                    
+
                     // Store conflict info in session for display
                     $_SESSION['conflict_info'] = [
                         'auto_denied_count' => $autoDeniedCount,
@@ -90,31 +92,39 @@ if (isset($_GET['action'], $_GET['id'])) {
                 }
             }
         }
-        
+
         getBookingsCollection()->updateOne(
-            ['_id' => new MongoDB\BSON\ObjectID($bookingId)],
-            ['$set' => ['status' => $newStatus]]
+            filter: ['_id' => new MongoDB\BSON\ObjectID($bookingId)],
+            update: ['$set' => ['status' => $newStatus]]
         );
-        header('Location: adBooking.php');
+        header(header: 'Location: adBooking.php');
         exit;
     }
 }
 
 // Fetch all bookings with conflict detection
-$bookingsCursor = getBookingsCollection()->find([], [
+$bookingsCursor = getBookingsCollection()->find(filter: [], options: [
     'sort' => ['created_at' => -1], // Sort by booking creation date (newest first)
     'limit' => 1000 // Add a reasonable limit to prevent memory issues
 ]);
 $bookings = [];
+$userLookup = [];
+$usersCursor = getUsersCollection()->find(filter: [], options: ['projection' => ['UserName' => 1, 'Email' => 1]]);
+foreach ($usersCursor as $user) {
+    $userLookup[(string) $user['_id']] = [
+        'username' => $user['UserName'] ?? 'N/A',
+        'email' => $user['Email'] ?? 'N/A'
+    ];
+}
 
 foreach ($bookingsCursor as $booking) {
     // Add conflict information to each booking
     if ($booking['status'] === 'pending') {
         $conflicts = checkBookingConflicts(
-            $booking['vehicle_type'],
-            $booking['pickup_date'],
-            $booking['dropoff_date'],
-            (string)$booking['_id']
+            vehicleType: $booking['vehicle_type'],
+            pickupDate: $booking['pickup_date'],
+            dropoffDate: $booking['dropoff_date'],
+            excludeBookingId: (string) $booking['_id']
         );
         $booking['conflicts'] = $conflicts;
         $booking['has_conflicts'] = !empty($conflicts);
@@ -122,10 +132,10 @@ foreach ($bookingsCursor as $booking) {
         $booking['conflicts'] = [];
         $booking['has_conflicts'] = false;
     }
-    
+
     // Ensure _id is properly converted to string for JSON serialization
-    $booking['_id'] = (string)$booking['_id'];
-    
+    $booking['_id'] = (string) $booking['_id'];
+
     // Convert MongoDB UTCDateTime objects to strings for JSON serialization
     if (isset($booking['created_at']) && $booking['created_at'] instanceof MongoDB\BSON\UTCDateTime) {
         $booking['created_at'] = $booking['created_at']->toDateTime()->format('Y-m-d H:i:s');
@@ -136,14 +146,16 @@ foreach ($bookingsCursor as $booking) {
     if (isset($booking['dropoff_date']) && $booking['dropoff_date'] instanceof MongoDB\BSON\UTCDateTime) {
         $booking['dropoff_date'] = $booking['dropoff_date']->toDateTime()->format('Y-m-d H:i:s');
     }
-    
+
     $bookings[] = $booking;
 }
+
 
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -151,6 +163,7 @@ foreach ($bookingsCursor as $booking) {
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div class="admin-sidebar">
         <div class="sidebar-header">
@@ -162,7 +175,8 @@ foreach ($bookingsCursor as $booking) {
             <ul>
                 <li><a href="adIndex.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
                 <li><a href="adVehicles.php"><i class="fas fa-car"></i><span>Vehicles</span></a></li>
-                <li><a href="adBooking.php" class="active"><i class="fas fa-calendar-check"></i><span>Bookings</span></a></li>
+                <li><a href="adBooking.php" class="active"><i
+                            class="fas fa-calendar-check"></i><span>Bookings</span></a></li>
                 <li><a href="adUsers.php"><i class="fas fa-users"></i><span>User Management</span></a></li>
                 <li><a href="adReviews.php"><i class="fas fa-star"></i><span>Reviews</span></a></li>
                 <li><a href="adSettings.php"><i class="fas fa-cog"></i><span>Settings</span></a></li>
@@ -180,8 +194,9 @@ foreach ($bookingsCursor as $booking) {
             <?php if (isset($_SESSION['conflict_info'])): ?>
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i>
-                    <strong>Auto-Deny Action:</strong> 
-                    <?php echo $_SESSION['conflict_info']['auto_denied_count']; ?> conflicting booking(s) were automatically denied.
+                    <strong>Auto-Deny Action:</strong>
+                    <?php echo $_SESSION['conflict_info']['auto_denied_count']; ?> conflicting booking(s) were automatically
+                    denied.
                     <button type="button" class="close" onclick="this.parentElement.style.display='none'">&times;</button>
                 </div>
                 <?php unset($_SESSION['conflict_info']); ?>
@@ -209,41 +224,44 @@ foreach ($bookingsCursor as $booking) {
                     </thead>
                     <tbody>
                         <?php if (empty($bookings)): ?>
-                            <tr><td colspan="9" class="text-center">No bookings found.</td></tr>
+                            <tr>
+                                <td colspan="9" class="text-center">No bookings found.</td>
+                            </tr>
                         <?php else: ?>
                             <?php foreach ($bookings as $booking): ?>
                                 <tr class="<?php echo $booking['has_conflicts'] ? 'conflict-row' : ''; ?>">
-                                    <td><?php echo htmlspecialchars((string)($booking['_id'] ?? '')); ?></td>
-                                    <td><?php echo htmlspecialchars($booking['name'] ?? ''); ?></td>
-                                    <td><?php echo htmlspecialchars($booking['phone'] ?? ''); ?></td>
-                                    <td><?php echo htmlspecialchars($booking['vehicle_name'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars(string: (string) ($booking['_id'] ?? '')); ?></td>
+                                    <td><?php echo htmlspecialchars(string: $booking['name'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars(string: $booking['phone'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars(string: $booking['vehicle_name'] ?? ''); ?></td>
                                     <td>
-                                        <?php 
+                                        <?php
                                         if (isset($booking['pickup_date']) && $booking['pickup_date'] instanceof MongoDB\BSON\UTCDateTime) {
                                             echo $booking['pickup_date']->toDateTime()->format('Y-m-d H:i');
                                         } else {
-                                            echo htmlspecialchars($booking['pickup_date'] ?? '');
+                                            echo htmlspecialchars(string: $booking['pickup_date'] ?? '');
                                         }
                                         ?>
                                     </td>
                                     <td>
-                                        <?php 
+                                        <?php
                                         if (isset($booking['dropoff_date']) && $booking['dropoff_date'] instanceof MongoDB\BSON\UTCDateTime) {
                                             echo $booking['dropoff_date']->toDateTime()->format('Y-m-d H:i');
                                         } else {
-                                            echo htmlspecialchars($booking['dropoff_date'] ?? '');
+                                            echo htmlspecialchars(string: $booking['dropoff_date'] ?? '');
                                         }
                                         ?>
                                     </td>
                                     <td>
                                         <span class="status-badge status-<?php echo $booking['status'] ?? 'pending'; ?>">
-                                            <?php echo htmlspecialchars(ucfirst($booking['status'] ?? 'pending')); ?>
+                                            <?php echo htmlspecialchars(string: ucfirst(string: $booking['status'] ?? 'pending')); ?>
                                         </span>
                                     </td>
                                     <td>
                                         <?php if ($booking['has_conflicts']): ?>
                                             <span class="conflict-badge" title="Has conflicting bookings">
-                                                <i class="fas fa-exclamation-triangle"></i> <?php echo count($booking['conflicts']); ?> conflict(s)
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                <?php echo count(value: $booking['conflicts']); ?> conflict(s)
                                             </span>
                                         <?php else: ?>
                                             <span class="no-conflict-badge">
@@ -253,18 +271,18 @@ foreach ($bookingsCursor as $booking) {
                                     </td>
                                     <td>
                                         <div class="table-actions">
-                                            <button class="btn btn-info btn-sm" onclick="openModal('<?php echo $booking['_id']; ?>')">
+                                            <button class="btn btn-info btn-sm"
+                                                onclick="openModal('<?php echo $booking['_id']; ?>')">
                                                 <i class="fas fa-eye"></i> View
                                             </button>
                                             <?php if ($booking['status'] === 'pending'): ?>
-                                                <a href="?action=accept&id=<?php echo $booking['_id']; ?>" 
-                                                   class="btn btn-success btn-sm" 
-                                                   onclick="return confirm('Accept this booking? This will automatically deny any conflicting bookings.')">
+                                                <a href="?action=accept&id=<?php echo $booking['_id']; ?>"
+                                                    class="btn btn-success btn-sm"
+                                                    onclick="return confirm('Accept this booking? This will automatically deny any conflicting bookings.')">
                                                     <i class="fas fa-check"></i> Accept
                                                 </a>
-                                                <a href="?action=deny&id=<?php echo $booking['_id']; ?>" 
-                                                   class="btn btn-danger btn-sm" 
-                                                   onclick="return confirm('Deny this booking?')">
+                                                <a href="?action=deny&id=<?php echo $booking['_id']; ?>"
+                                                    class="btn btn-danger btn-sm" onclick="return confirm('Deny this booking?')">
                                                     <i class="fas fa-times"></i> Deny
                                                 </a>
                                             <?php endif; ?>
@@ -298,11 +316,20 @@ foreach ($bookingsCursor as $booking) {
     <script>
         let currentBookingId = null;
         const bookings = <?php echo json_encode($bookings); ?>;
+        const userLookup = <?php echo json_encode($userLookup); ?>;
 
         function openModal(bookingId) {
             currentBookingId = bookingId;
             const booking = bookings.find(b => b._id === bookingId);
             if (booking) {
+                // Get user data if user_id exists
+                let userData = null;
+                if (booking.user_id && booking.user_id.$oid) {
+                    userData = userLookup[booking.user_id.$oid];
+                } else if (booking.user_id) {
+                    userData = userLookup[booking.user_id];
+                }
+
                 const details = `
                     <div class="detail-row">
                         <div class="detail-label">Booking ID:</div>
@@ -318,11 +345,11 @@ foreach ($bookingsCursor as $booking) {
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Email:</div>
-                        <div class="detail-value">${booking.email || 'N/A'}</div>
+                        <div class="detail-value">${userData?.email || booking.email || 'N/A'}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Username:</div>
-                        <div class="detail-value">${booking.username || 'N/A'}</div>
+                        <div class="detail-value">${userData?.username || booking.username || 'N/A'}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Vehicle Name:</div>
@@ -374,12 +401,12 @@ foreach ($bookingsCursor as $booking) {
                     </div>
                 `;
                 document.getElementById('bookingDetails').innerHTML = details;
-                
+
                 // Update action buttons
                 document.getElementById('pendingBtn').href = `?action=pending&id=${bookingId}`;
                 document.getElementById('acceptBtn').href = `?action=accept&id=${bookingId}`;
                 document.getElementById('denyBtn').href = `?action=deny&id=${bookingId}`;
-                
+
                 document.getElementById('bookingModal').style.display = 'block';
             }
         }
@@ -389,7 +416,7 @@ foreach ($bookingsCursor as $booking) {
         }
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('bookingModal');
             if (event.target === modal) {
                 closeModal();
@@ -397,10 +424,10 @@ foreach ($bookingsCursor as $booking) {
         }
 
         // Search functionality
-        document.getElementById('searchInput').addEventListener('keyup', function() {
+        document.getElementById('searchInput').addEventListener('keyup', function () {
             const searchTerm = this.value.toLowerCase();
             const tableRows = document.querySelectorAll('#bookingsTable tbody tr');
-            
+
             tableRows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 if (text.includes(searchTerm)) {
@@ -412,4 +439,5 @@ foreach ($bookingsCursor as $booking) {
         });
     </script>
 </body>
-</html> 
+
+</html>

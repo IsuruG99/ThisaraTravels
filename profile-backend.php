@@ -111,14 +111,15 @@ function handleBookingCancellation(string $userId, string $bookingId): never
 {
     $bookingsCollection = getBookingsCollection();
     try {
-        $objectId = new MongoDB\BSON\ObjectId($bookingId);
+        $bookingOID = new MongoDB\BSON\ObjectId($bookingId);
+        $userOID = new MongoDB\BSON\ObjectID($userId);
         // convert userId to UserName
         $user = getCurrentUser(userId: $userId);
-        $username = $user['UserName'] ?? '';
+        $username = $user['UserName'] ?? 'Unknown User';
         // Verify the booking belongs to the current user before updating
         $booking = $bookingsCollection->findOne(filter: [
-            '_id' => $objectId,
-            'username' => $username
+            '_id' => $bookingOID,
+            'user_id' => $userOID
         ]);
         if (!$booking) {
             jsonResponse(data: ['success' => false, 'error' => 'Booking not found or unauthorized'], statusCode: 404);
@@ -128,11 +129,11 @@ function handleBookingCancellation(string $userId, string $bookingId): never
             jsonResponse(data: ['success' => false, 'error' => 'Completed bookings cannot be cancelled']);
         }
         $updateResult = $bookingsCollection->updateOne(
-            filter: ['_id' => $objectId],
+            filter: ['_id' => $bookingOID],
             update: ['$set' => ['status' => 'cancelled']]
         );
         // call function to mail admin about cancellation
-        mailAdmin(bookingId: $bookingId, username: $username);
+        mailAdmin(bookingId: $bookingOID, username: $username);
         if ($updateResult->getModifiedCount() === 0) {
             jsonResponse(data: ['success' => false, 'error' => 'No changes made']);
         }
