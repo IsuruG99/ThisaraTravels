@@ -249,7 +249,15 @@ foreach ($bookingsCursor as $booking) {
                                     <td><?php echo htmlspecialchars(string: (string) ($booking['_id'] ?? '')); ?></td>
                                     <td><?php echo htmlspecialchars(string: $booking['name'] ?? ''); ?></td>
                                     <td><?php echo htmlspecialchars(string: $booking['phone'] ?? ''); ?></td>
-                                    <td><?php echo htmlspecialchars(string: $booking['vehicle_name'] ?? ''); ?></td>
+                                    <td><?php 
+                                    // so we cant take it like this, we have to take vehicle_id and then lookup the vehicle name
+                                    if (isset($booking['vehicle_id'])) {
+                                        $vehicleId = $booking['vehicle_id'] instanceof MongoDB\BSON\ObjectId
+                                            ? (string) $booking['vehicle_id']
+                                            : $booking['vehicle_id'];
+                                        echo htmlspecialchars(string: $vehicleLookup[$vehicleId]['vehicle_name'] ?? 'Unknown Vehicle');
+                                    }
+                                    ?></td>
                                     <td>
                                         <?php
                                         if (isset($booking['pickup_date']) && $booking['pickup_date'] instanceof MongoDB\BSON\UTCDateTime) {

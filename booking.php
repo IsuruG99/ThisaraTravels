@@ -7,7 +7,12 @@ $usersCollection = getUsersCollection();
 $settingsCollection = getMongoDB()->selectCollection(collectionName: 'settings');
 $bookingsCollection = getBookingsCollection();
 $vehiclesCollection = getVehiclesCollection();
-$reviewsCollection = getMongoDB()->selectCollection(collectionName: 'reviews'); // Added for ratings
+$reviewsCollection = getReviewsCollection();
+
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // Debugging: Log session username
 if (isset($_SESSION['username'])) {
@@ -21,6 +26,10 @@ if (!isset($_SESSION['csrf_token'])) {
 
 // Handle booking form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'submit_booking') {
+    error_log("Starting submit_booking processing");
+    error_log("POST data: " . json_encode($_POST));
+    error_log("Session CSRF token: " . ($_SESSION['csrf_token'] ?? 'none'));
+    error_log("Session ID: " . session_id());
     // --- Load Testing Instructions ---
     // To conduct load testing, use tools like Apache JMeter, Locust, or Artillery to simulate high booking request volumes.
     // Ensure the above protections (rate limiting, CAPTCHA, IP block) are triggered under attack scenarios.
@@ -32,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         header(header: 'Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
+    error_log("CSRF validation passed");
 
     // Get current user from session
     $currentUser = null;
@@ -41,29 +51,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             throw new Exception("User not found in database.");
         }
     }
+    error_log("User fetched successfully: " . $currentUser['_id']);
 
-    $bookingData = [
-        'vehicle_type' => filter_var(value: $_POST['vehicle_type'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'vehicle_name' => filter_var(value: $_POST['vehicle_name'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'name' => filter_var(value: $_POST['name'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'phone' => filter_var(value: $_POST['phone'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'pickup_location' => filter_var(value: $_POST['pickup_location'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'dropoff_location' => filter_var(value: $_POST['dropoff_location'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'custom_pickup_location' => filter_var(value: $_POST['custom_pickup_location'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'custom_dropoff_location' => filter_var(value: $_POST['custom_dropoff_location'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'pickup_date' => filter_var(value: $_POST['pickup_date'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'dropoff_date' => filter_var(value: $_POST['dropoff_date'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'pickup_time' => filter_var(value: $_POST['pickup_time'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'Special_Request' => filter_var(value: $_POST['Special_Request'] ?? '', filter: FILTER_SANITIZE_STRING),
-        'status' => 'pending',
-        'created_at' => new MongoDB\BSON\UTCDateTime(),
-        'user_id' => $currentUser['_id'],
-    ];
+    try {
+        $bookingData = [
+            'vehicle_id' => new MongoDB\BSON\ObjectId($_POST['vehicle_id'] ?? null),
+            'name' => filter_var($_POST['name'] ?? '', FILTER_SANITIZE_STRING),
+            'phone' => filter_var($_POST['phone'] ?? '', FILTER_SANITIZE_STRING),
+            'pickup_location' => filter_var($_POST['pickup_location'] ?? '', FILTER_SANITIZE_STRING),
+            'dropoff_location' => filter_var($_POST['dropoff_location'] ?? '', FILTER_SANITIZE_STRING),
+            'custom_pickup_location' => filter_var($_POST['custom_pickup_location'] ?? '', FILTER_SANITIZE_STRING),
+            'custom_dropoff_location' => filter_var($_POST['custom_dropoff_location'] ?? '', FILTER_SANITIZE_STRING),
+            'pickup_date' => filter_var($_POST['pickup_date'] ?? '', FILTER_SANITIZE_STRING),
+            'dropoff_date' => filter_var($_POST['dropoff_date'] ?? '', FILTER_SANITIZE_STRING),
+            'pickup_time' => filter_var($_POST['pickup_time'] ?? '', FILTER_SANITIZE_STRING),
+            'Special_Request' => filter_var($_POST['Special_Request'] ?? '', FILTER_SANITIZE_STRING),
+            'status' => 'pending',
+            'created_at' => new MongoDB\BSON\UTCDateTime(),
+            'user_id' => $currentUser['_id'],
+        ];
+        error_log("Booking data prepared: " . json_encode($bookingData));
+    } catch (Exception $e) {
+        error_log("Error preparing booking data: " . $e->getMessage());
+        $_SESSION['booking_message'] = ['text' => 'Invalid vehicle ID: ' . $e->getMessage(), 'type' => 'error'];
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
 
     // Validate required fields
     $required_fields = [
-        'vehicle_type',
-        'vehicle_name',
+        'vehicle_id',
         'name',
         'phone',
         'pickup_location',
@@ -93,23 +110,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (strtotime(datetime: $bookingData['pickup_date']) > strtotime(datetime: $bookingData['dropoff_date'])) {
         $errors[] = "Drop-off date cannot be before pick-up date";
     }
+
+    error_log("Form validation passed");
+
     // --- Prevent duplicate booking for same user, vehicle, pickup, dropoff, date, and time ---
     $duplicateQuery = [
         'user_id' => $bookingData['user_id'],
-        'vehicle_type' => $bookingData['vehicle_type'],
-        'vehicle_name' => $bookingData['vehicle_name'],
+        'vehicle_id' => $bookingData['vehicle_id'],
         'pickup_location' => $bookingData['pickup_location'],
         'dropoff_location' => $bookingData['dropoff_location'],
         'pickup_date' => $bookingData['pickup_date'],
         'dropoff_date' => $bookingData['dropoff_date'],
         'pickup_time' => $bookingData['pickup_time'],
     ];
-    $existingBooking = $bookingsCollection->findOne($duplicateQuery);
-    if ($existingBooking) {
-        $_SESSION['booking_message'] = ['text' => 'You have already submitted a booking for this vehicle, location, date, and time.', 'type' => 'error'];
-        $_SESSION['form_data'] = $bookingData;
-        redirectWithError(location: $_SERVER['PHP_SELF']);
+    try {
+        $existingBooking = $bookingsCollection->findOne($duplicateQuery);
+        if ($existingBooking) {
+            error_log("Duplicate booking found: " . json_encode($existingBooking));
+            $_SESSION['booking_message'] = ['text' => 'You have already submitted a booking for this vehicle, location, date, and time.', 'type' => 'error'];
+            $_SESSION['form_data'] = $bookingData;
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    } catch (Exception $e) {
+        error_log("Error checking duplicate booking: " . $e->getMessage());
+        $_SESSION['booking_message'] = ['text' => 'Error checking duplicate booking: ' . $e->getMessage(), 'type' => 'error'];
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
     }
+    error_log("No duplicate booking found");
     // --- Rate Limiting and Anti-Spam Protections ---
     // 1. Per-session rate limiting (1 booking per 60 seconds)
     // $rate_limit_seconds = 60;
@@ -125,36 +154,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     // }
 
     // 2. Per-IP rate limiting (max 10 bookings per hour)
-    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    $ip_limit_file = sys_get_temp_dir() . '/booking_ip_limit_' . md5($ip) . '.json';
-    $ip_limit_data = ['count' => 0, 'start' => $now];
-    if (file_exists($ip_limit_file)) {
-        $ip_limit_data = json_decode(file_get_contents($ip_limit_file), true) ?: $ip_limit_data;
-        if (($now - $ip_limit_data['start']) > 3600) {
-            $ip_limit_data = ['count' => 0, 'start' => $now];
-        }
-    }
-    $ip_limit_data['count']++;
-    file_put_contents($ip_limit_file, json_encode($ip_limit_data));
-    if ($ip_limit_data['count'] > 10) {
-        $_SESSION['booking_message'] = ['text' => 'Too many booking attempts from your IP address. Please try again later.', 'type' => 'error'];
-        header('Location: ' . $_SERVER['PHP_SELF']);
-        exit;
-    }
+    // $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    // $ip_limit_file = sys_get_temp_dir() . '/booking_ip_limit_' . md5($ip) . '.json';
+    // $ip_limit_data = ['count' => 0, 'start' => $now];
+    // if (file_exists($ip_limit_file)) {
+    //     $ip_limit_data = json_decode(file_get_contents($ip_limit_file), true) ?: $ip_limit_data;
+    //     if (($now - $ip_limit_data['start']) > 3600) {
+    //         $ip_limit_data = ['count' => 0, 'start' => $now];
+    //     }
+    // }
+    // $ip_limit_data['count']++;
+    // file_put_contents($ip_limit_file, json_encode($ip_limit_data));
+    // if ($ip_limit_data['count'] > 10) {
+    //     $_SESSION['booking_message'] = ['text' => 'Too many booking attempts from your IP address. Please try again later.', 'type' => 'error'];
+    //     header('Location: ' . $_SERVER['PHP_SELF']);
+    //     exit;
+    // }
 
-    // 3. CAPTCHA verification (Google reCAPTCHA v2) - only on booking form submit
-    if (isset($_POST['g-recaptcha-response'])) {
-        $recaptcha_secret = '6Lf6LZorAAAAAO1xgJwqyB-MZpY9P-tJ7z1qtzGV'; // <-- Replace with your actual secret key
-        $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
-        $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
-        $recaptcha = file_get_contents($recaptcha_url . '?secret=' . urlencode($recaptcha_secret) . '&response=' . urlencode($recaptcha_response) . '&remoteip=' . urlencode($ip));
-        $recaptcha = json_decode($recaptcha, true);
-        if (empty($recaptcha['success'])) {
-            $_SESSION['booking_message'] = ['text' => 'CAPTCHA verification failed. Please try again.', 'type' => 'error'];
-            header('Location: ' . $_SERVER['PHP_SELF']);
-            exit;
-        }
-    }
+    // // 3. CAPTCHA verification (Google reCAPTCHA v2) - only on booking form submit
+    // if (isset($_POST['g-recaptcha-response'])) {
+    //     $recaptcha_secret = '6Lf6LZorAAAAAO1xgJwqyB-MZpY9P-tJ7z1qtzGV'; // <-- Replace with your actual secret key
+    //     $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
+    //     $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
+    //     $recaptcha = file_get_contents($recaptcha_url . '?secret=' . urlencode($recaptcha_secret) . '&response=' . urlencode($recaptcha_response) . '&remoteip=' . urlencode($ip));
+    //     $recaptcha = json_decode($recaptcha, true);
+    //     if (empty($recaptcha['success'])) {
+    //         $_SESSION['booking_message'] = ['text' => 'CAPTCHA verification failed. Please try again.', 'type' => 'error'];
+    //         header('Location: ' . $_SERVER['PHP_SELF']);
+    //         exit;
+    //     }
+    // }
+
+    error_log("Rate limiting and CAPTCHA checks passed");
 
     // After all checks, update session rate limit timestamp
     $_SESSION['booking_rate_limit'][$userKey] = $now;
@@ -223,25 +254,38 @@ unset($_SESSION['booking_message']);
 unset($_SESSION['form_data']);
 
 // Calculate average ratings for vehicles
-// --- Improved: Calculate average ratings for vehicles (case-insensitive, robust) ---
 $vehicleRatings = [];
 $allReviews = $reviewsCollection->find()->toArray();
+
 foreach ($allReviews as $review) {
-    $vehicleName = isset($review['vehicleName']) ? trim((string) $review['vehicleName']) : '';
-    $starCount = isset($review['starCount']) && is_numeric($review['starCount']) ? (float) $review['starCount'] : null;
-    if ($vehicleName !== '' && $starCount !== null && $starCount >= 1 && $starCount <= 5) {
-        $key = mb_strtolower($vehicleName);
-        if (!isset($vehicleRatings[$key])) {
-            $vehicleRatings[$key] = ['total' => 0, 'count' => 0, 'display' => $vehicleName];
-        }
-        $vehicleRatings[$key]['total'] += $starCount;
-        $vehicleRatings[$key]['count']++;
-        // Always use the latest display name (for case)
-        $vehicleRatings[$key]['display'] = $vehicleName;
+    // Skip if no vehicle reference
+    if (!isset($review['vehicleId']) || !($review['vehicleId'] instanceof MongoDB\BSON\ObjectId)) {
+        continue;
     }
+
+    $vehicleId = (string) $review['vehicleId'];
+    $starCount = isset($review['starCount']) ? (int) $review['starCount'] : 0;
+
+    // Validate rating (1-5 stars)
+    if ($starCount < 1 || $starCount > 5) {
+        continue;
+    }
+
+    if (!isset($vehicleRatings[$vehicleId])) {
+        $vehicleRatings[$vehicleId] = [
+            'total' => 0,
+            'count' => 0,
+            'avg' => 0
+        ];
+    }
+
+    $vehicleRatings[$vehicleId]['total'] += $starCount;
+    $vehicleRatings[$vehicleId]['count']++;
 }
-foreach ($vehicleRatings as $key => &$data) {
-    $data['avg'] = $data['count'] > 0 ? round($data['total'] / $data['count'], 1) : 0;
+
+// Calculate averages
+foreach ($vehicleRatings as &$rating) {
+    $rating['avg'] = round($rating['total'] / $rating['count'], 1);
 }
 
 // Prevent caching
@@ -302,10 +346,12 @@ header(header: "Pragma: no-cache");
 
             <input type="hidden" name="action" value="submit_booking">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-            <input type="hidden" name="vehicle_type" id="vehicle-type"
-                value="<?php echo htmlspecialchars($form_data['vehicle_type'] ?? ''); ?>">
+            <!-- <input type="hidden" name="vehicle_type" id="vehicle-type"
+                value="<?php echo htmlspecialchars($form_data['vehicle_type'] ?? ''); ?> -->
             <input type="hidden" name="vehicle_name" id="vehicle-name"
                 value="<?php echo htmlspecialchars($form_data['vehicle_name'] ?? ''); ?>">
+            <input type="hidden" name="vehicle_id" id="vehicle-id"
+                value="<?php echo htmlspecialchars($form_data['vehicle_id'] ?? ''); ?>">
             <div class="form-group">
                 <label for="name"><i class="fas fa-user" aria-hidden="true"></i> Your Name</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Your Name"
@@ -422,7 +468,7 @@ header(header: "Pragma: no-cache");
         $vehicleTypes = [];
         $seatCounts = [];
         foreach ($allVehicles as $v) {
-            $type = $v['vehicle_name'] ?? '';
+            $type = $v['type'] ?? '';
             if ($type && !in_array($type, $vehicleTypes))
                 $vehicleTypes[] = $type;
             if (isset($v['seat_count']) && !in_array((int) $v['seat_count'], $seatCounts))
@@ -438,7 +484,7 @@ header(header: "Pragma: no-cache");
         $query = [];
         $filterApplied = false;
         if ($selectedType) {
-            $query['vehicle_name'] = $selectedType;
+            $query['type'] = $selectedType;
             $filterApplied = true;
         }
         if ($selectedCapacity) {
@@ -475,7 +521,8 @@ header(header: "Pragma: no-cache");
                         <?php foreach ($capacityRanges as $range): ?>
                             <option value="<?php echo $range; ?>" <?php if ($selectedCapacity == $range)
                                    echo 'selected'; ?>>
-                                <?php echo $range; ?> Passengers</option>
+                                <?php echo $range; ?> Passengers
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -511,10 +558,8 @@ header(header: "Pragma: no-cache");
                 $vehicleCount = 0;
                 foreach ($vehicles as $vehicle):
                     $vehicleCount++;
-                    $photo = !empty($vehicle['vehiclePhoto']) ? htmlspecialchars($vehicle['vehiclePhoto']) : 'img/default-vehicle.png';
-                    $vehicleName = $vehicle['vehicle_name'] ?? '';
-                    $avgRating = $vehicleRatings[$vehicleName]['avg'] ?? 0;
-                    $reviewCount = $vehicleRatings[$vehicleName]['count'] ?? 0;
+                    $vehicleId = (string) ($vehicle['_id'] instanceof MongoDB\BSON\ObjectId ? $vehicle['_id'] : $vehicle['_id']);
+                    $ratingData = $vehicleRatings[$vehicleId] ?? ['avg' => 0, 'count' => 0];
                     ?>
                     <div class="vehicle-card" data-type="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? ''); ?>"
                         data-capacity="<?php echo htmlspecialchars($vehicle['seat_count'] ?? ''); ?>" role="article"
@@ -526,31 +571,33 @@ header(header: "Pragma: no-cache");
                         </div>
                         <div class="vehicle-info">
                             <span class="vehicle-type">Type:
-                                <?php echo ucfirst(htmlspecialchars($vehicle['vehicle_name'] ?? '')); ?></span>
+                                <?php echo ucfirst(htmlspecialchars($vehicle['type'] ?? '')); ?></span>
                             <div class="vehicle-name">Name:
-                                <?php echo ucfirst(htmlspecialchars($vehicle['vehicle_name'] ?? '')); ?></div>
+                                <?php echo ucfirst(htmlspecialchars($vehicle['vehicle_name'] ?? '')); ?>
+                            </div>
                             <div class="star-rating">
                                 <?php for ($i = 1; $i <= 5; $i++): ?>
-                                    <span class="star<?php echo $i <= round($avgRating) ? ' filled' : ''; ?>">&#9733;</span>
+                                    <span
+                                        class="star<?php echo $i <= round($ratingData['avg']) ? ' filled' : ''; ?>">&#9733;</span>
                                 <?php endfor; ?>
-                                <span class="ms-2">(<?php echo $avgRating; ?> out of 5 from <?php echo $reviewCount; ?>
-                                    reviews)</span>
+                                <span class="ms-2">(<?php echo $ratingData['avg']; ?> out of 5 from
+                                    <?php echo $ratingData['count']; ?> reviews)</span>
                             </div>
                             <div class="vehicle-features">
                                 <span class="feature"><i class="fas fa-users"></i>
                                     <?php echo htmlspecialchars($vehicle['seat_count'] ?? ''); ?> Seats</span>
                                 <span class="feature"><i class="fas fa-snowflake"></i>
                                     <?php echo htmlspecialchars($vehicle['ac_nac'] ?? ''); ?></span>
-                                <?php if (!empty($vehicle['features'])):
-                                    $featuresArr = explode(',', $vehicle['features']);
-                                    foreach ($featuresArr as $f): ?>
+                                <?php if (!empty($vehicle['features']) && is_array($vehicle['features'])):
+                                    foreach ($vehicle['features'] as $feature): ?>
                                         <span class="feature"><i class="fas fa-check"></i>
-                                            <?php echo trim(htmlspecialchars($f)); ?></span>
+                                            <?php echo htmlspecialchars(trim($feature)); ?>
+                                        </span>
                                     <?php endforeach;
                                 endif; ?>
                             </div>
-                            <button class="book-btn"
-                                onclick="bookVehicle('<?php echo htmlspecialchars($vehicle['vehicle_name']); ?>', '<?php echo htmlspecialchars($vehicle['vehicle_name']); ?>')"
+                            <button class="book-btn" data-vehicle-id="<?php echo htmlspecialchars($vehicleId); ?>"
+                                data-vehicle-name="<?php echo htmlspecialchars($vehicle['vehicle_name']); ?>"
                                 aria-label="Book <?php echo htmlspecialchars($vehicle['vehicle_name']); ?>">
                                 <i class="fas fa-calendar-plus"></i> Book Now
                             </button>
@@ -691,12 +738,11 @@ header(header: "Pragma: no-cache");
         }
 
         // --- Booking Modal Functions ---
-        function showBookingModal(title, type, name) {
+        function showBookingModal(title, vehicleId, name) {
             const modal = document.getElementById('booking-modal');
             const overlay = document.getElementById('booking-modal-overlay');
             const modalTitle = document.getElementById('booking-modal-title');
-            const vehicleTypeInput = document.getElementById('vehicle-type');
-            const vehicleNameInput = document.getElementById('vehicle-name');
+            const vehicleIdInput = document.getElementById('vehicle-id');
             const message = document.getElementById('booking-message');
             const form = document.getElementById('booking-form');
             const pickupInput = document.getElementById('pickup-location-input');
@@ -707,8 +753,7 @@ header(header: "Pragma: no-cache");
             const customDropoff = document.getElementById('custom-dropoff-location');
 
             modalTitle.textContent = title;
-            vehicleTypeInput.value = type;
-            vehicleNameInput.value = name;
+            vehicleIdInput.value = vehicleId;
 
             // Check if there's already an error message from server-side
             const hasExistingError = message.classList.contains('show') && message.classList.contains('error');
@@ -737,6 +782,7 @@ header(header: "Pragma: no-cache");
                 document.getElementById('dropoff-date').value = '<?php echo htmlspecialchars($form_data['dropoff_date'] ?? ''); ?>';
                 document.getElementById('pickup-time').value = '<?php echo htmlspecialchars($form_data['pickup_time'] ?? ''); ?>';
                 document.getElementById('special-request').value = '<?php echo htmlspecialchars($form_data['Special_Request'] ?? ''); ?>';
+                vehicleIdInput.value = '<?php echo htmlspecialchars($form_data['vehicle_id'] ?? ''); ?>' || vehicleId;
 
                 // Pre-fill dates from filter
                 const startDate = document.getElementById('startDate')?.value;
@@ -1020,8 +1066,7 @@ header(header: "Pragma: no-cache");
             const pickupDate = document.getElementById('pickup-date').value;
             const dropoffDate = document.getElementById('dropoff-date').value;
             const pickupTime = document.getElementById('pickup-time').value;
-            const vehicleType = document.getElementById('vehicle-type').value;
-            const vehicleName = document.getElementById('vehicle-name').value;
+            const vehicleId = document.getElementById('vehicle-id').value;
             const specialRequest = document.getElementById('special-request').value.trim();
 
             if (!name || !phone || !pickup || !dropoff || !pickupDate || !dropoffDate || !pickupTime) {
@@ -1047,7 +1092,6 @@ header(header: "Pragma: no-cache");
 
             this.submit();
         });
-
         document.getElementById('booking-modal-overlay')?.addEventListener('click', hideBookingModal);
 
         document.querySelectorAll('a[href^="#"]').forEach(link => {
@@ -1122,7 +1166,7 @@ header(header: "Pragma: no-cache");
             window.location.search = '';
         }
 
-        function bookVehicle(type, name) {
+        function bookVehicle(vehicleId, name) {
             <?php if (!isset($_SESSION['username']) || empty($_SESSION['username'])): ?>
                 showLoginMessage('Please log in to create booking.');
                 return;
@@ -1144,7 +1188,7 @@ header(header: "Pragma: no-cache");
             if (pickupDateInput) pickupDateInput.value = start;
             if (dropoffDateInput) dropoffDateInput.value = end;
 
-            showBookingModal(`Book ${name}`, type, name);
+            showBookingModal(`Book ${name}`, vehicleId, name);
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -1154,6 +1198,15 @@ header(header: "Pragma: no-cache");
             const endDate = urlParams.get('endDate');
             if (startDate) document.getElementById('startDate').value = startDate;
             if (endDate) document.getElementById('endDate').value = endDate;
+
+            const bookButtons = document.querySelectorAll('.book-btn');
+            bookButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const vehicleId = this.getAttribute('data-vehicle-id');
+                    const vehicleName = this.getAttribute('data-vehicle-name');
+                    bookVehicle(vehicleId, vehicleName);
+                });
+            });
 
             initializeAutocomplete();
         });

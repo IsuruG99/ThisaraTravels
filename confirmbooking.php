@@ -9,6 +9,12 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+error_log("Confirm booking script started.");
+
 $uri = $_ENV['MONGODB_URI'];
 try {
     $client = new MongoDB\Client($uri);
@@ -85,6 +91,7 @@ if (!isset($_SESSION['pending_booking']) && !isset($_SESSION['booking_message'])
         'text' => 'No booking data to confirm.',
         'type' => 'error'
     ];
+    error_log("No pending booking data found.");
     header('Location: booking.php');
     exit;
 }
@@ -607,8 +614,14 @@ header("Pragma: no-cache");
             <?php if (!empty($bookingData)): ?>
                 <div class="booking-details">
                     <p><strong>User Name:</strong> <span><?php echo htmlspecialchars($username); ?></span></p>
-                    <p><strong>Vehicle:</strong> <span><?php echo htmlspecialchars($bookingData['vehicle_name'] ?? ''); ?></span></p>
                     <p><strong>Name:</strong> <span><?php echo htmlspecialchars($bookingData['name'] ?? ''); ?></span></p>
+                    <p><strong>Vehicle:</strong> <span>
+                        <?php
+                        if (isset($bookingData['vehicle_id'])) {
+                            $vehicle = $db->vehicles->findOne(['_id' => $bookingData['vehicle_id']]);
+                            echo htmlspecialchars($vehicle['vehicle_name'] ?? 'Unknown Vehicle');
+                        }   
+                        ?></span></p>
                     <p><strong>WhatsApp Number:</strong> <span><?php echo htmlspecialchars($bookingData['phone'] ?? ''); ?></span></p>
                     <p><strong>Pick-Up Location:</strong> <span><?php echo htmlspecialchars($bookingData['pickup_location'] . ((!empty($bookingData['custom_pickup_location'])) ? ' (' . $bookingData['custom_pickup_location'] . ')' : '')); ?></span></p>
                     <p><strong>Drop-Off Location:</strong> <span><?php echo htmlspecialchars($bookingData['dropoff_location'] . ((!empty($bookingData['custom_dropoff_location'])) ? ' (' . $bookingData['custom_dropoff_location'] . ')' : '')); ?></span></p>
