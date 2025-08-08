@@ -565,7 +565,7 @@ header(header: "Pragma: no-cache");
                         data-capacity="<?php echo htmlspecialchars($vehicle['seat_count'] ?? ''); ?>" role="article"
                         aria-label="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? ''); ?>">
                         <div class="vehicle-image">
-                            <img src="<?php echo $photo; ?>"
+                            <img src="<?php echo $vehicle['photo'] ?? 'img/default-vehicle.jpg'; ?>"
                                 alt="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? 'Vehicle'); ?>"
                                 style="max-width:100%;max-height:100px;object-fit:cover;">
                         </div>
