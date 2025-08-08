@@ -133,7 +133,7 @@ function handleBookingCancellation(string $userId, string $bookingId): never
             update: ['$set' => ['status' => 'cancelled']]
         );
         // call function to mail admin about cancellation
-        mailAdmin(bookingId: $bookingId, username: $username);
+        mailAdmin(bookingId: $bookingOID, username: $username);
         if ($updateResult->getModifiedCount() === 0) {
             jsonResponse(data: ['success' => false, 'error' => 'No changes made']);
         }

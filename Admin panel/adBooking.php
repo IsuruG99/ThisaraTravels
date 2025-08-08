@@ -147,6 +147,7 @@ foreach ($bookingsCursor as $booking) {
         $booking['has_conflicts'] = false;
     }
 
+
     // Ensure _id is properly converted to string for JSON serialization
     $booking['_id'] = (string) $booking['_id'];
 
@@ -160,6 +161,7 @@ foreach ($bookingsCursor as $booking) {
     if (isset($booking['dropoff_date']) && $booking['dropoff_date'] instanceof MongoDB\BSON\UTCDateTime) {
         $booking['dropoff_date'] = $booking['dropoff_date']->toDateTime()->format('Y-m-d H:i:s');
     }
+
 
     $bookings[] = $booking;
 }
