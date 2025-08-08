@@ -4,6 +4,63 @@ require 'auth-config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+// Handle review submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['userId'], $_POST['orderId'], $_POST['rating'], $_POST['comment'])) {
+    try {
+        $db = getMongoDB();
+        $reviewsCollection = getReviewsCollection();
+        $bookingsCollection = getBookingsCollection();
+
+        $userId = $_POST['userId'];
+        $orderId = $_POST['orderId'];
+        $rating = (int) $_POST['rating'];
+        $comment = htmlspecialchars(string: $_POST['comment']);
+        $vehicleType = htmlspecialchars(string: $_POST['vehicleType']);
+        $vehicleName = htmlspecialchars(string: $_POST['vehicleName']);
+
+        // Validate booking exists and belongs to user
+        $booking = $bookingsCollection->findOne(filter: [
+            '_id' => new MongoDB\BSON\ObjectId($orderId),
+            'user_id' => new MongoDB\BSON\ObjectId($userId),
+            'status' => 'pending'
+        ]);
+
+        if (!$booking) {
+            $_SESSION['review_error'] = "Invalid or non-existent booking.";
+            header(header: "Location: testimonial.php");
+            exit();
+        }
+
+        // Insert review into reviews collection
+        $reviewData = [
+            'userId' => new MongoDB\BSON\ObjectId($userId),
+            'vehicleId' => $booking['vehicle_id'],
+            'vehicleType' => $vehicleType,
+            'vehicleName' => $vehicleName,
+            'starCount' => (string) $rating,
+            'comment' => $comment,
+            'date' => new MongoDB\BSON\UTCDateTime()
+        ];
+
+        $result = $reviewsCollection->insertOne($reviewData);
+
+        if ($result->getInsertedCount() > 0) {
+            // Update booking status to indicate review submitted
+            $bookingsCollection->updateOne(
+                ['_id' => new MongoDB\BSON\ObjectId($orderId)],
+                ['$set' => ['status' => 'reviewed']]
+            );
+            $_SESSION['review_success'] = "Review submitted successfully!";
+        } else {
+            $_SESSION['review_error'] = "Failed to submit review.";
+        }
+    } catch (Exception $e) {
+        $_SESSION['review_error'] = "Error submitting review: " . $e->getMessage();
+    }
+    header(header: "Location: testimonial.php");
+    exit();
+}
+
 try {
     $db = getMongoDB();
     $reviewsCollection = getReviewsCollection();
@@ -44,7 +101,6 @@ try {
 
 // Handle report submission using PHPMailer
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
-
     $reviewId = htmlspecialchars(string: $_POST['report_review_id']);
     $reason = htmlspecialchars(string: $_POST['report_reason']);
     $reporter = isset($_SESSION['username']) ? $_SESSION['username'] : 'Anonymous';
@@ -111,6 +167,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     include 'components/header.php';
     ?>
     <!-- Header End -->
+
+    <!-- Review Success/Error Alerts -->
+    <?php if (isset($_SESSION['review_success'])): ?>
+        <div class="container mt-3 floating-element">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= $_SESSION['review_success'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <?php unset($_SESSION['review_success']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['review_error'])): ?>
+        <div class="container mt-3 floating-element">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= $_SESSION['review_error'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <?php unset($_SESSION['review_error']); ?>
+    <?php endif; ?>
 
     <!-- Report Success Alert -->
     <?php if (isset($_SESSION['report_success'])): ?>
@@ -293,12 +370,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
         <div class="container my-5 floating-element">
             <div class="review-form-container">
                 <h4>Leave a Review</h4>
-                <form action="submit_review.php" method="POST" class="p-4">
+                <form action="" method="POST" class="p-4">
                     <input type="hidden" name="userId" value="<?= $_SESSION['user_id'] ?>">
-
                     <input type="hidden" name="vehicleType" id="vehicleType">
                     <input type="hidden" name="vehicleName" id="vehicleName">
-
                     <div class="mb-3">
                         <label for="orderId" class="form-label">Booking</label>
                         <select name="orderId" id="orderId" class="form-select floating-element-fast" required
@@ -310,9 +385,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                                 if (!$currentUser) {
                                     throw new Exception(message: "User not found");
                                 }
-
                                 $userId = $currentUser['_id'];
-
                                 // Get user's pending bookings that have a vehicle_id
                                 $userBookings = $bookingsCollection->find(
                                     filter: [
@@ -321,21 +394,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                                         'vehicle_id' => ['$exists' => true, '$ne' => null]
                                     ]
                                 )->toArray();
-
                                 if (empty($userBookings)) {
                                     echo '<option value="" disabled selected>No pending bookings available</option>';
                                 } else {
                                     echo '<option value="" disabled selected>Select your booking</option>';
-
                                     foreach ($userBookings as $booking) {
                                         // Get vehicle details from vehicles collection
                                         $vehicle = $vehiclesCollection->findOne(filter: ['_id' => $booking['vehicle_id']]);
                                         $vehicleDetails = $vehicle ? "{$vehicle['type']} - {$vehicle['vehicle_name']}" : 'Unknown Vehicle';
-
                                         // Format date range
                                         $dateRange = htmlspecialchars(string: $booking['pickup_date'] ?? '') . ' - ' .
                                             htmlspecialchars(string: $booking['dropoff_date'] ?? '');
-
                                         echo sprintf(
                                             '<option value="%s" data-vehicle="%s" data-dates="%s">%s</option>',
                                             (string) $booking['_id'],
@@ -351,17 +420,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                             ?>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label for="vehicleDisplay" class="form-label">Vehicle</label>
                         <input type="text" id="vehicleDisplay" class="form-control floating-element-fast" readonly>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Booking Dates</label>
                         <input type="text" id="dateRange" class="form-control floating-element-fast" readonly>
                     </div>
-
                     <div class="mb-3 text-center">
                         <label class="form-label d-block">Rating</label>
                         <div class="rating">
@@ -371,7 +437,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                             <?php endfor; ?>
                         </div>
                     </div>
-
                     <div class="mb-3">
                         <label for="comment" class="form-label">Comment</label>
                         <div class="position-relative">
@@ -385,7 +450,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         </div>
                         <p id="voiceStatus" class="small text-muted mt-1"></p>
                     </div>
-
                     <div class="text-center">
                         <button type="submit" class="btn btn-success px-4 floating-element-fast" <?= empty($userBookings) ? 'disabled' : '' ?>>Submit Review</button>
                     </div>
@@ -419,26 +483,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                 document.getElementById("voiceStatus").innerText = "Voice input not supported in your browser";
                 return;
             }
-
             const recognition = new SpeechRecognition();
             recognition.lang = 'en-US';
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
-
             document.getElementById("voiceStatus").innerText = "Listening... Speak now";
-
             recognition.start();
-
             recognition.onresult = function (event) {
                 const transcript = event.results[0][0].transcript;
                 document.getElementById("comment").value = transcript;
                 document.getElementById("voiceStatus").innerText = "Voice captured";
             };
-
             recognition.onerror = function (event) {
                 document.getElementById("voiceStatus").innerText = "Error: " + event.error;
             };
-
             recognition.onend = function () {
                 if (!document.getElementById("comment").value) {
                     document.getElementById("voiceStatus").innerText = "Try speaking again";
