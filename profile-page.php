@@ -40,7 +40,7 @@ if (isset($_SESSION['user_id'])) {
     try {
         // Get user bookings
         $userBookings = $bookingsCollection->find(
-            filter: ['username' => $username],
+            filter: ['user_id' => new MongoDB\BSON\ObjectId($userId)],
             options: ['sort' => ['created_at' => -1]]
         )->toArray();
         // Get user reviews

@@ -6,10 +6,11 @@ use PHPMailer\PHPMailer\Exception;
 
 try {
     $db = getMongoDB();
-    $reviewsCollection = $db->selectCollection(collectionName: 'reviews');
-    $usersCollection = $db->selectCollection(collectionName: 'users');
+    $reviewsCollection = getReviewsCollection();
+    $usersCollection = getUsersCollection();
+    $bookingsCollection = getBookingsCollection();
+    $vehiclesCollection = getVehiclesCollection();
 
-    $filter = ['vehicleType' => ['$exists' => true]];
     if (!empty($_GET['vehicle'])) {
         $filter['vehicleType'] = $_GET['vehicle'];
     }
@@ -17,7 +18,7 @@ try {
         $filter['starCount'] = (string) $_GET['stars'];
     }
 
-    $documents = $reviewsCollection->find(filter: $filter)->toArray();
+    $documents = $reviewsCollection->find(filter: ['vehicleId' => ['$exists' => true]])->toArray();
     $totalRating = 0;
     $starCount = count(value: $documents);
 
@@ -26,7 +27,7 @@ try {
     foreach ($documents as $doc) {
         $totalRating += (int) $doc['starCount'];
         if (isset($doc['userId'])) {
-            $userId = (string) $doc['userId']; // Convert ObjectId to string
+            $userId = (string) $doc['userId'];
             if (!isset($userData[$userId])) {
                 $user = $usersCollection->findOne(filter: ['_id' => $doc['userId']]);
                 $userData[$userId] = [
@@ -43,12 +44,12 @@ try {
 
 // Handle report submission using PHPMailer
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
-   
-    $reviewId = htmlspecialchars($_POST['report_review_id']);
-    $reason = htmlspecialchars($_POST['report_reason']);
+
+    $reviewId = htmlspecialchars(string: $_POST['report_review_id']);
+    $reason = htmlspecialchars(string: $_POST['report_reason']);
     $reporter = isset($_SESSION['username']) ? $_SESSION['username'] : 'Anonymous';
 
-    $mail = new PHPMailer(true);
+    $mail = new PHPMailer(exceptions: true);
     try {
         // Server settings
         $mail->isSMTP();
@@ -60,11 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
         $mail->Port = 587;
 
         // Recipients
-        $mail->setFrom($_ENV['SMTP_USER'], 'Thisara Travels & Tours');
-        $mail->addAddress($_ENV['SMTP_ADMIN']);
+        $mail->setFrom(address: $_ENV['SMTP_USER'], name: 'Thisara Travels & Tours');
+        $mail->addAddress(address: $_ENV['SMTP_ADMIN']);
 
         // Content
-        $mail->isHTML(true);
+        $mail->isHTML(isHtml: true);
         $mail->Subject = "Review Report - " . $reviewId;
         $mail->Body = "
             <h3 style='color: #08625c; margin-bottom: 15px;'>New Review Report</h3>
@@ -81,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     } catch (Exception $e) {
         $_SESSION['report_error'] = "Report could not be sent. Error: {$mail->ErrorInfo}";
     }
-    header("Location: testimonial.php");
+    header(header: "Location: testimonial.php");
     exit();
 }
 ?>
@@ -106,8 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
 <body>
     <!-- Header Start -->
     <?php
-        $currentPage = 'review'; 
-        include 'components/header.php'; 
+    $currentPage = 'review';
+    include 'components/header.php';
     ?>
     <!-- Header End -->
 
@@ -192,36 +193,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     <div class="container">
         <div class="row justify-content-center">
             <?php foreach ($documents as $doc) {
+                // User information
                 $userId = isset($doc['userId']) ? (string) $doc['userId'] : null;
                 $userName = $userId ? ($userData[$userId]['userName'] ?? 'Unknown User') : 'Unknown User';
                 $userImage = $userId ? ($userData[$userId]['profileImage'] ?? 'img/profile-icon.png') : 'img/profile-icon.png';
-            ?>
+
+                // Fetch vehicle details if vehicleId exists
+                $vehicleName = 'N/A';
+                $vehicleType = 'N/A';
+
+                if (isset($doc['vehicleId'])) {
+                    $vehicle = $vehiclesCollection->findOne(filter: ['_id' => new MongoDB\BSON\ObjectId($doc['vehicleId'])]);
+                    if ($vehicle) {
+                        $vehicleName = $vehicle['vehicle_name'] ?? $doc['vehicleName'] ?? 'N/A';
+                        $vehicleType = $vehicle['type'] ?? $doc['vehicleType'] ?? 'N/A';
+                    }
+                } else {
+                    $vehicleName = $doc['vehicleName'] ?? 'N/A';
+                    $vehicleType = $doc['vehicleType'] ?? 'N/A';
+                }
+                ?>
                 <div class="col-md-4 mb-4">
                     <div class="review-card floating-element">
-                        <img src="<?= htmlspecialchars($userImage) ?>" alt="User" class="review-avatar floating-element-slow">
-                        <h5><?= htmlspecialchars($userName) ?></h5>
+                        <img src="<?= htmlspecialchars(string: $userImage) ?>" alt="User"
+                            class="review-avatar floating-element-slow">
+                        <h5><?= htmlspecialchars(string: $userName) ?></h5>
                         <p class="review-date">
                             <?php
                             if ($doc['date'] instanceof MongoDB\BSON\UTCDateTime) {
-                                echo htmlspecialchars($doc['date']->toDateTime()->format('Y-m-d h:i A'));
+                                echo htmlspecialchars(string: $doc['date']->toDateTime()->format('Y-m-d h:i A'));
                             } else {
-                                echo htmlspecialchars($doc['date']);
+                                echo htmlspecialchars(string: $doc['date']);
                             }
                             ?>
                         </p>
                         <p class="vehicle-info">
-                            <strong><?= htmlspecialchars($doc['vehicleName'] ?? 'N/A') ?></strong>
-                            (<?= htmlspecialchars($doc['vehicleType'] ?? 'N/A') ?>)
+                            <strong><?= htmlspecialchars(string: $vehicleName) ?></strong>
+                            (<?= htmlspecialchars(string: $vehicleType) ?>)
                         </p>
                         <div class="rating">
-                            <?php for ($i = 0; $i < (int)$doc['starCount']; $i++)
-                                echo '<span class="star filled floating-element-fast">&#9733;</span>'; ?>
+                            <?php for ($i = 0; $i < (int) $doc['starCount']; $i++) {
+                                echo '<span class="star filled floating-element-fast">&#9733;</span>';
+                            } ?>
                         </div>
-                        <p class="review-comment">"<?= htmlspecialchars($doc['comment']) ?>"</p>
-                        
+                        <p class="review-comment">"<?= htmlspecialchars(string: $doc['comment']) ?>"</p>
+
                         <!-- Report Button -->
-                        <button type="button" class="btn-report floating-element-fast" data-bs-toggle="modal" data-bs-target="#reportModal" 
-                            data-review-id="<?= (string) $doc['_id'] ?>">
+                        <button type="button" class="btn-report floating-element-fast" data-bs-toggle="modal"
+                            data-bs-target="#reportModal" data-review-id="<?= (string) $doc['_id'] ?>">
                             <i class="fas fa-flag"></i> Report
                         </button>
                     </div>
@@ -243,7 +262,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         <input type="hidden" name="report_review_id" id="report_review_id">
                         <div class="mb-3">
                             <label for="report_reason" class="form-label">Reason for reporting</label>
-                            <select class="form-select floating-element-fast" name="report_reason" id="report_reason" required>
+                            <select class="form-select floating-element-fast" name="report_reason" id="report_reason"
+                                required>
                                 <option value="" selected disabled>Select a reason</option>
                                 <option value="Inappropriate content">Inappropriate content</option>
                                 <option value="False information">False information</option>
@@ -253,12 +273,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                         </div>
                         <div class="mb-3">
                             <label for="report_details" class="form-label">Additional details (optional)</label>
-                            <textarea class="form-control floating-element-fast" name="report_details" id="report_details" rows="3"></textarea>
+                            <textarea class="form-control floating-element-fast" name="report_details"
+                                id="report_details" rows="3"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary floating-element-fast" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" name="report_review" class="btn btn-danger floating-element-fast">Submit Report</button>
+                        <button type="button" class="btn btn-secondary floating-element-fast"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="report_review" class="btn btn-danger floating-element-fast">Submit
+                            Report</button>
                     </div>
                 </form>
             </div>
@@ -282,25 +305,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                             onchange="fillVehicleDetails(this)">
                             <?php
                             try {
-                                $bookingsCollection = $db->selectCollection(collectionName: 'bookings');
-                                $userBookings = $bookingsCollection->find(filter: [
-                                    'username' => $_SESSION['username'],
-                                    'status' => 'pending'
-                                ])->toArray();
+                                // Get current user
+                                $currentUser = $usersCollection->findOne(filter: ['UserName' => $_SESSION['username']]);
+                                if (!$currentUser) {
+                                    throw new Exception(message: "User not found");
+                                }
+
+                                $userId = $currentUser['_id'];
+
+                                // Get user's pending bookings that have a vehicle_id
+                                $userBookings = $bookingsCollection->find(
+                                    filter: [
+                                        'user_id' => $userId,
+                                        'status' => 'pending',
+                                        'vehicle_id' => ['$exists' => true, '$ne' => null]
+                                    ]
+                                )->toArray();
 
                                 if (empty($userBookings)) {
                                     echo '<option value="" disabled selected>No pending bookings available</option>';
                                 } else {
                                     echo '<option value="" disabled selected>Select your booking</option>';
+
                                     foreach ($userBookings as $booking) {
-                                        $bookingId = (string) $booking['_id'];
+                                        // Get vehicle details from vehicles collection
+                                        $vehicle = $vehiclesCollection->findOne(filter: ['_id' => $booking['vehicle_id']]);
+                                        $vehicleDetails = $vehicle ? "{$vehicle['type']} - {$vehicle['vehicle_name']}" : 'Unknown Vehicle';
+
+                                        // Format date range
                                         $dateRange = htmlspecialchars(string: $booking['pickup_date'] ?? '') . ' - ' .
                                             htmlspecialchars(string: $booking['dropoff_date'] ?? '');
-                                        echo '<option value="' . $bookingId . '" 
-                              data-vehicle="' . htmlspecialchars(string: $booking['vehicle_type'] ?? '') . ' - ' .
-                                            htmlspecialchars(string: $booking['vehicle_name'] ?? '') . '"
-                              data-dates="' . $dateRange . '">' .
-                                            $dateRange . '</option>';
+
+                                        echo sprintf(
+                                            '<option value="%s" data-vehicle="%s" data-dates="%s">%s</option>',
+                                            (string) $booking['_id'],
+                                            htmlspecialchars(string: $vehicleDetails),
+                                            htmlspecialchars(string: $dateRange),
+                                            $dateRange
+                                        );
                                     }
                                 }
                             } catch (Exception $e) {
@@ -333,10 +375,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                     <div class="mb-3">
                         <label for="comment" class="form-label">Comment</label>
                         <div class="position-relative">
-                            <textarea name="comment" id="comment" rows="4" class="form-control floating-element-fast" required 
-                                      placeholder="Speak or type your review..."></textarea>
-                            <button type="button" onclick="startVoiceInput()" class="btn btn-sm position-absolute floating-element-fast" 
-                                    style="right: 5px; bottom: 5px; background: transparent; border: none; font-size: 1.2rem;">
+                            <textarea name="comment" id="comment" rows="4" class="form-control floating-element-fast"
+                                required placeholder="Speak or type your review..."></textarea>
+                            <button type="button" onclick="startVoiceInput()"
+                                class="btn btn-sm position-absolute floating-element-fast"
+                                style="right: 5px; bottom: 5px; background: transparent; border: none; font-size: 1.2rem;">
                                 🎤
                             </button>
                         </div>
@@ -386,17 +429,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
 
             recognition.start();
 
-            recognition.onresult = function(event) {
+            recognition.onresult = function (event) {
                 const transcript = event.results[0][0].transcript;
                 document.getElementById("comment").value = transcript;
                 document.getElementById("voiceStatus").innerText = "Voice captured";
             };
 
-            recognition.onerror = function(event) {
+            recognition.onerror = function (event) {
                 document.getElementById("voiceStatus").innerText = "Error: " + event.error;
             };
 
-            recognition.onend = function() {
+            recognition.onend = function () {
                 if (!document.getElementById("comment").value) {
                     document.getElementById("voiceStatus").innerText = "Try speaking again";
                 }
@@ -416,10 +459,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var reportModal = document.getElementById('reportModal');
             if (reportModal) {
-                reportModal.addEventListener('show.bs.modal', function(event) {
+                reportModal.addEventListener('show.bs.modal', function (event) {
                     var button = event.relatedTarget;
                     var reviewId = button.getAttribute('data-review-id');
                     var modalInput = reportModal.querySelector('#report_review_id');
@@ -432,4 +475,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

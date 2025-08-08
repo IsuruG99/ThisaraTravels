@@ -1,13 +1,22 @@
 <?php
 require '../auth-config.php';
 
+$vehicleLookup = [];
+$vehiclesCursor = getVehiclesCollection()->find(filter: [], options: ['projection' => ['vehicle_name' => 1, 'type' => 1]]);
+foreach ($vehiclesCursor as $vehicle) {
+    $vehicleLookup[(string) $vehicle['_id']] = [
+        'vehicle_name' => $vehicle['vehicle_name'] ?? 'N/A',
+        'type' => $vehicle['type'] ?? 'N/A'
+    ];
+}
+
 // Handle delete action
 if (isset($_GET['delete'])) {
     $deleteId = $_GET['delete'];
     try {
-        $deleteResult = getReviewsCollection()->deleteOne(['_id' => new MongoDB\BSON\ObjectId($deleteId)]);
+        $deleteResult = getReviewsCollection()->deleteOne(filter: ['_id' => new MongoDB\BSON\ObjectId($deleteId)]);
         if ($deleteResult->getDeletedCount() > 0) {
-            header('Location: adReviews.php?deleted=1');
+            header(header: 'Location: adReviews.php?deleted=1');
             exit;
         }
     } catch (Exception $e) {
@@ -21,14 +30,14 @@ if (isset($_GET['deleted'])) {
 }
 
 // Fetch all reviews
-$reviews = iterator_to_array(getReviewsCollection()->find([], [
+$reviews = iterator_to_array(iterator: getReviewsCollection()->find(filter: [], options: [
     'sort' => ['date' => -1]
 ]));
 
 // Function to get customer name by user ID
-function getCustomerName($userId) {
+function getCustomerName($userId): mixed {
     try {
-        $user = getUsersCollection()->findOne(['_id' => new MongoDB\BSON\ObjectId($userId)]);
+        $user = getUsersCollection()->findOne(filter: ['_id' => new MongoDB\BSON\ObjectId($userId)]);
         return $user ? ($user['UserName'] ?? 'Unknown User') : 'Unknown User';
     } catch (Exception $e) {
         return 'Unknown User';
@@ -36,8 +45,8 @@ function getCustomerName($userId) {
 }
 
 // Function to format date
-function formatDate($date) {
-    if (is_object($date) && $date instanceof MongoDB\BSON\UTCDateTime) {
+function formatDate($date): mixed {
+    if (is_object(value: $date) && $date instanceof MongoDB\BSON\UTCDateTime) {
         return $date->toDateTime()->format('Y-m-d H:i:s');
     }
     return 'Invalid Date';
@@ -85,7 +94,7 @@ function formatDate($date) {
                     <div class="stat-icon">
                         <i class="fas fa-star" style="color: #238636;"></i>
                     </div>
-                    <div class="stat-number"><?php echo count($reviews); ?></div>
+                    <div class="stat-number"><?php echo count(value: $reviews); ?></div>
                     <div class="stat-label">Total Reviews</div>
                 </div>
                 <div class="stat-card">
@@ -100,7 +109,7 @@ function formatDate($date) {
                             foreach ($reviews as $review) {
                                 $totalStars += (int)($review['starCount'] ?? 0);
                             }
-                            $avgRating = round($totalStars / count($reviews), 1);
+                            $avgRating = round(num: $totalStars / count(value: $reviews), precision: 1);
                         }
                         echo $avgRating;
                         ?>
@@ -153,19 +162,26 @@ function formatDate($date) {
                         </thead>
                         <tbody>
                             <?php foreach ($reviews as $review): ?>
+                                <?php
+                                // Fetch vehicle info using vehicleId
+                                $vehicleId = (string)($review['vehicleId'] instanceof MongoDB\BSON\ObjectId 
+                                    ? $review['vehicleId'] 
+                                    : $review['vehicleId']);
+                                $vehicleInfo = $vehicleLookup[$vehicleId] ?? ['vehicle_name' => 'Unknown Vehicle', 'type' => 'N/A'];
+                                ?>
                                 <tr>
                                     <td>
                                         <div class="customer-info">
                                             <i class="fas fa-user"></i> 
-                                            <?php echo htmlspecialchars(getCustomerName($review['userId'])); ?>
+                                            <?php echo htmlspecialchars(string: getCustomerName(userId: $review['userId'])); ?>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="vehicle-info">
                                             <i class="fas fa-car"></i> 
-                                            <?php echo htmlspecialchars($review['vehicleName'] ?? 'Unknown Vehicle'); ?>
+                                            <?php echo htmlspecialchars(string: $vehicleInfo['vehicle_name']); ?>
                                         </div>
-                                        <small class="text-muted"><?php echo htmlspecialchars($review['vehicleType'] ?? 'N/A'); ?></small>
+                                        <small class="text-muted"><?php echo htmlspecialchars(string: $vehicleInfo['type']); ?></small>
                                     </td>
                                     <td>
                                         <div class="star-rating">
@@ -182,7 +198,7 @@ function formatDate($date) {
                                         <?php if (!empty($review['comment'])): ?>
                                             <div class="review-comment">
                                                 <i class="fas fa-comment"></i>
-                                                <?php echo htmlspecialchars($review['comment']); ?>
+                                                <?php echo htmlspecialchars(string: $review['comment']); ?>
                                             </div>
                                         <?php else: ?>
                                             <span class="text-muted">No comment</span>
@@ -191,15 +207,15 @@ function formatDate($date) {
                                     <td>
                                         <div class="review-date">
                                             <i class="fas fa-calendar"></i> 
-                                            <?php echo formatDate($review['date']); ?>
+                                            <?php echo formatDate(date: $review['date']); ?>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="table-actions">
-                                            <button class="btn btn-sm btn-secondary" onclick="showReviewDetails('<?php echo (string)($review['_id']); ?>', '<?php echo htmlspecialchars(getCustomerName($review['userId'])); ?>', '<?php echo htmlspecialchars($review['vehicleName'] ?? 'Unknown Vehicle'); ?>', '<?php echo $starCount; ?>', '<?php echo htmlspecialchars($review['comment'] ?? ''); ?>', '<?php echo formatDate($review['date']); ?>', '<?php echo (string)($review['orderId']); ?>', '<?php echo htmlspecialchars($review['vehicleType'] ?? 'N/A'); ?>')">
+                                            <button class="btn btn-sm btn-secondary" onclick="showReviewDetails('<?php echo (string)($review['_id']); ?>', '<?php echo htmlspecialchars(getCustomerName($review['userId'])); ?>', '<?php echo htmlspecialchars($vehicleInfo['vehicle_name']); ?>', '<?php echo $starCount; ?>', '<?php echo htmlspecialchars($review['comment'] ?? ''); ?>', '<?php echo formatDate($review['date']); ?>', '<?php echo (string)($review['orderId']); ?>', '<?php echo htmlspecialchars($vehicleInfo['type']); ?>')">
                                                 <i class="fas fa-eye"></i> View
                                             </button>
-                                            <a href="?delete=<?php echo (string)($review['_id']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this review?\n\nCustomer: <?php echo htmlspecialchars(getCustomerName($review['userId'])); ?>\nVehicle: <?php echo htmlspecialchars($review['vehicleName'] ?? 'Unknown Vehicle'); ?>\n\nThis action cannot be undone and will remove the review from all pages.')">
+                                            <a href="?delete=<?php echo (string)($review['_id']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this review?\n\nCustomer: <?php echo htmlspecialchars(getCustomerName($review['userId'])); ?>\nVehicle: <?php echo htmlspecialchars($vehicleInfo['vehicle_name']); ?>\n\nThis action cannot be undone and will remove the review from all pages.')">
                                                 <i class="fas fa-trash"></i> Delete
                                             </a>
                                         </div>
@@ -208,6 +224,14 @@ function formatDate($date) {
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+                <?php endif; ?>
+                <?php if (empty($reviews)): ?>
+                    <!-- Empty state when no reviews are found -->
+                    <div class="empty-state">
+                        <i class="empty-icon fas fa-star"></i>
+                        <h3>No reviews found</h3>
+                        <p>No reviews have been submitted yet.</p>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>

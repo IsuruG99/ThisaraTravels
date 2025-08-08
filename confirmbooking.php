@@ -30,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit;
     }
 
+    error_log("Confirming booking with data: " . print_r($_SESSION['pending_booking'], true));
+
     if (isset($_SESSION['pending_booking'])) {
         try {
             $result = $bookingsCollection->insertOne($_SESSION['pending_booking']);
@@ -88,6 +90,16 @@ if (!isset($_SESSION['pending_booking']) && !isset($_SESSION['booking_message'])
 }
 
 $bookingData = $_SESSION['pending_booking'] ?? [];
+$username = 'Guest';
+if (!empty($bookingData['user_id'])) {
+    try {
+        $user = $db->users->findOne(['_id' => $bookingData['user_id']]);
+        $username = $user ? ($user['UserName'] ?? 'Registered User') : 'Guest';
+    } catch (Exception $e) {
+        error_log("Error fetching user: " . $e->getMessage());
+        $username = 'User (ID: ' . (string)$bookingData['user_id'] . ')';
+    }
+}
 $booking_message = $_SESSION['booking_message'] ?? null;
 unset($_SESSION['booking_message']);
 
@@ -594,8 +606,7 @@ header("Pragma: no-cache");
             <?php endif; ?>
             <?php if (!empty($bookingData)): ?>
                 <div class="booking-details">
-                    <p><strong>Username:</strong> <span><?php echo htmlspecialchars($bookingData['username'] ?? 'Guest'); ?></span></p>
-                    <p><strong>Email:</strong> <span><?php echo htmlspecialchars($bookingData['email'] ?? 'Not provided'); ?></span></p>
+                    <p><strong>User Name:</strong> <span><?php echo htmlspecialchars($username); ?></span></p>
                     <p><strong>Vehicle:</strong> <span><?php echo htmlspecialchars($bookingData['vehicle_name'] ?? ''); ?></span></p>
                     <p><strong>Name:</strong> <span><?php echo htmlspecialchars($bookingData['name'] ?? ''); ?></span></p>
                     <p><strong>WhatsApp Number:</strong> <span><?php echo htmlspecialchars($bookingData['phone'] ?? ''); ?></span></p>
