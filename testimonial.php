@@ -35,8 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['userId'], $_POST['ord
         $reviewData = [
             'userId' => new MongoDB\BSON\ObjectId($userId),
             'vehicleId' => $booking['vehicle_id'],
-            'vehicleType' => $vehicleType,
-            'vehicleName' => $vehicleName,
+            'orderId' => new MongoDB\BSON\ObjectId($orderId),
             'starCount' => (string) $rating,
             'comment' => $comment,
             'date' => new MongoDB\BSON\UTCDateTime()
