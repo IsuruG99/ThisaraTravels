@@ -111,7 +111,8 @@ if (empty($_SESSION['csrf_token'])) {
             don't have an account yet, you can sign up for free.</p>
           <button class="btn transparent" id="sign-up-btn">Sign up</button>
         </div>
-        <img src="img/sl-tour.png" alt="" class="img">
+        <img src="img/sl-map.png" alt="" class="img">
+        
       </div>
       <div class="panel right-panel">
         <div class="content">
@@ -120,7 +121,7 @@ if (empty($_SESSION['csrf_token'])) {
             yet, you can sign up for free.</p>
           <button class="btn transparent" id="sign-in-btn">Sign in</button>
         </div>
-        <img src="img/sl-map.png" alt="" class="img">
+        <img src="img/sl-tour.png" alt="" class="img">
       </div>
     </div>
   </div>

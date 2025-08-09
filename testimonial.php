@@ -21,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['userId'], $_POST['ord
         // Validate booking exists, belongs to user, and has no review
         $booking = $bookingsCollection->findOne(filter: [
             '_id' => new MongoDB\BSON\ObjectId($orderId),
-            'user_id' => new MongoDB\BSON\ObjectId($userId)
+            'user_id' => new MongoDB\BSON\ObjectId($userId),
+            'status' => 'Completed'
         ]);
 
         if (!$booking) {
