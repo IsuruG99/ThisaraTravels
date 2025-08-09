@@ -212,7 +212,7 @@ function formatDate($date): mixed {
                                     </td>
                                     <td>
                                         <div class="table-actions">
-                                            <button class="btn btn-sm btn-secondary" onclick="showReviewDetails('<?php echo (string)($review['_id']); ?>', '<?php echo htmlspecialchars(getCustomerName($review['userId'])); ?>', '<?php echo htmlspecialchars($vehicleInfo['vehicle_name']); ?>', '<?php echo $starCount; ?>', '<?php echo htmlspecialchars($review['comment'] ?? ''); ?>', '<?php echo formatDate($review['date']); ?>', '<?php echo (string)($review['orderId']); ?>', '<?php echo htmlspecialchars($vehicleInfo['type']); ?>')">
+                                            <button class="btn btn-sm btn-secondary" onclick="showReviewDetails('<?php echo addslashes((string)($review['_id'])); ?>', '<?php echo addslashes(getCustomerName($review['userId'])); ?>', '<?php echo addslashes($vehicleInfo['vehicle_name']); ?>', '<?php echo $starCount; ?>', '<?php echo addslashes($review['comment'] ?? ''); ?>', '<?php echo addslashes(formatDate($review['date'])); ?>', '<?php echo addslashes((string)($review['orderId'] ?? '')); ?>', '<?php echo addslashes($vehicleInfo['type']); ?>')">
                                                 <i class="fas fa-eye"></i> View
                                             </button>
                                             <a href="?delete=<?php echo (string)($review['_id']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this review?\n\nCustomer: <?php echo htmlspecialchars(getCustomerName($review['userId'])); ?>\nVehicle: <?php echo htmlspecialchars($vehicleInfo['vehicle_name']); ?>\n\nThis action cannot be undone and will remove the review from all pages.')">
@@ -309,14 +309,14 @@ function formatDate($date): mixed {
 
         // Modal functionality
         function showReviewDetails(reviewId, customer, vehicle, rating, comment, date, orderId, vehicleType) {
-            document.getElementById('modalReviewId').textContent = reviewId;
-            document.getElementById('modalCustomer').textContent = customer;
-            document.getElementById('modalVehicle').textContent = vehicle;
-            document.getElementById('modalVehicleType').textContent = vehicleType;
-            document.getElementById('modalRating').innerHTML = generateStars(rating);
+            document.getElementById('modalReviewId').textContent = reviewId || 'N/A';
+            document.getElementById('modalCustomer').textContent = customer || 'N/A';
+            document.getElementById('modalVehicle').textContent = vehicle || 'N/A';
+            document.getElementById('modalVehicleType').textContent = vehicleType || 'N/A';
+            document.getElementById('modalRating').innerHTML = generateStars(rating || 0);
             document.getElementById('modalComment').textContent = comment || 'No comment';
-            document.getElementById('modalDate').textContent = date;
-            document.getElementById('modalOrderId').textContent = orderId;
+            document.getElementById('modalDate').textContent = date || 'N/A';
+            document.getElementById('modalOrderId').textContent = orderId || 'N/A';
             
             document.getElementById('reviewModal').style.display = 'block';
         }

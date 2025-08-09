@@ -432,6 +432,19 @@ body {
     font-size: 16px;
 }
 
+/* Disabled button styles */
+.btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn.disabled:hover {
+    background-color: inherit;
+    border-color: inherit;
+    transform: none;
+}
+
 /* Forms */
 .form-container {
     max-width: 600px;
@@ -1086,6 +1099,11 @@ body {
 
 .status-denied {
     background-color: #dc3545;
+    color: #ffffff;
+}
+
+.status-reviewed {
+    background-color: #28a745;
     color: #ffffff;
 }
 
