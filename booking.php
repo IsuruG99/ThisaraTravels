@@ -139,8 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit;
     }
     error_log("No duplicate booking found");
-    --- Rate Limiting and Anti-Spam Protections ---
-    1. Per-session rate limiting (1 booking per 60 seconds)
+    // --- Rate Limiting and Anti-Spam Protections ---
+    //1. Per-session rate limiting (1 booking per 60 seconds)
     $rate_limit_seconds = 60;
     $now = time();
     if (!isset($_SESSION['booking_rate_limit'])) {
@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit;
     }
 
-    2. Per-IP rate limiting (max 10 bookings per hour)
+    // 2. Per-IP rate limiting (max 10 bookings per hour)
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $ip_limit_file = sys_get_temp_dir() . '/booking_ip_limit_' . md5($ip) . '.json';
     $ip_limit_data = ['count' => 0, 'start' => $now];
@@ -1460,5 +1460,4 @@ header(header: "Pragma: no-cache");
 
     </script>
 </body>
-
 </html>
