@@ -139,51 +139,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit;
     }
     error_log("No duplicate booking found");
-    // --- Rate Limiting and Anti-Spam Protections ---
-    // 1. Per-session rate limiting (1 booking per 60 seconds)
-    // $rate_limit_seconds = 60;
-    // $now = time();
-    // if (!isset($_SESSION['booking_rate_limit'])) {
-    //     $_SESSION['booking_rate_limit'] = [];
-    // }
-    // $userKey = $_SESSION['username'] ?? $_SERVER['REMOTE_ADDR'];
-    // if (isset($_SESSION['booking_rate_limit'][$userKey]) && ($now - $_SESSION['booking_rate_limit'][$userKey]) < $rate_limit_seconds) {
-    //     $_SESSION['booking_message'] = ['text' => 'You are submitting bookings too quickly. Please wait a minute before trying again.', 'type' => 'error'];
-    //     header('Location: ' . $_SERVER['PHP_SELF']);
-    //     exit;
-    // }
+    --- Rate Limiting and Anti-Spam Protections ---
+    1. Per-session rate limiting (1 booking per 60 seconds)
+    $rate_limit_seconds = 60;
+    $now = time();
+    if (!isset($_SESSION['booking_rate_limit'])) {
+        $_SESSION['booking_rate_limit'] = [];
+    }
+    $userKey = $_SESSION['username'] ?? $_SERVER['REMOTE_ADDR'];
+    if (isset($_SESSION['booking_rate_limit'][$userKey]) && ($now - $_SESSION['booking_rate_limit'][$userKey]) < $rate_limit_seconds) {
+        $_SESSION['booking_message'] = ['text' => 'You are submitting bookings too quickly. Please wait a minute before trying again.', 'type' => 'error'];
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
 
-    // 2. Per-IP rate limiting (max 10 bookings per hour)
-    // $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    // $ip_limit_file = sys_get_temp_dir() . '/booking_ip_limit_' . md5($ip) . '.json';
-    // $ip_limit_data = ['count' => 0, 'start' => $now];
-    // if (file_exists($ip_limit_file)) {
-    //     $ip_limit_data = json_decode(file_get_contents($ip_limit_file), true) ?: $ip_limit_data;
-    //     if (($now - $ip_limit_data['start']) > 3600) {
-    //         $ip_limit_data = ['count' => 0, 'start' => $now];
-    //     }
-    // }
-    // $ip_limit_data['count']++;
-    // file_put_contents($ip_limit_file, json_encode($ip_limit_data));
-    // if ($ip_limit_data['count'] > 10) {
-    //     $_SESSION['booking_message'] = ['text' => 'Too many booking attempts from your IP address. Please try again later.', 'type' => 'error'];
-    //     header('Location: ' . $_SERVER['PHP_SELF']);
-    //     exit;
-    // }
+    2. Per-IP rate limiting (max 10 bookings per hour)
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $ip_limit_file = sys_get_temp_dir() . '/booking_ip_limit_' . md5($ip) . '.json';
+    $ip_limit_data = ['count' => 0, 'start' => $now];
+    if (file_exists($ip_limit_file)) {
+        $ip_limit_data = json_decode(file_get_contents($ip_limit_file), true) ?: $ip_limit_data;
+        if (($now - $ip_limit_data['start']) > 3600) {
+            $ip_limit_data = ['count' => 0, 'start' => $now];
+        }
+    }
+    $ip_limit_data['count']++;
+    file_put_contents($ip_limit_file, json_encode($ip_limit_data));
+    if ($ip_limit_data['count'] > 10) {
+        $_SESSION['booking_message'] = ['text' => 'Too many booking attempts from your IP address. Please try again later.', 'type' => 'error'];
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
 
-    // // 3. CAPTCHA verification (Google reCAPTCHA v2) - only on booking form submit
-    // if (isset($_POST['g-recaptcha-response'])) {
-    //     $recaptcha_secret = '6Lf6LZorAAAAAO1xgJwqyB-MZpY9P-tJ7z1qtzGV'; // <-- Replace with your actual secret key
-    //     $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
-    //     $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
-    //     $recaptcha = file_get_contents($recaptcha_url . '?secret=' . urlencode($recaptcha_secret) . '&response=' . urlencode($recaptcha_response) . '&remoteip=' . urlencode($ip));
-    //     $recaptcha = json_decode($recaptcha, true);
-    //     if (empty($recaptcha['success'])) {
-    //         $_SESSION['booking_message'] = ['text' => 'CAPTCHA verification failed. Please try again.', 'type' => 'error'];
-    //         header('Location: ' . $_SERVER['PHP_SELF']);
-    //         exit;
-    //     }
-    // }
+    // 3. CAPTCHA verification (Google reCAPTCHA v2) - only on booking form submit
+    if (isset($_POST['g-recaptcha-response'])) {
+        $recaptcha_secret = '6Lf6LZorAAAAAO1xgJwqyB-MZpY9P-tJ7z1qtzGV'; // <-- Replace with your actual secret key
+        $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
+        $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
+        $recaptcha = file_get_contents($recaptcha_url . '?secret=' . urlencode($recaptcha_secret) . '&response=' . urlencode($recaptcha_response) . '&remoteip=' . urlencode($ip));
+        $recaptcha = json_decode($recaptcha, true);
+        if (empty($recaptcha['success'])) {
+            $_SESSION['booking_message'] = ['text' => 'CAPTCHA verification failed. Please try again.', 'type' => 'error'];
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    }
 
     error_log("Rate limiting and CAPTCHA checks passed");
 
@@ -477,8 +477,8 @@ header(header: "Pragma: no-cache");
         sort($vehicleTypes);
         sort($seatCounts);
 
-        // Build capacity ranges for dropdown
-        $capacityRanges = ["1-5", "5-9", "5-12"];
+        // Build capacity ranges for dropdown (allow overlap)
+        $capacityRanges = ["1-4", "4-9", "4-12"];
         $selectedType = $_GET['vehicleType'] ?? '';
         $selectedCapacity = $_GET['capacity'] ?? '';
         $query = [];
@@ -491,11 +491,44 @@ header(header: "Pragma: no-cache");
             if (preg_match('/^(\d+)-(\d+)$/', $selectedCapacity, $matches)) {
                 $min = (int) $matches[1];
                 $max = (int) $matches[2];
-                $query['seat_count'] = ['$gte' => $min, '$lte' => $max];
+                // Instead of adding to $query, filter after fetching
                 $filterApplied = true;
             }
         }
-        $vehicles = !$filterApplied ? $vehiclesCollection->find() : $vehiclesCollection->find($query);
+        if (!$filterApplied) {
+            $vehicles = $vehiclesCollection->find();
+        } else {
+            // Always filter by type in DB if set
+            $dbQuery = [];
+            if ($selectedType) {
+                $dbQuery['type'] = $selectedType;
+            }
+            $vehiclesCursor = $vehiclesCollection->find($dbQuery);
+            $vehicles = [];
+            foreach ($vehiclesCursor as $vehicle) {
+                if (isset($min) && isset($max) && isset($vehicle['seat_count'])) {
+                    $seatCount = (int)$vehicle['seat_count'];
+                    // For the largest range, only show vehicles with seat count == max
+                    if ($selectedCapacity === end($capacityRanges)) {
+                        if ($seatCount === $max) {
+                            $vehicles[] = $vehicle;
+                        }
+                    } elseif ($selectedCapacity === $capacityRanges[0]) {
+                        // For the smallest range, allow vehicles with seat count >= $min (e.g., vans with 5, 7, 9 seats)
+                        if ($seatCount >= $min) {
+                            $vehicles[] = $vehicle;
+                        }
+                    } else {
+                        // For other ranges, allow overlap
+                        if ($seatCount >= $min && $seatCount <= $max) {
+                            $vehicles[] = $vehicle;
+                        }
+                    }
+                } else {
+                    $vehicles[] = $vehicle;
+                }
+            }
+        }
         ?>
         <div class="filter-section">
             <h2 class="filter-title">
@@ -550,66 +583,89 @@ header(header: "Pragma: no-cache");
             Searching available vehicles...
         </div>
 
-        <!-- Vehicles Section -->
-        <div class="vehicles-section">
-            <h2 class="section-title">Available Vehicles</h2>
-            <div class="vehicles-grid" id="vehiclesGrid">
-                <?php
-                $vehicleCount = 0;
-                foreach ($vehicles as $vehicle):
-                    $vehicleCount++;
-                    $vehicleId = (string) ($vehicle['_id'] instanceof MongoDB\BSON\ObjectId ? $vehicle['_id'] : $vehicle['_id']);
-                    $ratingData = $vehicleRatings[$vehicleId] ?? ['avg' => 0, 'count' => 0];
-                    ?>
-                    <div class="vehicle-card" data-type="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? ''); ?>"
-                        data-capacity="<?php echo htmlspecialchars($vehicle['seat_count'] ?? ''); ?>" role="article"
-                        aria-label="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? ''); ?>">
-                        <div class="vehicle-image">
-                            <img src="<?php echo $photo; ?>"
-                                alt="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? 'Vehicle'); ?>"
-                                style="max-width:100%;max-height:100px;object-fit:cover;">
-                        </div>
-                        <div class="vehicle-info">
-                            <span class="vehicle-type">Type:
-                                <?php echo ucfirst(htmlspecialchars($vehicle['type'] ?? '')); ?></span>
-                            <div class="vehicle-name">Name:
-                                <?php echo ucfirst(htmlspecialchars($vehicle['vehicle_name'] ?? '')); ?>
-                            </div>
-                            <div class="star-rating">
-                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                    <span
-                                        class="star<?php echo $i <= round($ratingData['avg']) ? ' filled' : ''; ?>">&#9733;</span>
-                                <?php endfor; ?>
-                                <span class="ms-2">(<?php echo $ratingData['avg']; ?> out of 5 from
-                                    <?php echo $ratingData['count']; ?> reviews)</span>
-                            </div>
-                            <div class="vehicle-features">
-                                <span class="feature"><i class="fas fa-users"></i>
-                                    <?php echo htmlspecialchars($vehicle['seat_count'] ?? ''); ?> Seats</span>
-                                <span class="feature"><i class="fas fa-snowflake"></i>
-                                    <?php echo htmlspecialchars($vehicle['ac_nac'] ?? ''); ?></span>
-                                <?php if (!empty($vehicle['features']) && is_array($vehicle['features'])):
-                                    foreach ($vehicle['features'] as $feature): ?>
-                                        <span class="feature"><i class="fas fa-check"></i>
-                                            <?php echo htmlspecialchars(trim($feature)); ?>
-                                        </span>
-                                    <?php endforeach;
-                                endif; ?>
-                            </div>
-                            <button class="book-btn" data-vehicle-id="<?php echo htmlspecialchars($vehicleId); ?>"
-                                data-vehicle-name="<?php echo htmlspecialchars($vehicle['vehicle_name']); ?>"
-                                aria-label="Book <?php echo htmlspecialchars($vehicle['vehicle_name']); ?>">
-                                <i class="fas fa-calendar-plus"></i> Book Now
-                            </button>
-                        </div>
+<!-- Vehicles Section -->
+<div class="vehicles-section">
+    <h2 class="section-title">Available Vehicles</h2>
+    <div class="vehicles-grid" id="vehiclesGrid">
+        <?php
+        $vehicleCount = 0;
+        foreach ($vehicles as $vehicle):
+            $vehicleCount++;
+            $vehicleId = (string) ($vehicle['_id'] instanceof MongoDB\BSON\ObjectId ? $vehicle['_id'] : $vehicle['_id']);
+            $ratingData = $vehicleRatings[$vehicleId] ?? ['avg' => 0, 'count' => 0];
+            $vehiclePhoto = '/ThisaraTravels/img/default-vehicle.png'; // Default image (absolute path)
+            if (!empty($vehicle['vehiclePhoto'])) {
+                $photoPath = $vehicle['vehiclePhoto'];
+                if (preg_match('/^https?:\/\//i', $photoPath)) {
+                    // Handle absolute URLs
+                    $vehiclePhoto = htmlspecialchars($photoPath);
+                    error_log("Using URL for vehicle {$vehicleId}: {$vehiclePhoto}");
+                } else {
+                    // Handle local paths (map uploads/ to Admin panel/uploads/)
+                    $cleanPath = ltrim(str_replace('uploads/', 'Admin panel/uploads/', $photoPath), '/');
+                    $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/ThisaraTravels/' . $cleanPath;
+                    if (file_exists($fullPath)) {
+                        $vehiclePhoto = '/ThisaraTravels/' . htmlspecialchars($cleanPath);
+                        error_log("Using local image for vehicle {$vehicleId}: {$vehiclePhoto}");
+                    } else {
+                        error_log("Image not found for vehicle {$vehicleId}: {$fullPath}");
+                    }
+                }
+            } else {
+                error_log("No vehiclePhoto set for vehicle {$vehicleId}");
+            }
+            ?>
+            <div class="vehicle-card" data-type="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? ''); ?>"
+                 data-capacity="<?php echo htmlspecialchars($vehicle['seat_count'] ?? ''); ?>" role="article"
+                 aria-label="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? ''); ?>">
+                <div class="vehicle-image">
+                    <img src="<?php echo $vehiclePhoto; ?>"
+                         alt="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? 'Vehicle'); ?>"
+                         style="max-width:100%;max-height:100%;object-fit:cover;"
+                         loading="lazy"
+                         onerror="this.src='/ThisaraTravels/img/default-vehicle.png'; console.error('Failed to load image: <?php echo addslashes($vehiclePhoto); ?> for vehicle <?php echo $vehicleId; ?>');">
+                </div>
+                <div class="vehicle-info">
+                    <span class="vehicle-type">Type:
+                        <?php echo ucfirst(htmlspecialchars($vehicle['type'] ?? '')); ?></span>
+                    <div class="vehicle-name">Name:
+                        <?php echo ucfirst(htmlspecialchars($vehicle['vehicle_name'] ?? '')); ?>
                     </div>
-                <?php endforeach; ?>
-                <?php if ($vehicleCount === 0): ?>
-                    <div style="grid-column:1/-1;text-align:center;color:#dc3545;font-size:1.2rem;padding:2rem;">No vehicles
-                        found for selected filters.</div>
-                <?php endif; ?>
+                    <div class="star-rating">
+                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                            <span
+                                class="star<?php echo $i <= round($ratingData['avg']) ? ' filled' : ''; ?>">&#9733;</span>
+                        <?php endfor; ?>
+                        <span class="ms-2">(<?php echo $ratingData['avg']; ?> out of 5 from
+                            <?php echo $ratingData['count']; ?> reviews)</span>
+                    </div>
+                    <div class="vehicle-features">
+                        <span class="feature"><i class="fas fa-users"></i>
+                            <?php echo htmlspecialchars($vehicle['seat_count'] ?? ''); ?> Seats</span>
+                        <span class="feature"><i class="fas fa-snowflake"></i>
+                            <?php echo htmlspecialchars($vehicle['ac_nac'] ?? ''); ?></span>
+                        <?php if (!empty($vehicle['features']) && is_array($vehicle['features'])):
+                            foreach ($vehicle['features'] as $feature): ?>
+                                <span class="feature"><i class="fas fa-check"></i>
+                                    <?php echo htmlspecialchars(trim($feature)); ?>
+                                </span>
+                            <?php endforeach;
+                        endif; ?>
+                    </div>
+                    <button class="book-btn" data-vehicle-id="<?php echo htmlspecialchars($vehicleId); ?>"
+                            data-vehicle-name="<?php echo htmlspecialchars($vehicle['vehicle_name']); ?>"
+                            aria-label="Book <?php echo htmlspecialchars($vehicle['vehicle_name']); ?>">
+                        <i class="fas fa-calendar-plus"></i> Book Now
+                    </button>
+                </div>
             </div>
-        </div>
+        <?php endforeach; ?>
+        <?php if ($vehicleCount === 0): ?>
+            <div style="grid-column:1/-1;text-align:center;color:#dc3545;font-size:1.2rem;padding:2rem;">No vehicles
+                found for selected filters.</div>
+        <?php endif; ?>
+    </div>
+</div>
 
         <!-- Intro Section -->
         <section class="intro-section" aria-labelledby="intro-heading">

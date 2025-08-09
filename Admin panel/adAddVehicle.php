@@ -102,14 +102,12 @@
                 // Handle file upload
                 $photo = '';
                 if (isset($_FILES['vehicle_photo']) && $_FILES['vehicle_photo']['error'] === UPLOAD_ERR_OK) {
-                    $uploadDir = 'uploads/';
+                    $uploadDir = 'C:/wamp64/www/ThisaraTravels/Admin panel/uploads/';
                     if (!is_dir($uploadDir)) {
                         mkdir($uploadDir, 0777, true);
                     }
-                    
                     $fileInfo = pathinfo($_FILES['vehicle_photo']['name']);
                     $extension = strtolower($fileInfo['extension']);
-                    
                     // Validate file type
                     $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
                     if (!in_array($extension, $allowedTypes)) {
@@ -118,9 +116,8 @@
                         // Generate unique filename
                         $filename = uniqid('veh_', true) . '.' . $extension;
                         $uploadPath = $uploadDir . $filename;
-                        
                         if (move_uploaded_file($_FILES['vehicle_photo']['tmp_name'], $uploadPath)) {
-                            $photo = $uploadPath;
+                            $photo = 'uploads/' . $filename; // Store DB value as uploads/filename.jpg
                         } else {
                             $errors[] = "Failed to upload photo";
                         }
