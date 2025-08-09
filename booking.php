@@ -9,16 +9,6 @@ $bookingsCollection = getBookingsCollection();
 $vehiclesCollection = getVehiclesCollection();
 $reviewsCollection = getReviewsCollection();
 
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Debugging: Log session username
-if (isset($_SESSION['username'])) {
-    error_log(message: "Session Username: " . $_SESSION['username']);
-}
-
 // Generate CSRF token
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(string: random_bytes(length: 32));
@@ -26,10 +16,6 @@ if (!isset($_SESSION['csrf_token'])) {
 
 // Handle booking form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'submit_booking') {
-    error_log("Starting submit_booking processing");
-    error_log("POST data: " . json_encode($_POST));
-    error_log("Session CSRF token: " . ($_SESSION['csrf_token'] ?? 'none'));
-    error_log("Session ID: " . session_id());
     // --- Load Testing Instructions ---
     // To conduct load testing, use tools like Apache JMeter, Locust, or Artillery to simulate high booking request volumes.
     // Ensure the above protections (rate limiting, CAPTCHA, IP block) are triggered under attack scenarios.
@@ -41,17 +27,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         header(header: 'Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
-    error_log("CSRF validation passed");
 
     // Get current user from session
     $currentUser = null;
     if (isset($_SESSION['username'])) {
-        $currentUser = $usersCollection->findOne(['UserName' => $_SESSION['username']]);
+        $currentUser = $usersCollection->findOne(filter: ['UserName' => $_SESSION['username']]);
         if (!$currentUser) {
-            throw new Exception("User not found in database.");
+            throw new Exception(message: "User not found in database.");
         }
     }
-    error_log("User fetched successfully: " . $currentUser['_id']);
 
     try {
         $bookingData = [
@@ -70,11 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             'created_at' => new MongoDB\BSON\UTCDateTime(),
             'user_id' => $currentUser['_id'],
         ];
-        error_log("Booking data prepared: " . json_encode($bookingData));
     } catch (Exception $e) {
-        error_log("Error preparing booking data: " . $e->getMessage());
         $_SESSION['booking_message'] = ['text' => 'Invalid vehicle ID: ' . $e->getMessage(), 'type' => 'error'];
-        header('Location: ' . $_SERVER['PHP_SELF']);
+        header(header: 'Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
 
@@ -111,8 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $errors[] = "Drop-off date cannot be before pick-up date";
     }
 
-    error_log("Form validation passed");
-
     // --- Prevent duplicate booking for same user, vehicle, pickup, dropoff, date, and time ---
     $duplicateQuery = [
         'user_id' => $bookingData['user_id'],
@@ -126,19 +106,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     try {
         $existingBooking = $bookingsCollection->findOne($duplicateQuery);
         if ($existingBooking) {
-            error_log("Duplicate booking found: " . json_encode($existingBooking));
+            error_log(message: "Duplicate booking found: " . json_encode(value: $existingBooking));
             $_SESSION['booking_message'] = ['text' => 'You have already submitted a booking for this vehicle, location, date, and time.', 'type' => 'error'];
             $_SESSION['form_data'] = $bookingData;
-            header('Location: ' . $_SERVER['PHP_SELF']);
+            header(header: 'Location: ' . $_SERVER['PHP_SELF']);
             exit;
         }
     } catch (Exception $e) {
-        error_log("Error checking duplicate booking: " . $e->getMessage());
         $_SESSION['booking_message'] = ['text' => 'Error checking duplicate booking: ' . $e->getMessage(), 'type' => 'error'];
-        header('Location: ' . $_SERVER['PHP_SELF']);
+        header(header: 'Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
-    error_log("No duplicate booking found");
     // --- Rate Limiting and Anti-Spam Protections ---
     //1. Per-session rate limiting (1 booking per 60 seconds)
     $rate_limit_seconds = 60;
@@ -149,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $userKey = $_SESSION['username'] ?? $_SERVER['REMOTE_ADDR'];
     if (isset($_SESSION['booking_rate_limit'][$userKey]) && ($now - $_SESSION['booking_rate_limit'][$userKey]) < $rate_limit_seconds) {
         $_SESSION['booking_message'] = ['text' => 'You are submitting bookings too quickly. Please wait a minute before trying again.', 'type' => 'error'];
-        header('Location: ' . $_SERVER['PHP_SELF']);
+        header(header: 'Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
 
@@ -157,17 +135,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $ip_limit_file = sys_get_temp_dir() . '/booking_ip_limit_' . md5($ip) . '.json';
     $ip_limit_data = ['count' => 0, 'start' => $now];
-    if (file_exists($ip_limit_file)) {
-        $ip_limit_data = json_decode(file_get_contents($ip_limit_file), true) ?: $ip_limit_data;
+    if (file_exists(filename: $ip_limit_file)) {
+        $ip_limit_data = json_decode(json: file_get_contents(filename: $ip_limit_file), associative: true) ?: $ip_limit_data;
         if (($now - $ip_limit_data['start']) > 3600) {
             $ip_limit_data = ['count' => 0, 'start' => $now];
         }
     }
     $ip_limit_data['count']++;
-    file_put_contents($ip_limit_file, json_encode($ip_limit_data));
+    file_put_contents(filename: $ip_limit_file, data: json_encode(value: $ip_limit_data));
     if ($ip_limit_data['count'] > 10) {
         $_SESSION['booking_message'] = ['text' => 'Too many booking attempts from your IP address. Please try again later.', 'type' => 'error'];
-        header('Location: ' . $_SERVER['PHP_SELF']);
+        header(header: 'Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
 
@@ -176,16 +154,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $recaptcha_secret = '6Lf6LZorAAAAAO1xgJwqyB-MZpY9P-tJ7z1qtzGV'; // <-- Replace with your actual secret key
         $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
         $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
-        $recaptcha = file_get_contents($recaptcha_url . '?secret=' . urlencode($recaptcha_secret) . '&response=' . urlencode($recaptcha_response) . '&remoteip=' . urlencode($ip));
-        $recaptcha = json_decode($recaptcha, true);
+        $recaptcha = file_get_contents(filename: $recaptcha_url . '?secret=' . urlencode(string: $recaptcha_secret) . '&response=' . urlencode(string: $recaptcha_response) . '&remoteip=' . urlencode(string: $ip));
+        $recaptcha = json_decode(json: $recaptcha, associative: true);
         if (empty($recaptcha['success'])) {
             $_SESSION['booking_message'] = ['text' => 'CAPTCHA verification failed. Please try again.', 'type' => 'error'];
-            header('Location: ' . $_SERVER['PHP_SELF']);
+            header(header: 'Location: ' . $_SERVER['PHP_SELF']);
             exit;
         }
     }
-
-    error_log("Rate limiting and CAPTCHA checks passed");
 
     // After all checks, update session rate limit timestamp
     $_SESSION['booking_rate_limit'][$userKey] = $now;
@@ -285,7 +261,7 @@ foreach ($allReviews as $review) {
 
 // Calculate averages
 foreach ($vehicleRatings as &$rating) {
-    $rating['avg'] = round($rating['total'] / $rating['count'], 1);
+    $rating['avg'] = round(num: $rating['total'] / $rating['count'], precision: 1);
 }
 
 // Prevent caching
@@ -340,29 +316,29 @@ header(header: "Pragma: no-cache");
         <div id="booking-message"
             class="message <?php echo isset($booking_message) ? $booking_message['type'] . ' show' : ''; ?>"
             aria-live="polite">
-            <?php echo isset($booking_message) ? htmlspecialchars($booking_message['text']) : ''; ?>
+            <?php echo isset($booking_message) ? htmlspecialchars(string: $booking_message['text']) : ''; ?>
         </div>
-        <form id="booking-form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+        <form id="booking-form" method="post" action="<?php echo htmlspecialchars(string: $_SERVER['PHP_SELF']); ?>">
 
             <input type="hidden" name="action" value="submit_booking">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(string: $_SESSION['csrf_token']); ?>">
             <!-- <input type="hidden" name="vehicle_type" id="vehicle-type"
-                value="<?php echo htmlspecialchars($form_data['vehicle_type'] ?? ''); ?> -->
+                value="<?php echo htmlspecialchars(string: $form_data['vehicle_type'] ?? ''); ?> -->
             <input type="hidden" name="vehicle_name" id="vehicle-name"
-                value="<?php echo htmlspecialchars($form_data['vehicle_name'] ?? ''); ?>">
+                value="<?php echo htmlspecialchars(string: $form_data['vehicle_name'] ?? ''); ?>">
             <input type="hidden" name="vehicle_id" id="vehicle-id"
-                value="<?php echo htmlspecialchars($form_data['vehicle_id'] ?? ''); ?>">
+                value="<?php echo htmlspecialchars(string: $form_data['vehicle_id'] ?? ''); ?>">
             <div class="form-group">
                 <label for="name"><i class="fas fa-user" aria-hidden="true"></i> Your Name</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Your Name"
-                    value="<?php echo htmlspecialchars($form_data['name'] ?? ''); ?>" required
+                    value="<?php echo htmlspecialchars(string: $form_data['name'] ?? ''); ?>" required
                     aria-describedby="name-error">
                 <div id="name-error" class="validation-message"></div>
             </div>
             <div class="form-group">
                 <label for="phone"><i class="fab fa-whatsapp" aria-hidden="true"></i> WhatsApp Number</label>
                 <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your WhatsApp number"
-                    value="<?php echo htmlspecialchars($form_data['phone'] ?? ''); ?>" required
+                    value="<?php echo htmlspecialchars(string: $form_data['phone'] ?? ''); ?>" required
                     aria-describedby="phone-error">
                 <div class="search-hint">
                     <i class="fas fa-search" aria-hidden="true"></i> You can search countries by name or dial code
@@ -375,15 +351,15 @@ header(header: "Pragma: no-cache");
                 <div class="autocomplete-container">
                     <input type="text" class="form-control autocomplete-input" id="pickup-location-input"
                         placeholder="Type to search pickup location..."
-                        value="<?php echo htmlspecialchars($form_data['pickup_location'] ?? ''); ?>" autocomplete="off"
+                        value="<?php echo htmlspecialchars(string: $form_data['pickup_location'] ?? ''); ?>" autocomplete="off"
                         aria-describedby="pickup-error" required>
                     <input type="hidden" name="pickup_location" id="pickup-location-hidden"
-                        value="<?php echo htmlspecialchars($form_data['pickup_location'] ?? ''); ?>" required>
+                        value="<?php echo htmlspecialchars(string: $form_data['pickup_location'] ?? ''); ?>" required>
                     <div class="autocomplete-dropdown" id="pickup-dropdown"></div>
                 </div>
                 <input type="text" class="form-control custom-location" id="custom-pickup-location"
                     name="custom_pickup_location" placeholder="Custom Pick-Up Location"
-                    value="<?php echo htmlspecialchars($form_data['custom_pickup_location'] ?? ''); ?>"
+                    value="<?php echo htmlspecialchars(string: $form_data['custom_pickup_location'] ?? ''); ?>"
                     aria-describedby="pickup-error">
                 <div id="pickup-error" class="validation-message"></div>
             </div>
@@ -393,43 +369,43 @@ header(header: "Pragma: no-cache");
                 <div class="autocomplete-container">
                     <input type="text" class="form-control autocomplete-input" id="dropoff-location-input"
                         placeholder="Type to search dropoff location..."
-                        value="<?php echo htmlspecialchars($form_data['dropoff_location'] ?? ''); ?>" autocomplete="off"
+                        value="<?php echo htmlspecialchars(string: $form_data['dropoff_location'] ?? ''); ?>" autocomplete="off"
                         aria-describedby="dropoff-error" required>
                     <input type="hidden" name="dropoff_location" id="dropoff-location-hidden"
-                        value="<?php echo htmlspecialchars($form_data['dropoff_location'] ?? ''); ?>" required>
+                        value="<?php echo htmlspecialchars(string: $form_data['dropoff_location'] ?? ''); ?>" required>
                     <div class="autocomplete-dropdown" id="dropoff-dropdown"></div>
                 </div>
                 <input type="text" class="form-control custom-location" id="custom-dropoff-location"
                     name="custom_dropoff_location" placeholder="Custom Drop-Off Location"
-                    value="<?php echo htmlspecialchars($form_data['custom_dropoff_location'] ?? ''); ?>"
+                    value="<?php echo htmlspecialchars(string: $form_data['custom_dropoff_location'] ?? ''); ?>"
                     aria-describedby="dropoff-error">
                 <div id="dropoff-error" class="validation-message"></div>
             </div>
             <div class="form-group">
                 <label for="pickup-date"><i class="fas fa-calendar" aria-hidden="true"></i> Pickup Date</label>
                 <input type="date" class="form-control" id="pickup-date" name="pickup_date"
-                    value="<?php echo htmlspecialchars($form_data['pickup_date'] ?? ''); ?>" required
+                    value="<?php echo htmlspecialchars(string: $form_data['pickup_date'] ?? ''); ?>" required
                     aria-describedby="pickup-date-error">
                 <div id="pickup-date-error" class="validation-message"></div>
             </div>
             <div class="form-group">
                 <label for="dropoff-date"><i class="fas fa-calendar" aria-hidden="true"></i> Drop-Off Date</label>
                 <input type="date" class="form-control" id="dropoff-date" name="dropoff_date"
-                    value="<?php echo htmlspecialchars($form_data['dropoff_date'] ?? ''); ?>" required
+                    value="<?php echo htmlspecialchars(string: $form_data['dropoff_date'] ?? ''); ?>" required
                     aria-describedby="dropoff-date-error">
                 <div id="dropoff-date-error" class="validation-message"></div>
             </div>
             <div class="form-group">
                 <label for="pickup-time"><i class="fas fa-clock" aria-hidden="true"></i> Pickup Time</label>
                 <input type="time" class="form-control" id="pickup-time" name="pickup_time"
-                    value="<?php echo htmlspecialchars($form_data['pickup_time'] ?? ''); ?>" required
+                    value="<?php echo htmlspecialchars(string: $form_data['pickup_time'] ?? ''); ?>" required
                     aria-describedby="pickup-time-error">
                 <div id="pickup-time-error" class="validation-message"></div>
             </div>
             <div class="form-group">
                 <label for="special-request"><i class="fas fa-comment" aria-hidden="true"></i> Special Request</label>
                 <textarea class="form-control" id="special-request" name="Special_Request"
-                    placeholder="Special Request"><?php echo htmlspecialchars($form_data['Special_Request'] ?? ''); ?></textarea>
+                    placeholder="Special Request"><?php echo htmlspecialchars(string: $form_data['Special_Request'] ?? ''); ?></textarea>
             </div>
             <button class="btn-submit" type="submit" aria-label="Submit booking">Book Now</button>
         </form>
@@ -437,16 +413,16 @@ header(header: "Pragma: no-cache");
             <h3 id="confirmation-title">Confirm Your Booking</h3>
             <div class="booking-details" id="booking-details"></div>
             <div class="confirmation-buttons">
-                <form id="confirm-form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+                <form id="confirm-form" method="post" action="<?php echo htmlspecialchars(string: $_SERVER['PHP_SELF']); ?>">
                     <input type="hidden" name="action" value="confirm_booking">
                     <input type="hidden" name="csrf_token"
-                        value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                        value="<?php echo htmlspecialchars(string: $_SESSION['csrf_token']); ?>">
                     <button class="btn-confirm" type="submit" aria-label="Confirm booking">Confirm</button>
                 </form>
                 <form id="cancel-form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
                     <input type="hidden" name="action" value="cancel_booking">
                     <input type="hidden" name="csrf_token"
-                        value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                        value="<?php echo htmlspecialchars(string: $_SESSION['csrf_token']); ?>">
                     <button class="btn-cancel" type="submit" aria-label="Cancel booking">Cancel</button>
                 </form>
             </div>
@@ -469,13 +445,13 @@ header(header: "Pragma: no-cache");
         $seatCounts = [];
         foreach ($allVehicles as $v) {
             $type = $v['type'] ?? '';
-            if ($type && !in_array($type, $vehicleTypes))
+            if ($type && !in_array(needle: $type, haystack: $vehicleTypes))
                 $vehicleTypes[] = $type;
-            if (isset($v['seat_count']) && !in_array((int) $v['seat_count'], $seatCounts))
+            if (isset($v['seat_count']) && !in_array(needle: (int) $v['seat_count'], haystack: $seatCounts))
                 $seatCounts[] = (int) $v['seat_count'];
         }
-        sort($vehicleTypes);
-        sort($seatCounts);
+        sort(array: $vehicleTypes);
+        sort(array: $seatCounts);
 
         // Build capacity ranges for dropdown (allow overlap)
         $capacityRanges = ["1-4", "4-9", "4-12"];
@@ -488,7 +464,7 @@ header(header: "Pragma: no-cache");
             $filterApplied = true;
         }
         if ($selectedCapacity) {
-            if (preg_match('/^(\d+)-(\d+)$/', $selectedCapacity, $matches)) {
+            if (preg_match(pattern: '/^(\d+)-(\d+)$/', subject: $selectedCapacity, matches: $matches)) {
                 $min = (int) $matches[1];
                 $max = (int) $matches[2];
                 // Instead of adding to $query, filter after fetching
@@ -503,13 +479,13 @@ header(header: "Pragma: no-cache");
             if ($selectedType) {
                 $dbQuery['type'] = $selectedType;
             }
-            $vehiclesCursor = $vehiclesCollection->find($dbQuery);
+            $vehiclesCursor = $vehiclesCollection->find(filter: $dbQuery);
             $vehicles = [];
             foreach ($vehiclesCursor as $vehicle) {
                 if (isset($min) && isset($max) && isset($vehicle['seat_count'])) {
                     $seatCount = (int)$vehicle['seat_count'];
                     // For the largest range, only show vehicles with seat count == max
-                    if ($selectedCapacity === end($capacityRanges)) {
+                    if ($selectedCapacity === end(array: $capacityRanges)) {
                         if ($seatCount === $max) {
                             $vehicles[] = $vehicle;
                         }
@@ -588,42 +564,63 @@ header(header: "Pragma: no-cache");
     <h2 class="section-title">Available Vehicles</h2>
     <div class="vehicles-grid" id="vehiclesGrid">
         <?php
-        $vehicleCount = 0;
+        // Function to resolve the correct image path
+        function resolveVehiclePhotoPath($photoPath, $documentRoot): string {
+            // Default image
+            $defaultImage = '/img/default-vehicle.jpg';
+            
+            // If no photo path is provided, return default
+            if (empty($photoPath)) {
+                error_log(message: "No vehiclePhoto provided, using default image");
+                return $defaultImage;
+            }
+
+            // Handle absolute URLs (e.g., https://...)
+            if (preg_match(pattern: '/^https?:\/\//i', subject: $photoPath)) {
+                error_log(message: "Using absolute URL: {$photoPath}");
+                return htmlspecialchars($photoPath);
+            }
+
+            // Clean the stored path (remove leading slashes)
+            $cleanPath = ltrim(string: $photoPath, characters: '/');
+
+            // Try the original path first (e.g., uploads/veh_...)
+            $fullPath = $documentRoot . '/' . $cleanPath;
+            if (file_exists(filename: $fullPath)) {
+                error_log(message: "Found image at original path: {$fullPath}");
+                return '/' . htmlspecialchars($cleanPath);
+            }
+
+            // Fallback: Try prepending 'Admin panel/' (e.g., Admin panel/uploads/veh_...)
+            $adminPath = $documentRoot . '/Admin panel/' . $cleanPath;
+            if (file_exists(filename: $adminPath)) {
+                error_log(message: "Found image at admin path: {$adminPath}");
+                return '/Admin panel/' . htmlspecialchars(string: $cleanPath);
+            }
+
+            // If neither path exists, return default image
+            error_log(message: "Image not found at either path: {$fullPath} or {$adminPath}");
+            return $defaultImage;
+        }
+
+       $vehicleCount = 0;
         foreach ($vehicles as $vehicle):
             $vehicleCount++;
             $vehicleId = (string) ($vehicle['_id'] instanceof MongoDB\BSON\ObjectId ? $vehicle['_id'] : $vehicle['_id']);
             $ratingData = $vehicleRatings[$vehicleId] ?? ['avg' => 0, 'count' => 0];
-            $vehiclePhoto = '/ThisaraTravels/img/default-vehicle.png'; // Default image (absolute path)
-            if (!empty($vehicle['vehiclePhoto'])) {
-                $photoPath = $vehicle['vehiclePhoto'];
-                if (preg_match('/^https?:\/\//i', $photoPath)) {
-                    // Handle absolute URLs
-                    $vehiclePhoto = htmlspecialchars($photoPath);
-                    error_log("Using URL for vehicle {$vehicleId}: {$vehiclePhoto}");
-                } else {
-                    // Handle local paths (map uploads/ to Admin panel/uploads/)
-                    $cleanPath = ltrim(str_replace('uploads/', 'Admin panel/uploads/', $photoPath), '/');
-                    $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/ThisaraTravels/' . $cleanPath;
-                    if (file_exists($fullPath)) {
-                        $vehiclePhoto = '/ThisaraTravels/' . htmlspecialchars($cleanPath);
-                        error_log("Using local image for vehicle {$vehicleId}: {$vehiclePhoto}");
-                    } else {
-                        error_log("Image not found for vehicle {$vehicleId}: {$fullPath}");
-                    }
-                }
-            } else {
-                error_log("No vehiclePhoto set for vehicle {$vehicleId}");
-            }
+
+            // Resolve the vehicle photo path
+            $vehiclePhoto = resolveVehiclePhotoPath($vehicle['vehiclePhoto'] ?? '', $_SERVER['DOCUMENT_ROOT']);
             ?>
             <div class="vehicle-card" data-type="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? ''); ?>"
-                 data-capacity="<?php echo htmlspecialchars($vehicle['seat_count'] ?? ''); ?>" role="article"
-                 aria-label="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? ''); ?>">
+                data-capacity="<?php echo htmlspecialchars($vehicle['seat_count'] ?? ''); ?>" role="article"
+                aria-label="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? ''); ?>">
                 <div class="vehicle-image">
                     <img src="<?php echo $vehiclePhoto; ?>"
-                         alt="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? 'Vehicle'); ?>"
-                         style="max-width:100%;max-height:100%;object-fit:cover;"
-                         loading="lazy"
-                         onerror="this.src='/ThisaraTravels/img/default-vehicle.png'; console.error('Failed to load image: <?php echo addslashes($vehiclePhoto); ?> for vehicle <?php echo $vehicleId; ?>');">
+                        alt="<?php echo htmlspecialchars($vehicle['vehicle_name'] ?? 'Vehicle'); ?>"
+                        style="max-width:100%;max-height:100%;object-fit:cover;"
+                        loading="lazy"
+                        onerror="this.src='/img/default-vehicle.jpg'; console.error('Failed to load image: <?php echo addslashes($vehiclePhoto); ?> for vehicle <?php echo $vehicleId; ?>');">
                 </div>
                 <div class="vehicle-info">
                     <span class="vehicle-type">Type:
@@ -822,23 +819,23 @@ header(header: "Pragma: no-cache");
 
                 // Reset form but retain form_data if available
                 form.reset();
-                pickupInput.value = '<?php echo htmlspecialchars($form_data['pickup_location'] ?? ''); ?>';
-                dropoffInput.value = '<?php echo htmlspecialchars($form_data['dropoff_location'] ?? ''); ?>';
-                pickupHidden.value = '<?php echo htmlspecialchars($form_data['pickup_location'] ?? ''); ?>';
-                dropoffHidden.value = '<?php echo htmlspecialchars($form_data['dropoff_location'] ?? ''); ?>';
+                pickupInput.value = '<?php echo htmlspecialchars(string: $form_data['pickup_location'] ?? ''); ?>';
+                dropoffInput.value = '<?php echo htmlspecialchars(string: $form_data['dropoff_location'] ?? ''); ?>';
+                pickupHidden.value = '<?php echo htmlspecialchars(string: $form_data['pickup_location'] ?? ''); ?>';
+                dropoffHidden.value = '<?php echo htmlspecialchars(string: $form_data['dropoff_location'] ?? ''); ?>';
                 customPickup.style.display = pickupHidden.value === 'Other' ? 'block' : 'none';
-                customPickup.value = '<?php echo htmlspecialchars($form_data['custom_pickup_location'] ?? ''); ?>';
+                customPickup.value = '<?php echo htmlspecialchars(string: $form_data['custom_pickup_location'] ?? ''); ?>';
                 customDropoff.style.display = dropoffHidden.value === 'Other' ? 'block' : 'none';
-                customDropoff.value = '<?php echo htmlspecialchars($form_data['custom_dropoff_location'] ?? ''); ?>';
+                customDropoff.value = '<?php echo htmlspecialchars(string: $form_data['custom_dropoff_location'] ?? ''); ?>';
 
                 // Pre-fill other fields
-                document.getElementById('name').value = '<?php echo htmlspecialchars($form_data['name'] ?? ''); ?>';
-                document.getElementById('phone').value = '<?php echo htmlspecialchars($form_data['phone'] ?? ''); ?>';
-                document.getElementById('pickup-date').value = '<?php echo htmlspecialchars($form_data['pickup_date'] ?? ''); ?>';
-                document.getElementById('dropoff-date').value = '<?php echo htmlspecialchars($form_data['dropoff_date'] ?? ''); ?>';
-                document.getElementById('pickup-time').value = '<?php echo htmlspecialchars($form_data['pickup_time'] ?? ''); ?>';
-                document.getElementById('special-request').value = '<?php echo htmlspecialchars($form_data['Special_Request'] ?? ''); ?>';
-                vehicleIdInput.value = '<?php echo htmlspecialchars($form_data['vehicle_id'] ?? ''); ?>' || vehicleId;
+                document.getElementById('name').value = '<?php echo htmlspecialchars(string: $form_data['name'] ?? ''); ?>';
+                document.getElementById('phone').value = '<?php echo htmlspecialchars(string: $form_data['phone'] ?? ''); ?>';
+                document.getElementById('pickup-date').value = '<?php echo htmlspecialchars(string: $form_data['pickup_date'] ?? ''); ?>';
+                document.getElementById('dropoff-date').value = '<?php echo htmlspecialchars(string: $form_data['dropoff_date'] ?? ''); ?>';
+                document.getElementById('pickup-time').value = '<?php echo htmlspecialchars(string: $form_data['pickup_time'] ?? ''); ?>';
+                document.getElementById('special-request').value = '<?php echo htmlspecialchars(string: $form_data['Special_Request'] ?? ''); ?>';
+                vehicleIdInput.value = '<?php echo htmlspecialchars(string: $form_data['vehicle_id'] ?? ''); ?>' || vehicleId;
 
                 // Pre-fill dates from filter
                 const startDate = document.getElementById('startDate')?.value;
