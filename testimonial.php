@@ -18,15 +18,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['userId'], $_POST['ord
         $vehicleType = htmlspecialchars(string: $_POST['vehicleType']);
         $vehicleName = htmlspecialchars(string: $_POST['vehicleName']);
 
-        // Validate booking exists and belongs to user
+        // Validate booking exists, belongs to user, and has no review
         $booking = $bookingsCollection->findOne(filter: [
             '_id' => new MongoDB\BSON\ObjectId($orderId),
-            'user_id' => new MongoDB\BSON\ObjectId($userId),
-            'status' => 'pending'
+            'user_id' => new MongoDB\BSON\ObjectId($userId)
         ]);
 
         if (!$booking) {
             $_SESSION['review_error'] = "Invalid or non-existent booking.";
+            header(header: "Location: testimonial.php");
+            exit();
+        }
+
+        // Check if review already exists for this booking
+        $existingReview = $reviewsCollection->findOne(filter: [
+            'orderId' => new MongoDB\BSON\ObjectId($orderId)
+        ]);
+
+        if ($existingReview) {
+            $_SESSION['review_error'] = "A review already exists for this booking.";
             header(header: "Location: testimonial.php");
             exit();
         }
@@ -44,11 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['userId'], $_POST['ord
         $result = $reviewsCollection->insertOne($reviewData);
 
         if ($result->getInsertedCount() > 0) {
-            // Update booking status to indicate review submitted
-            $bookingsCollection->updateOne(
-                ['_id' => new MongoDB\BSON\ObjectId($orderId)],
-                ['$set' => ['status' => 'reviewed']]
-            );
             $_SESSION['review_success'] = "Review submitted successfully!";
         } else {
             $_SESSION['review_error'] = "Failed to submit review.";
@@ -366,111 +371,101 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
 
     <!-- Post Review -->
     <?php if (isset($_SESSION['username'])): ?>
-        <div class="container my-5 floating-element">
-            <div class="review-form-container">
-                <h4>Leave a Review</h4>
-                <form action="" method="POST" class="p-4">
-                    <input type="hidden" name="userId" value="<?= $_SESSION['user_id'] ?>">
-                    <input type="hidden" name="vehicleType" id="vehicleType">
-                    <input type="hidden" name="vehicleName" id="vehicleName">
-                    <div class="mb-3">
-                        <label for="orderId" class="form-label">Booking</label>
-                        <select name="orderId" id="orderId" class="form-select floating-element-fast" required
+    <div class="container my-5 floating-element">
+        <div class="review-form-container">
+            <h4>Leave a Review</h4>
+            <form action="" method="POST" class="p-4">
+                <input type="hidden" name="userId" value="<?= $_SESSION['user_id'] ?>">
+                <input type="hidden" name="vehicleType" id="vehicleType">
+                <input type="hidden" name="vehicleName" id="vehicleName">
+                <div class="mb-3">
+                    <label for="orderId" class="form-label">Booking</label>
+                    <select name="orderId" id="orderId" class="form-select floating-element-fast" required
                             onchange="fillVehicleDetails(this)">
-                            <?php
-                            try {
-                                // Get current user
-                                $currentUser = $usersCollection->findOne(filter: ['UserName' => $_SESSION['username']]);
-                                if (!$currentUser) {
-                                    throw new Exception(message: "User not found");
-                                }
-                                $userId = $currentUser['_id'];
-                                // Get user's pending bookings that have a vehicle_id
-                                $userBookings = $bookingsCollection->find(
-                                    filter: [
-                                        'user_id' => $userId,
-                                        'status' => 'pending',
-                                        'vehicle_id' => ['$exists' => true, '$ne' => null]
-                                    ]
-                                )->toArray();
-                                if (empty($userBookings)) {
-                                    echo '<option value="" disabled selected>No pending bookings available</option>';
-                                } else {
-                                    echo '<option value="" disabled selected>Select your booking</option>';
-                                    foreach ($userBookings as $booking) {
-                                        // Get vehicle details from vehicles collection
-                                        $vehicle = $vehiclesCollection->findOne(filter: ['_id' => $booking['vehicle_id']]);
-                                        $vehicleDetails = $vehicle ? "{$vehicle['type']} - {$vehicle['vehicle_name']}" : 'Unknown Vehicle';
-                                        // Format date range
-                                        $dateRange = htmlspecialchars(string: $booking['pickup_date'] ?? '') . ' - ' .
-                                            htmlspecialchars(string: $booking['dropoff_date'] ?? '');
-                                        echo sprintf(
-                                            '<option value="%s" data-vehicle="%s" data-dates="%s">%s</option>',
-                                            (string) $booking['_id'],
-                                            htmlspecialchars(string: $vehicleDetails),
-                                            htmlspecialchars(string: $dateRange),
-                                            $dateRange
-                                        );
-                                    }
-                                }
-                            } catch (Exception $e) {
-                                echo '<option value="" disabled selected>Error loading bookings</option>';
+                        <?php
+                        try {
+                            // Get current user
+                            $currentUser = $usersCollection->findOne(filter: ['UserName' => $_SESSION['username']]);
+                            if (!$currentUser) {
+                                throw new Exception(message: "User not found");
                             }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="vehicleDisplay" class="form-label">Vehicle</label>
-                        <input type="text" id="vehicleDisplay" class="form-control floating-element-fast" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Booking Dates</label>
-                        <input type="text" id="dateRange" class="form-control floating-element-fast" readonly>
-                    </div>
-                    <div class="mb-3 text-center">
-                        <label class="form-label d-block">Rating</label>
-                        <div class="rating">
-                            <?php for ($i = 5; $i >= 1; $i--): ?>
-                                <input type="radio" name="rating" id="star<?= $i ?>" value="<?= $i ?>" required>
-                                <label for="star<?= $i ?>" class="floating-element-fast">★</label>
-                            <?php endfor; ?>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="comment" class="form-label">Comment</label>
-                        <div class="position-relative">
-                            <textarea name="comment" id="comment" rows="4" class="form-control floating-element-fast"
-                                required placeholder="Speak or type your review..."></textarea>
-                            <button type="button" onclick="startVoiceInput()"
-                                class="btn btn-sm position-absolute floating-element-fast"
-                                style="right: 5px; bottom: 5px; background: transparent; border: none; font-size: 1.2rem;">
-                                🎤
-                            </button>
-                        </div>
-                        <p id="voiceStatus" class="small text-muted mt-1"></p>
-                    </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-success px-4 floating-element-fast" <?= empty($userBookings) ? 'disabled' : '' ?>>Submit Review</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    <?php else: ?>
-        <div class="container d-flex justify-content-center my-5 floating-element">
-            <div class="card shadow-lg border-0 floating-element-wide"
-                style="background: linear-gradient(90deg, #0d4f4b 0%, #128377 100%); color: #fff; border-radius: 18px; max-width: 400px;">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-user-lock fa-2x floating-element-slow" style="color:#e8f5f1;"></i>
-                    </div>
-                    <h5 class="card-title mb-2">Post a Review</h5>
-                    <p class="card-text mb-3">Please <a href="auth.php"
-                            style="color:#ffe082; text-decoration:underline;">login</a> to leave a review.</p>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
+                            $userId = $currentUser['_id'];
+                            // Get user's bookings that have a vehicle_id and no review
+                            $userBookings = $bookingsCollection->find(
+                                filter: [
+                                    'user_id' => $userId,
+                                    'vehicle_id' => ['$exists' => true, '$ne' => null]
+                                ]
+                            )->toArray();
 
+                            // Filter out bookings that already have reviews
+                            $unreviewedBookings = array_filter($userBookings, function($booking) use ($reviewsCollection) {
+                                return !$reviewsCollection->findOne(filter: ['orderId' => $booking['_id']]);
+                            });
+
+                            if (empty($unreviewedBookings)) {
+                                echo '<option value="" disabled selected>No unreviewed bookings available</option>';
+                            } else {
+                                echo '<option value="" disabled selected>Select your booking</option>';
+                                foreach ($unreviewedBookings as $booking) {
+                                    // Get vehicle details from vehicles collection
+                                    $vehicle = $vehiclesCollection->findOne(filter: ['_id' => $booking['vehicle_id']]);
+                                    $vehicleDetails = $vehicle ? "{$vehicle['type']} - {$vehicle['vehicle_name']}" : 'Unknown Vehicle';
+                                    // Format date range
+                                    $dateRange = htmlspecialchars(string: $booking['pickup_date'] ?? '') . ' - ' .
+                                        htmlspecialchars(string: $booking['dropoff_date'] ?? '');
+                                    echo sprintf(
+                                        '<option value="%s" data-vehicle="%s" data-dates="%s">%s</option>',
+                                        (string) $booking['_id'],
+                                        htmlspecialchars(string: $vehicleDetails),
+                                        htmlspecialchars(string: $dateRange),
+                                        $dateRange
+                                    );
+                                }
+                            }
+                        } catch (Exception $e) {
+                            echo '<option value="" disabled selected>Error loading bookings</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="vehicleDisplay" class="form-label">Vehicle</label>
+                    <input type="text" id="vehicleDisplay" class="form-control floating-element-fast" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Booking Dates</label>
+                    <input type="text" id="dateRange" class="form-control floating-element-fast" readonly>
+                </div>
+                <div class="mb-3 text-center">
+                    <label class="form-label d-block">Rating</label>
+                    <div class="rating">
+                        <?php for ($i = 5; $i >= 1; $i--): ?>
+                            <input type="radio" name="rating" id="star<?= $i ?>" value="<?= $i ?>" required>
+                            <label for="star<?= $i ?>" class="floating-element-fast">★</label>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="comment" class="form-label">Comment</label>
+                    <div class="position-relative">
+                        <textarea name="comment" id="comment" rows="4" class="form-control floating-element-fast"
+                            required placeholder="Speak or type your review..."></textarea>
+                        <button type="button" onclick="startVoiceInput()"
+                            class="btn btn-sm position-absolute floating-element-fast"
+                            style="right: 5px; bottom: 5px; background: transparent; border: none; font-size: 1.2rem;">
+                            🎤
+                        </button>
+                    </div>
+                    <p id="voiceStatus" class="small text-muted mt-1"></p>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success px-4 floating-element-fast" <?= empty($unreviewedBookings) ? 'disabled' : '' ?>>Submit Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
     <?php include 'components/footer.php'; ?>
 
     <!-- VOICE-TO-TEXT functionality-->

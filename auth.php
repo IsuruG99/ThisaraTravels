@@ -51,7 +51,7 @@ if (empty($_SESSION['csrf_token'])) {
               <p class="error-message"><?php echo $_SESSION['error_login_password']; ?></p>
               <?php unset($_SESSION['error_login_password']); endif; ?>
           </div>
-          <input type="submit" value="Log In" class="btn solid">
+          <input type="submit" value="Log In" class="btn solid btn-form">
           <a href="auth-forgot-pw.php" class="forgot-password">Forgot Password?</a>
           <p class="social-text">Or Sign in with social platforms</p>
           <div class="social-media">
@@ -92,7 +92,7 @@ if (empty($_SESSION['csrf_token'])) {
               <p class="error-message"><?php echo $_SESSION['error_password']; ?></p>
               <?php unset($_SESSION['error_password']); endif; ?>
           </div>
-          <input type="submit" value="Sign Up" class="btn solid">
+          <input type="submit" value="Sign Up" class="btn solid btn-form">
           <p class="social-text">Or Sign up with social platforms</p>
           <div class="social-media">
             <a href="auth-google-start.php" class="social-icon">

@@ -40,13 +40,15 @@
 .container::before {
     content: "";
     position: absolute;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(-45deg, #0ef, #4481ed);
-    top: 0;
-    left: 0;
-    border-radius: 0;
+    width: 2000px;
+      height: 2000px;
+    background: linear-gradient(-45deg, #123524 0%, #11814b 100%);
+    top: 0%;
+    right: 48%;
+    transform: translateY(-50%);
     z-index: 6;
+    transition: 1.8s ease-in-out;
+    border-radius: 50%;
 }
 
 .forms-container {
@@ -66,6 +68,7 @@
     display: grid;
     grid-template-columns: 1fr;
     z-index: 5;
+    transition: 1s 0.7s ease-in-out;
 }
 
 form {
@@ -77,6 +80,7 @@ form {
     overflow: hidden;
     grid-column: 1 / 2;
     grid-row: 1 / 2;
+    transition: 0.2s 0.7s ease-in-out;
 }
 
 form.sign-in-form {
@@ -139,15 +143,24 @@ form.sign-up-form {
     border-radius: 49px;
     cursor: pointer;
     background-color: #FBDC5C;
-    color: #000;
+    color: #fff;
     text-transform: uppercase;
     font-weight: 600;
     margin: 10px 0;
+    border-color: #20DF0A;
+}
+
+.btn-form {
+    color: #000;
 }
 
 .btn:hover {
-    background-color: #20DF0A;
-    color: #fff;
+    color: #20DF0A;
+}
+
+.btn-form:hover {
+    color: #000000;
+    background-color: #5cfb71;
 }
 
 .social-text {
@@ -210,6 +223,7 @@ form.sign-up-form {
 
 .panel .content {
     color: #fff;
+    transition: 0.9s 0.6s ease-in-out;
 }
 
 .panel h3 {
@@ -240,11 +254,17 @@ form.sign-up-form {
 .right-panel .content,
 .right-panel .img {
     transform: translateX(800px);
+    transition: 0.9s 0.6s ease-in-out;
+}
+
+.left-panel .content,
+.left-panel .img {
+    transition: 0.9s 0.6s ease-in-out;
 }
 
 .container.sign-up-mode::before {
-    left: auto;
-    right: 0;
+    transform: translate(100%, -50%);
+    right: 52%;
 }
 
 .container.sign-up-mode .left-panel .img,
@@ -278,3 +298,4 @@ form.sign-up-form {
     z-index: 2;
     opacity: 1;
 }
+
