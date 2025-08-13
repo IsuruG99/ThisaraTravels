@@ -79,6 +79,7 @@
             // Handle form submission
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $vehicleName = trim($_POST['vehicle_name'] ?? '');
+                $vehicleType = $_POST['vehicle_type'] ?? '';
                 $seatCount = trim($_POST['seat_count'] ?? '');
                 $acNac = $_POST['ac_nac'] ?? '';
                 $featuresArr = $_POST['features'] ?? [];
@@ -90,6 +91,10 @@
                 if (empty($vehicleName)) {
                     $errors[] = "Vehicle name is required";
                 }
+
+                    if (empty($vehicleType)) {
+                $errors[] = "Vehicle type is required";
+                 }
                 
                 if (empty($seatCount) || !is_numeric($seatCount) || $seatCount < 1) {
                     $errors[] = "Valid seat count is required";
@@ -128,6 +133,7 @@
                 if (empty($errors)) {
                     $vehicle = [
                         'vehicle_name' => $vehicleName,
+                        'type' => $vehicleType,
                         'seat_count' => (int)$seatCount,
                         'ac_nac' => $acNac,
                         'features' => $features,
@@ -163,6 +169,16 @@
                         <input type="text" id="vehicle_name" name="vehicle_name" class="form-control" 
                                value="<?php echo htmlspecialchars($_POST['vehicle_name'] ?? ''); ?>" required>
                     </div>
+
+                            <div class="form-group">
+            <label for="vehicle_type" class="form-label">Vehicle Type *</label>
+            <select id="vehicle_type" name="vehicle_type" class="form-control" required>
+                <option value="">Select Type</option>
+                <option value="van" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] === 'van') ? 'selected' : ''; ?>>Van</option>
+                <option value="car" <?php echo (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] === 'car') ? 'selected' : ''; ?>>Car</option>
+                
+            </select>
+        </div>
 
                     <div class="form-group">
                         <label for="seat_count" class="form-label">Number of Seats *</label>
