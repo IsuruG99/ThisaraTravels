@@ -223,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
     <?php if (isset($_SESSION['report_success'])): ?>
         <div class="container mt-3 floating-element">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                Thank you for reporting this review. We'll investigate it shortly.
+                Thank you for Helping us keep a good environment. We'll investigate it shortly.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         </div>
@@ -295,7 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
         </div>
     <?php endif; ?>
 
-    <!-- Testimonials Section -->
+    <!-- Review Section -->
     <div class="container">
         <div class="row justify-content-center">
             <?php foreach ($documents as $doc) {
@@ -363,6 +363,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                     <h5 class="modal-title" id="reportModalLabel">Report Review</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+               <!-- Report Form -->
                 <form method="POST" action="">
                     <div class="modal-body">
                         <input type="hidden" name="report_review_id" id="report_review_id">
@@ -383,6 +384,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                                 id="report_details" rows="3"></textarea>
                         </div>
                     </div>
+                    <!-- report button -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary floating-element-fast"
                             data-bs-dismiss="modal">Cancel</button>
@@ -514,7 +516,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
         function startVoiceInput() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                document.getElementById("voiceStatus").innerText = "Voice input not supported in your browser";
+                document.getElementById("voiceStatus").innerText = "Voice input not supported in your browser please try a different Web browser ";
                 return;
             }
             const recognition = new SpeechRecognition();
