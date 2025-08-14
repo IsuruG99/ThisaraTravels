@@ -4,13 +4,15 @@ require 'auth-config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+$db = getMongoDB();
+$reviewsCollection = getReviewsCollection();
+$bookingsCollection = getBookingsCollection();
+$usersCollection = getUsersCollection();
+$vehiclesCollection = getVehiclesCollection();
+
 // Handle review submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['userId'], $_POST['orderId'], $_POST['rating'], $_POST['comment'])) {
     try {
-        $db = getMongoDB();
-        $reviewsCollection = getReviewsCollection();
-        $bookingsCollection = getBookingsCollection();
-
         $userId = $_POST['userId'];
         $orderId = $_POST['orderId'];
         $rating = (int) $_POST['rating'];
@@ -22,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['userId'], $_POST['ord
         $booking = $bookingsCollection->findOne(filter: [
             '_id' => new MongoDB\BSON\ObjectId($orderId),
             'user_id' => new MongoDB\BSON\ObjectId($userId),
-            'status' => 'Completed'
+            'status' => ['$in' => ['Completed', 'completed']]
         ]);
 
         if (!$booking) {
@@ -67,22 +69,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['userId'], $_POST['ord
 }
 
 try {
-    $db = getMongoDB();
-    $reviewsCollection = getReviewsCollection();
-    $usersCollection = getUsersCollection();
-    $bookingsCollection = getBookingsCollection();
-    $vehiclesCollection = getVehiclesCollection();
+    // Build the aggregation pipeline
+    $pipeline = [
+        [
+            '$match' => [
+                'vehicleId' => ['$exists' => true, '$ne' => null],
+                // Apply starCount filter if provided
+                ...( !empty($_GET['stars']) ? ['starCount' => (string) $_GET['stars']] : [])
+            ]
+        ],
+        [
+            '$lookup' => [
+                'from' => 'vehicles', // Ensure this matches your vehicles collection name
+                'localField' => 'vehicleId',
+                'foreignField' => '_id',
+                'as' => 'vehicleData'
+            ]
+        ],
+        [
+            '$unwind' => [
+                'path' => '$vehicleData',
+                'preserveNullAndEmptyArrays' => true // Keep reviews even if vehicleId doesn't match
+            ]
+        ]
+    ];
 
+    // Apply vehicleType filter if provided
     if (!empty($_GET['vehicle'])) {
-        $filter['vehicleType'] = $_GET['vehicle'];
-    }
-    if (!empty($_GET['stars'])) {
-        $filter['starCount'] = (string) $_GET['stars'];
+        $pipeline[] = [
+            '$match' => [
+                'vehicleData.type' => ['$in' => [$_GET['vehicle']]]
+            ]
+        ];
     }
 
-    $documents = $reviewsCollection->find(filter: ['vehicleId' => ['$exists' => true]])->toArray();
+    // Execute the aggregation pipeline
+    $documents = $reviewsCollection->aggregate($pipeline)->toArray();
+
     $totalRating = 0;
-    $starCount = count(value: $documents);
+    $starCount = count($documents);
 
     // Prepare user data
     $userData = [];
@@ -99,7 +124,7 @@ try {
             }
         }
     }
-    $avgRating = $starCount ? round(num: $totalRating / $starCount, precision: 1) : 0;
+    $avgRating = $starCount ? round($totalRating / $starCount, 1) : 0;
 } catch (Exception $e) {
     die("Database connection failed: " . $e->getMessage());
 }
@@ -229,10 +254,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                 <label for="vehicle">Filter by Vehicle Type:</label>
                 <select name="vehicle" id="vehicle" class="form-select d-inline-block w-auto mx-2">
                     <option value="">All</option>
-                    <option value="Car" <?= (isset($_GET['vehicle']) && $_GET['vehicle'] == 'Car') ? 'selected' : '' ?>>Car
+                    <option value="car" <?= (isset($_GET['vehicle']) && $_GET['vehicle'] == 'car') ? 'selected' : '' ?>>Car
                     </option>
-                    <option value="KDH Van" <?= (isset($_GET['vehicle']) && $_GET['vehicle'] == 'KDH Van') ? 'selected' : '' ?>>KDH Van</option>
-                    <option value="Dolphin" <?= (isset($_GET['vehicle']) && $_GET['vehicle'] == 'Dolphin') ? 'selected' : '' ?>>Dolphin</option>
+                    <option value="van" <?= (isset($_GET['vehicle']) && $_GET['vehicle'] == 'van') ? 'selected' : '' ?>>Van</option>
                 </select>
 
                 <label for="stars" class="ms-3">Filter by Rating:</label>
@@ -391,11 +415,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
                                 throw new Exception(message: "User not found");
                             }
                             $userId = $currentUser['_id'];
-                            // Get user's bookings that have a vehicle_id and no review
+                            // Get user's bookings that have a vehicle_id and no review, and completed status
                             $userBookings = $bookingsCollection->find(
                                 filter: [
                                     'user_id' => $userId,
-                                    'vehicle_id' => ['$exists' => true, '$ne' => null]
+                                    'vehicle_id' => ['$exists' => true, '$ne' => null],
+                                    'status' => ['$in' => ['Completed', 'completed']]
                                 ]
                             )->toArray();
 
@@ -466,7 +491,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['report_review'])) {
             </form>
         </div>
     </div>
-<?php endif; ?>
+    <?php else: ?>
+    <div class="container d-flex justify-content-center my-5">
+        <div class="card shadow-lg border-0"
+                style="background: linear-gradient(90deg, #0d4f4b 0%, #128377 100%); color: #fff; border-radius: 18px; max-width: 400px;">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-lock fa-2x" style="color:#e8f5f1;"></i>
+                    </div>
+                    <h5 class="card-title mb-2">Post a Review</h5>
+                    <p class="card-text mb-3">Please <a href="auth.php"
+                            style="color:#ffe082; text-decoration:underline;">login</a> to leave a review.</p>
+                </div>
+            </div>
+    </div>
+    <?php endif; ?>
     <?php include 'components/footer.php'; ?>
 
     <!-- VOICE-TO-TEXT functionality-->
