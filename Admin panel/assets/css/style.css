@@ -1049,6 +1049,15 @@ body {
     background-color: rgba(255, 193, 7, 0.15) !important;
 }
 
+.completed-row {
+    background-color: rgba(111, 66, 193, 0.1) !important;
+    border-left: 3px solid #6f42c1;
+}
+
+.completed-row:hover {
+    background-color: rgba(111, 66, 193, 0.15) !important;
+}
+
 .conflict-badge {
     display: inline-flex;
     align-items: center;
@@ -1104,6 +1113,11 @@ body {
 
 .status-reviewed {
     background-color: #28a745;
+    color: #ffffff;
+}
+
+.status-completed {
+    background-color: #6f42c1;
     color: #ffffff;
 }
 

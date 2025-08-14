@@ -243,11 +243,11 @@ function autoDenyConflictingBookings($vehicle_id, $pickupDate, $dropoffDate, $ac
     ];
 }
 
-// Handle Accept/Deny/Pending actions
+// Handle Accept/Deny/Pending/Complete actions
 if (isset($_GET['action'], $_GET['id'])) {
     $action = $_GET['action'];
     $bookingId = $_GET['id'];
-    $newStatus = ($action === 'accept') ? 'accepted' : (($action === 'deny') ? 'denied' : (($action === 'pending') ? 'pending' : null));
+    $newStatus = ($action === 'accept') ? 'accepted' : (($action === 'deny') ? 'denied' : (($action === 'pending') ? 'pending' : (($action === 'complete') ? 'completed' : null)));
 
     if ($newStatus) {
         // If accepting a booking, check for conflicts and auto-deny them
@@ -446,7 +446,7 @@ foreach ($bookingsCursor as $booking) {
                             </tr>
                         <?php else: ?>
                             <?php foreach ($bookings as $booking): ?>
-                                <tr class="<?php echo $booking['has_conflicts'] ? 'conflict-row' : ''; ?>">
+                                <tr class="<?php echo $booking['has_conflicts'] ? 'conflict-row' : ''; ?> <?php echo ($booking['status'] === 'completed') ? 'completed-row' : ''; ?>">
                                     <td><?php echo htmlspecialchars(string: (string) ($booking['_id'] ?? '')); ?></td>
                                     <td><?php echo htmlspecialchars(string: $booking['name'] ?? ''); ?></td>
                                     <td><?php echo htmlspecialchars(string: $booking['phone'] ?? ''); ?></td>
@@ -536,6 +536,10 @@ foreach ($bookingsCursor as $booking) {
                                                     class="btn btn-warning btn-sm" onclick="return confirm('Change status to Denied?')">
                                                     <i class="fas fa-times"></i> Change to Denied
                                                 </a>
+                                                <a href="?action=complete&id=<?php echo $booking['_id']; ?>"
+                                                    class="btn btn-success btn-sm" onclick="return confirm('Mark this booking as completed? This will close the booking permanently.')">
+                                                    <i class="fas fa-check-double"></i> Complete
+                                                </a>
                                             <?php elseif ($status === 'denied'): ?>
                                                 <a href="?action=accept&id=<?php echo $booking['_id']; ?>"
                                                     class="btn btn-success btn-sm" onclick="return confirm('Change status to Accepted? This will automatically deny any conflicting bookings.')">
@@ -545,6 +549,8 @@ foreach ($bookingsCursor as $booking) {
                                                     class="btn btn-warning btn-sm" onclick="return confirm('Change status to Pending?')">
                                                     <i class="fas fa-undo"></i> Change to Pending
                                                 </a>
+                                            <?php elseif ($status === 'completed'): ?>
+                                                <!-- No action buttons for completed bookings, only view button is shown -->
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -569,6 +575,7 @@ foreach ($bookingsCursor as $booking) {
                 <a href="#" id="pendingBtn" class="btn btn-warning"><i class="fas fa-undo"></i> Change to Pending</a>
                 <a href="#" id="acceptBtn" class="btn btn-success">Accept</a>
                 <a href="#" id="denyBtn" class="btn btn-danger">Deny</a>
+                <a href="#" id="completeBtn" class="btn btn-success" style="display: none;"><i class="fas fa-check-double"></i> Complete</a>
             </div>
         </div>
     </div>
@@ -691,6 +698,7 @@ foreach ($bookingsCursor as $booking) {
                     document.getElementById('pendingBtn').style.display = 'inline-block';
                     document.getElementById('acceptBtn').style.display = 'none';
                     document.getElementById('denyBtn').style.display = 'inline-block';
+                    document.getElementById('completeBtn').style.display = 'inline-block';
                     
                     document.getElementById('pendingBtn').href = `?action=pending&id=${bookingId}`;
                     document.getElementById('pendingBtn').className = 'btn btn-warning';
@@ -699,6 +707,10 @@ foreach ($bookingsCursor as $booking) {
                     document.getElementById('denyBtn').href = `?action=deny&id=${bookingId}`;
                     document.getElementById('denyBtn').className = 'btn btn-warning';
                     document.getElementById('denyBtn').innerHTML = '<i class="fas fa-times"></i> Change to Denied';
+                    
+                    document.getElementById('completeBtn').href = `?action=complete&id=${bookingId}`;
+                    document.getElementById('completeBtn').className = 'btn btn-success';
+                    document.getElementById('completeBtn').innerHTML = '<i class="fas fa-check-double"></i> Complete';
                 } else if (currentStatus === 'denied') {
                     document.getElementById('pendingBtn').style.display = 'inline-block';
                     document.getElementById('acceptBtn').style.display = 'inline-block';
@@ -711,6 +723,12 @@ foreach ($bookingsCursor as $booking) {
                     document.getElementById('acceptBtn').href = `?action=accept&id=${bookingId}`;
                     document.getElementById('acceptBtn').className = 'btn btn-success';
                     document.getElementById('acceptBtn').innerHTML = '<i class="fas fa-check"></i> Change to Accepted';
+                } else if (currentStatus === 'completed') {
+                    // Hide all action buttons for completed bookings
+                    document.getElementById('pendingBtn').style.display = 'none';
+                    document.getElementById('acceptBtn').style.display = 'none';
+                    document.getElementById('denyBtn').style.display = 'none';
+                    document.getElementById('completeBtn').style.display = 'none';
                 }
 
                 document.getElementById('bookingModal').style.display = 'block';
